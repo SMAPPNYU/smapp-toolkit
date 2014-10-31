@@ -1,3 +1,4 @@
+import re
 import copy
 from pymongo import MongoClient
 
@@ -39,10 +40,10 @@ class MongoTweetCollection:
 
         will return tweets containing either 'penguins' or 'antarctica'.
         """
-        search = terms[0]
+        search = re.escape(terms[0])
         if len(terms) > 1:
             for term in terms[1:]:
-                search += '|' + term
+                search += '|' + re.escape(term)
         return self._copy_with_added_query({'text': {'$regex': '.*{}.*'.format(search)}})
 
     def since(self, since):

@@ -27,8 +27,20 @@ class MongoTweetCollection:
         ret._queries.append(query)
         return ret
 
-    def mentioning(self, term):
-        return self._copy_with_added_query({'text': {'$regex': '.*{}.*'.format(term)}})
+    def containing(self, *terms):
+        """
+        Only find tweets containing certain terms.
+        Terms are OR'd, so that
+
+        collection.containing('penguins', 'antarctica')
+
+        will return tweets containing either 'penguins' or 'antarctica'.
+        """
+        search = terms[0]
+        if len(terms) > 1:
+            for term in terms[1:]:
+                search += '|' + term
+        return self._copy_with_added_query({'text': {'$regex': '.*{}.*'.format(search)}})
 
     def since(self, since):
         return self._copy_with_added_query({'timestamp': {'$gt': since}})
@@ -43,7 +55,7 @@ class MongoTweetCollection:
         return [tweet['text'] for tweet in self]
 
     def _merge(self, a, b, path=None):
-        "merges b into a"
+        "M dictionaries of dictionaries"
         if path is None: path = []
         for key in b:
             if key in a:
@@ -59,10 +71,7 @@ class MongoTweetCollection:
 
 
     def _query(self):
-        q = dict()
-        for query in self._queries:
-            q = self._merge(q, query)
-        return q
+        return reduce(self._merge, self._queries, {})
 
     def __iter__(self):
         return self._mongo_collection.find(self._query())

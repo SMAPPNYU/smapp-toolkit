@@ -106,7 +106,7 @@ class MongoTweetCollection:
         return [tweet['text'] for tweet in self]
 
     def _merge(self, a, b, path=None):
-        "M dictionaries of dictionaries"
+        "Merge dictionaries of dictionaries"
         if path is None: path = []
         for key in b:
             if key in a:

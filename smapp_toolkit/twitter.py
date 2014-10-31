@@ -47,10 +47,23 @@ class MongoTweetCollection:
         return self._copy_with_added_query({'text': {'$regex': '.*{}.*'.format(search)}})
 
     def since(self, since):
+        """
+        Only find tweets authored after a certain time. If no timezone is specified, UTC is assumed.
+        Takes datetime.datetime object
+
+        Example:
+        ########
+        from datetime import datetime
+
+        collection.since(datetime(2014,10,1))
+        """
         return self._copy_with_added_query({'timestamp': {'$gt': since}})
 
     def until(self, until):
         return self._copy_with_added_query({'timestamp': {'$lt': until}})
+
+    def language(self, lang):
+        return self._copy_with_added_query({'lang': lang})
 
     def count(self):
         return self._mongo_collection.find(self._query()).count()

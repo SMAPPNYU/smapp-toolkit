@@ -23,22 +23,18 @@ Or locally
 
 #### Count occurences of keywords
 
-    collection.mentioning('#bieber').count()
-    texts = collection.mentioning('#bieber').texts()
+    collection.containing('#bieber').count()
+    texts = collection.containing('#bieber').texts()
+
+#### Tweets containing one of several keywords (#bieber OR #sexy)
+
+    collection.containing('#bieber', '#sexy')
 
 #### Select tweets from a certain time span
 
-    collection.since('2014-1-30').until('2014-2-17').count()
-    collection.since('2014-2-16').until('2014-2-19').mentioning('obama').texts()
+    collection.since(datetime(2014,1,30)).until(datetime(2014,2,17)).count()
+    collection.since(datetime(2014,2,16)).until(datetime(2014,2,19)).containing('obama').texts()
 
-#### Find the 5 most retweeted tweets
+#### Select tweets authored in a certain language
 
-    collection.top_retweeted_tweets(5).texts()
-
-#### Find the 5% most retweeted users
-
-    collection.top_retweeted_users(0.05)
-
-#### Visualize the tweet volume
-
-    collection.since('2014-10-1').plot_tpm()
+    collection.language('en').texts()

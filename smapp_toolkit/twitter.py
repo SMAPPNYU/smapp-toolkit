@@ -60,15 +60,49 @@ class MongoTweetCollection:
         return self._copy_with_added_query({'timestamp': {'$gt': since}})
 
     def until(self, until):
+        """
+        Only find tweets authored before a certain time. If no timezone is specified, UTC is assumed.
+        Takes datetime.datetime object
+
+        Example:
+        ########
+        from datetime import datetime
+
+        collection.until(datetime(2014,10,1))
+        """
         return self._copy_with_added_query({'timestamp': {'$lt': until}})
 
     def language(self, lang):
+        """
+        Only find tweets in a certain language. Goes by the 'lang' attribute in the tweet object.
+
+        Example:
+        ########
+
+        collection.language('fr')
+        """
         return self._copy_with_added_query({'lang': lang})
 
     def count(self):
+        """
+        The count of tweets in the collection matching all specified criteria.
+
+        Example:
+        ########
+
+        collection.containing('peace').count()
+        """
         return self._mongo_collection.find(self._query()).count()
 
     def texts(self):
+        """
+        Return the tweet texts matching all specified criteria.
+
+        Example:
+        ########
+
+        collection.since(datetime(2014,1,1)).texts()
+        """
         return [tweet['text'] for tweet in self]
 
     def _merge(self, a, b, path=None):

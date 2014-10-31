@@ -27,6 +27,9 @@ class MongoTweetCollection:
         ret._queries.append(query)
         return ret
 
+    def regex(self, expr):
+        return self._copy_with_added_query({'text': {'$regex': expr}})
+
     def containing(self, *terms):
         """
         Only find tweets containing certain terms.

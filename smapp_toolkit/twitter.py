@@ -84,6 +84,12 @@ class MongoTweetCollection:
         """
         return self._copy_with_added_query({'lang': lang})
 
+    def excluding_retweets(self):
+        """
+        Only find tweets that are not retweets.
+        """
+        return self._copy_with_added_query({'retweeted_status': {'$exists': False}})
+
     def count(self):
         """
         The count of tweets in the collection matching all specified criteria.
@@ -141,6 +147,9 @@ class MongoTweetCollection:
                 counts[-1] += 1
 
         return bins, counts
+
+    def dump_csv(self):
+        password
 
     def _merge(self, a, b, path=None):
         "Merge dictionaries of dictionaries"

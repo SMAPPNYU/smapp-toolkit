@@ -149,7 +149,7 @@ class MongoTweetCollection:
         return bins, counts
 
     def dump_csv(self):
-        password
+        pass
 
     def _merge(self, a, b, path=None):
         "Merge dictionaries of dictionaries"

@@ -1,5 +1,6 @@
 import re
 import copy
+from datetime import timedelta
 from pymongo import MongoClient
 
 
@@ -105,7 +106,41 @@ class MongoTweetCollection:
         """
         return [tweet['text'] for tweet in self]
 
-    
+    def histogram(self, bins='days'):
+        """
+        Counts tweet volume by bins. Legal values are 'days', 'hours', 'minutes', 'seconds'.
+
+        Example:
+        ########
+
+        bins, counts = collection.histogram(bins='minutes')
+        plot(bins, counts)
+        """
+        if bins == 'seconds':
+            dt = timedelta(seconds=1)
+        elif bins == 'minutes':
+            dt = timedelta(minutes=1)
+        elif bins == 'hours':
+            dt = timedelta(hours=1)
+        elif bins == 'days':
+            dt = timedelta(days=1)
+        else:
+            raise NotImplementedError("Can't bin by {}.".format(bins))
+
+        bins = list()
+        counts = list()
+
+        for tweet in self:
+            if len(bins) == 0:
+                bins.append(tweet['timestamp'])
+                counts.append(1)
+            else:
+                while tweet['timestamp'] > bins[-1] + dt:
+                    bins.append(bins[-1] + dt)
+                    counts.append(0)
+                counts[-1] += 1
+
+        return bins, counts
 
     def _merge(self, a, b, path=None):
         "Merge dictionaries of dictionaries"

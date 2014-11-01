@@ -90,6 +90,10 @@ class MongoTweetCollection:
         """
         return self._copy_with_added_query({'retweeted_status': {'$exists': False}})
 
+    def only_retweets(self):
+        "Only return retweets"
+        return self._copy_with_added_query({'retweeted_status': {'$exists':True}})
+
     def count(self):
         """
         The count of tweets in the collection matching all specified criteria.

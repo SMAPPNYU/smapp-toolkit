@@ -40,6 +40,10 @@ Or locally
 
     collection.language('en').texts()
 
+#### Exclude retweets
+
+    collection.excluding_retweets().count()
+
 #### Visualizing the volume of tweets
 
     bins, counts = collection.containing('#sexy').histogram(bins='minutes')

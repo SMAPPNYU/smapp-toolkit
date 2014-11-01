@@ -39,3 +39,8 @@ Or locally
 #### Select tweets authored in a certain language
 
     collection.language('en').texts()
+
+#### Visualizing the volume of tweets
+
+    bins, counts = collection.containing('#sexy').histogram(bins='minutes')
+    plt.plot(bins,counts)

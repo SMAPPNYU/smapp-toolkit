@@ -14,7 +14,7 @@ class MongoTweetCollection:
 
     collection.since(datetime(2014,1,1)).until(2014,2,1).mentioning('ebola').texts()
     """
-    def __init__(self, address, port, dbname, collection_name, username=None, password=None):
+    def __init__(self, address='localhost', port=27017, dbname='test', collection_name='tweets', username=None, password=None):
         self._client = MongoClient(address, port)
         self._mongo_database = self._client[dbname]
         if username and password:
@@ -28,7 +28,7 @@ class MongoTweetCollection:
         ret._queries.append(query)
         return ret
 
-    def regex(self, expr):
+    def matching_regex(self, expr):
         return self._copy_with_added_query({'text': {'$regex': expr}})
 
     def containing(self, *terms):
@@ -104,6 +104,8 @@ class MongoTweetCollection:
         collection.since(datetime(2014,1,1)).texts()
         """
         return [tweet['text'] for tweet in self]
+
+    
 
     def _merge(self, a, b, path=None):
         "Merge dictionaries of dictionaries"

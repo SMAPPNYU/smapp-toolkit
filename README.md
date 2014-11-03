@@ -22,8 +22,12 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
 #### Using MongoDB as the backend
 
     from smapp_toolkit.twitter import MongoTweetCollection
-    collection = MongoTweetCollection(address='mongodb-address', port='mongodb-port',
-        username='mongodb-user', password='mongodb-password', dbname='database-name', collection_name='collection-name')
+    collection = MongoTweetCollection(address='mongodb-address',
+                                      port='mongodb-port',
+                                      username='mongodb-user',
+                                      password='mongodb-password',
+                                      dbname='database-name',
+                                      collection_name='collection-name')
 
 #### Count occurences of keywords
 

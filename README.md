@@ -2,15 +2,18 @@
 This is an user-friendly python package for interfacing with large collections of tweets. Developped at the SMaPP lab at New York University.
 
 ## Installation
-Using pip:
-
-`pip install -e git+https://github.com/SMAPPNYU/smapp-toolkit#egg=smapp_toolkit`
-
-Or locally
+Download using git
 
     git clone https://github.com/SMAPPNYU/smapp-toolkit
     cd smapp-toolkit
-    python setyp.py install
+    python setup.py install
+
+or download [the tarball](https://github.com/SMAPPNYU/smapp-toolkit/tarball/master) and install
+
+    wget https://github.com/SMAPPNYU/smapp-toolkit/tarball/master -O smapp-toolkit-dev.tar.gz
+    tar zxvf smapp-toolkit-dev.tar.gz
+    cd SMAPPNYU-smapp-toolkit-...
+    python setup.py install
 
 #### Dependencies
 The `smapp-toolkit` depends on the following packages, which will be automatically installed when installing `smapp-toolkit`:

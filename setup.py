@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='smapp-toolkit',
-      version='0.1.0',
+      version='dev',
       description='NYU SMaPP lab toolkit',
       author='NYU SMaPP',
       license='GPLv2',
@@ -13,6 +13,6 @@ setup(name='smapp-toolkit',
           'smappPy',
       ],
       dependency_links=[
-          'https://github.com/SMAPPNYU/smapppy/tarball/master#egg=smappPy',
+          'https://github.com/SMAPPNYU/smappPy/tarball/master#egg=smappPy',
       ]
      )

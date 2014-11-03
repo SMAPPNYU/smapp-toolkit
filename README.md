@@ -30,6 +30,10 @@ Or locally
 
     collection.containing('#bieber', '#sexy')
 
+#### Random sample of tweets
+
+    collection.containing('#bieber').sample(0.33).texts()
+
 #### Select tweets from a certain time span
 
     from datetime import datetime

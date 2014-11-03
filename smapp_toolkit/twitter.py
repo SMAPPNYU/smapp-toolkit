@@ -94,6 +94,20 @@ class MongoTweetCollection:
         "Only return retweets"
         return self._copy_with_added_query({'retweeted_status': {'$exists':True}})
 
+    def sample(self, pct):
+        """
+        Sample *approximately* `pct` percent of the tweets in the database.
+        Works by querying on a `random_number` field each tweet has assigned on insertion to database.
+        Subsequent calls using the same `pct` will return the same tweets.
+
+        Example:
+        ########
+
+        collection.sample(0.1).texts()
+        """
+        return self._copy_with_added_query({'random_number': {'$lt': pct}})
+
+
     def count(self):
         """
         The count of tweets in the collection matching all specified criteria.

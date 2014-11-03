@@ -1,5 +1,5 @@
 # SMAPP Twitter Toolkit
-This is an user-friendly python package for social media analytics.
+This is an user-friendly python package for interfacing with large collections of tweets. Developped at the SMaPP lab at New York University.
 
 ## Installation
 Using pip:
@@ -56,3 +56,6 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
 
     bins, counts = collection.containing('#sexy').histogram(bins='minutes')
     plt.plot(bins,counts)
+
+-----------
+Code and documentation &copy; 2014 New York University. Released under [the GPLv2 license](LICENSE).

@@ -140,16 +140,10 @@ class MongoTweetCollection:
         bins, counts = collection.histogram(bins='minutes')
         plot(bins, counts)
         """
-        if bins == 'seconds':
-            dt = timedelta(seconds=1)
-        elif bins == 'minutes':
-            dt = timedelta(minutes=1)
-        elif bins == 'hours':
-            dt = timedelta(hours=1)
-        elif bins == 'days':
-            dt = timedelta(days=1)
-        else:
-            raise NotImplementedError("Can't bin by {}.".format(bins))
+        try:
+            dt = timedelta(**{bins: 1})
+        except TypeError as e:
+            raise Exception('"{}" is not a valid value for bins. Try "days", "hours", "minutes", "seconds.'.format(bins))
 
         bins = list()
         counts = list()

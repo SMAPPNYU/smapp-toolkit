@@ -8,7 +8,11 @@ setup(name='smapp-toolkit',
       author_email='smapp_programmer-group@nyu.edu',
       url='http://smapp.nyu.edu',
       packages=['smapp_toolkit'],
-      requires=[
+      install_requires=[
           'pymongo',
+          'smappPy',
       ],
+      dependency_links=[
+          'https://github.com/SMAPPNYU/smapppy/tarball/master#egg=smappPy',
+      ]
      )

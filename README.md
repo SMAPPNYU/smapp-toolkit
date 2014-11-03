@@ -4,14 +4,18 @@ This is an user-friendly python package for social media analytics.
 ## Installation
 Using pip:
 
-`pip install -e git+gitL//..#egg-info=smapp_toolkit`
+`pip install -e git+https://github.com/SMAPPNYU/smapp-toolkit#egg=smapp_toolkit`
 
 Or locally
 
-    git clone ...
-    cd ..
+    git clone https://github.com/SMAPPNYU/smapp-toolkit
+    cd smapp-toolkit
     python setyp.py install
 
+#### Dependencies
+The `smapp-toolkit` depends on the following packages, which will be automatically installed when installing `smapp-toolkit`:
+* [pymongo](http://api.mongodb.org/python/current/), the Python MongoDB driver
+* [smappPy](https://github.com/SMAPPNYU/smappPy), a utility library from SMaPP
 
 ## Usage
 

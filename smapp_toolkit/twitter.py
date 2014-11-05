@@ -1,7 +1,7 @@
 import re
 import copy
 from datetime import timedelta
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING, DESCENDING
 
 
 class MongoTweetCollection:
@@ -25,6 +25,9 @@ class MongoTweetCollection:
         self._mongo_collections = [self._mongo_database[colname]
             for colname in self.collection_metadata['tweet_collections']]
         self._queries = list()
+
+        self._limit = None
+        self._sort = None
 
     def _copy_with_added_query(self, query):
         ret = copy.copy(self)
@@ -110,6 +113,31 @@ class MongoTweetCollection:
         """
         return self._copy_with_added_query({'random_number': {'$lt': pct}})
 
+    def limit(self, count):
+        """
+        Only return `count` tweets from the collection.
+
+        Example:
+        ########
+        collection.limit(5).texts()
+        """
+        ret = copy.copy(self)
+        ret._queries = copy.copy(self._queries)
+        ret._limit = count
+        return ret
+
+    def sort(self, field, direction=ASCENDING):
+        """
+        Order tweets by specified field in specified direction.
+
+        Example:
+        ########
+        collection.order('timestamp', collection.DESCENDING).texts()
+        """
+        ret = copy.copy(self)
+        ret._queries = copy.copy(self._queries)
+        ret._sort = (field, direction)
+        return ret
 
     def count(self):
         """
@@ -186,4 +214,13 @@ class MongoTweetCollection:
         return reduce(self._merge, self._queries, {})
 
     def __iter__(self):
-        return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()))
+        if self._limit:
+            if self._sort:
+                return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()).limit(self._limit).sort(*self._sort))
+            else:
+                return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()).limit(self._limit))
+        else:
+            if self._sort:
+                return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()).sort(*self._sort))
+            else:
+                return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()))

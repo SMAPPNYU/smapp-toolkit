@@ -2,7 +2,11 @@
 This is an user-friendly python package for interfacing with large collections of tweets. Developped at the SMaPP lab at New York University.
 
 ## Installation
-Download using git
+Simplest: using `pip`:
+
+    pip install smapp_toolkit==dev
+
+Or download the source code using git
 
     git clone https://github.com/SMAPPNYU/smapp-toolkit
     cd smapp-toolkit

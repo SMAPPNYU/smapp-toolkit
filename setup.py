@@ -10,6 +10,6 @@ setup(name='smapp-toolkit',
       packages=['smapp_toolkit'],
       install_requires=[
           'pymongo',
-          'smappPy==dev',
+          'smappPy>=0.1.1',
       ]
      )

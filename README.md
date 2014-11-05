@@ -1,10 +1,17 @@
 # SMAPP Twitter Toolkit
 This is an user-friendly python package for interfacing with large collections of tweets. Developped at the SMaPP lab at New York University.
 
+**Supports Python 2.7**
+
 ## Installation
 Simplest: using `pip`:
 ```bash
-pip install smapp_toolkit==dev
+pip install smapp-toolkit
+```
+
+To update to the latest version, if you have an older one installed:
+```bash
+pip install -U smapp-toolkit
 ```
 
 Or download the source code using git

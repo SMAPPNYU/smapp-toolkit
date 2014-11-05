@@ -37,10 +37,10 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
                                       collection_name='collection-name')
 
 #### Count occurences of keywords
-
-    collection.containing('#bieber').count()
-    texts = collection.containing('#bieber').texts()
-
+```python
+collection.containing('#bieber').count()
+texts = collection.containing('#bieber').texts()
+```
 #### Tweets containing one of several keywords (#bieber OR #sexy)
 
     collection.containing('#bieber', '#sexy')

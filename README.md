@@ -14,13 +14,7 @@ cd smapp-toolkit
 python setup.py install
 ```
 
-or download [the tarball](https://github.com/SMAPPNYU/smapp-toolkit/tarball/master) and install
-```bash
-    wget https://github.com/SMAPPNYU/smapp-toolkit/tarball/master -O smapp-toolkit-dev.tar.gz
-    tar zxvf smapp-toolkit-dev.tar.gz
-    cd SMAPPNYU-smapp-toolkit-...
-    python setup.py install
-```
+or download [the tarball](https://github.com/SMAPPNYU/smapp-toolkit/tarball/master) and install.
 
 #### Dependencies
 The `smapp-toolkit` depends on the following packages, which will be automatically installed when installing `smapp-toolkit`:

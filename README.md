@@ -30,8 +30,7 @@ collection = MongoTweetCollection(address='mongodb-address',
                                   port='mongodb-port',
                                   username='mongodb-user',
                                   password='mongodb-password',
-                                  dbname='database-name',
-                                  collection_name='collection-name')
+                                  dbname='database-name')
 ```
 
 #### Count occurences of keywords

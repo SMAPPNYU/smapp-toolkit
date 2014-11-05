@@ -15,12 +15,15 @@ class MongoTweetCollection:
 
     collection.since(datetime(2014,1,1)).until(2014,2,1).mentioning('ebola').texts()
     """
-    def __init__(self, address='localhost', port=27017, dbname='test', collection_name='tweets', username=None, password=None):
+    def __init__(self, address='localhost', port=27017, dbname='test', metadata_collection='smapp_metadata', metadata_document='smapp-tweet-collection-metadata', username=None, password=None):
         self._client = MongoClient(address, port)
         self._mongo_database = self._client[dbname]
         if username and password:
             self._mongo_database.authenticate(username, password)
-        self._mongo_collection = self._mongo_database[collection_name]
+
+        self.collection_metadata = self._mongo_database[metadata_collection].find_one({'document': metadata_document})
+        self._mongo_collections = [self._mongo_database[colname]
+            for colname in self.collection_metadata['tweet_collections']]
         self._queries = list()
 
     def _copy_with_added_query(self, query):
@@ -117,7 +120,7 @@ class MongoTweetCollection:
 
         collection.containing('peace').count()
         """
-        return self._mongo_collection.find(self._query()).count()
+        return sum(col.find(self._query()).count() for col in self._mongo_collections)
 
     def texts(self):
         """
@@ -183,4 +186,4 @@ class MongoTweetCollection:
         return reduce(self._merge, self._queries, {})
 
     def __iter__(self):
-        return self._mongo_collection.find(self._query())
+        return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()))

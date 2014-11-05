@@ -10,7 +10,7 @@ setup(name='smapp-toolkit',
       packages=['smapp_toolkit'],
       install_requires=[
           'pymongo',
-          'smappPy',
+          'smappPy==dev',
       ],
       dependency_links=[
           'https://github.com/SMAPPNYU/smappPy/tarball/master#egg=smappPy',

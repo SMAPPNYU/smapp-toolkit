@@ -27,46 +27,55 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
 ## Usage
 
 #### Using MongoDB as the backend
-
-    from smapp_toolkit.twitter import MongoTweetCollection
-    collection = MongoTweetCollection(address='mongodb-address',
-                                      port='mongodb-port',
-                                      username='mongodb-user',
-                                      password='mongodb-password',
-                                      dbname='database-name',
-                                      collection_name='collection-name')
+```python
+from smapp_toolkit.twitter import MongoTweetCollection
+collection = MongoTweetCollection(address='mongodb-address',
+                                  port='mongodb-port',
+                                  username='mongodb-user',
+                                  password='mongodb-password',
+                                  dbname='database-name',
+                                  collection_name='collection-name')
+```
 
 #### Count occurences of keywords
 ```python
 collection.containing('#bieber').count()
 texts = collection.containing('#bieber').texts()
 ```
+
 #### Tweets containing one of several keywords (#bieber OR #sexy)
 
-    collection.containing('#bieber', '#sexy')
+```python
+collection.containing('#bieber', '#sexy')
+```
 
 #### Random sample of tweets
-
-    collection.containing('#bieber').sample(0.33).texts()
+```python
+collection.containing('#bieber').sample(0.33).texts()
+```
 
 #### Select tweets from a certain time span
-
-    from datetime import datetime
-    collection.since(datetime(2014,1,30)).count()
-    collection.since(datetime(2014,2,16)).until(datetime(2014,2,19)).containing('obama').texts()
+```python
+from datetime import datetime
+collection.since(datetime(2014,1,30)).count()
+collection.since(datetime(2014,2,16)).until(datetime(2014,2,19)).containing('obama').texts()
+```
 
 #### Select tweets authored in a certain language
-
-    collection.language('en').texts()
+```python
+collection.language('en').texts()
+```
 
 #### Exclude retweets
-
-    collection.excluding_retweets().count()
+```python
+collection.excluding_retweets().count()
+```
 
 #### Visualizing the volume of tweets
-
-    bins, counts = collection.containing('#sexy').histogram(bins='minutes')
-    plt.plot(bins,counts)
+```python
+bins, counts = collection.containing('#sexy').histogram(bins='minutes')
+plt.plot(bins,counts)
+```
 
 -----------
 Code and documentation &copy; 2014 New York University. Released under [the GPLv2 license](LICENSE).

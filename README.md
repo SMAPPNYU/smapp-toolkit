@@ -74,6 +74,16 @@ collection.language('en').texts()
 collection.excluding_retweets().count()
 ```
 
+#### Sorting by time
+```python
+collection.sort('timestamp',-1)
+```
+
+#### Only get the latest 10 tweets
+```python
+collection.sort('timestamp',-1).limit(10).texts()
+```
+
 #### Visualizing the volume of tweets
 ```python
 bins, counts = collection.containing('#sexy').histogram(bins='minutes')

@@ -2,6 +2,7 @@ import re
 import copy
 from datetime import timedelta
 from pymongo import MongoClient, ASCENDING, DESCENDING
+from pymongo.cursor import Cursor
 
 
 class MongoTweetCollection:
@@ -26,7 +27,7 @@ class MongoTweetCollection:
             for colname in self.collection_metadata['tweet_collections']]
         self._queries = list()
 
-        self._limit = None
+        self._limit = 0
         self._sort = None
 
     def _copy_with_added_query(self, query):
@@ -214,13 +215,7 @@ class MongoTweetCollection:
         return reduce(self._merge, self._queries, {})
 
     def __iter__(self):
-        if self._limit:
-            if self._sort:
-                return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()).limit(self._limit).sort(*self._sort))
-            else:
-                return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()).limit(self._limit))
+        if self._sort:
+            return (tweet for collection in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=self._limit).sort(*self._sort))
         else:
-            if self._sort:
-                return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()).sort(*self._sort))
-            else:
-                return (tweet for collection in self._mongo_collections for tweet in collection.find(self._query()))
+            return (tweet for collection in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=self._limit))

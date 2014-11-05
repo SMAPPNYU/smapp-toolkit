@@ -3,21 +3,24 @@ This is an user-friendly python package for interfacing with large collections o
 
 ## Installation
 Simplest: using `pip`:
-
-    pip install smapp_toolkit==dev
+```bash
+pip install smapp_toolkit==dev
+```
 
 Or download the source code using git
-
-    git clone https://github.com/SMAPPNYU/smapp-toolkit
-    cd smapp-toolkit
-    python setup.py install
+```bash
+git clone https://github.com/SMAPPNYU/smapp-toolkit
+cd smapp-toolkit
+python setup.py install
+```
 
 or download [the tarball](https://github.com/SMAPPNYU/smapp-toolkit/tarball/master) and install
-
+```bash
     wget https://github.com/SMAPPNYU/smapp-toolkit/tarball/master -O smapp-toolkit-dev.tar.gz
     tar zxvf smapp-toolkit-dev.tar.gz
     cd SMAPPNYU-smapp-toolkit-...
     python setup.py install
+```
 
 #### Dependencies
 The `smapp-toolkit` depends on the following packages, which will be automatically installed when installing `smapp-toolkit`:

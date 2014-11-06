@@ -84,6 +84,16 @@ collection.sort('timestamp',-1)
 collection.sort('timestamp',-1).limit(10).texts()
 ```
 
+#### Only tweets where the user location indicates they are from new york
+```python
+collection.user_location_containing('new york', 'nyc')
+```
+
+#### Only tweets where the user cares about python data analysis
+```python
+collection.field_containing('user.description', 'python', 'data', 'analysis')
+```
+
 #### Visualizing the volume of tweets
 ```python
 bins, counts = collection.containing('#sexy').histogram(bins='minutes')

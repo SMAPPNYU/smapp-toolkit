@@ -105,5 +105,11 @@ bins, counts = collection.containing('#sexy').histogram(bins='minutes')
 plt.plot(bins,counts)
 ```
 
+#### Iterate over the full tweet objects
+```python
+for tweet in collection.containing('#nyc'):
+    print(tweet['text'])
+```
+
 -----------
 Code and documentation &copy; 2014 New York University. Released under [the GPLv2 license](LICENSE).

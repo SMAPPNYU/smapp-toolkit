@@ -30,6 +30,13 @@ class MongoTweetCollection:
         self._limit = 0
         self._sort = None
 
+    def _regex_escape_and_concatenate(self, *terms):
+        search = re.escape(terms[0])
+        if len(terms) > 1:
+            for term in terms[1:]:
+                search += '|' + re.escape(term)
+        return search
+
     def _copy_with_added_query(self, query):
         ret = copy.copy(self)
         ret._queries = copy.copy(self._queries)
@@ -38,6 +45,20 @@ class MongoTweetCollection:
 
     def matching_regex(self, expr):
         return self._copy_with_added_query({'text': {'$regex': expr}})
+
+    def field_containing(self, field, *terms):
+        """
+        Select tweets where `field` contains one of `terms`.
+
+        Example:
+        ########
+        collection.field_containing('user.description', 'python', 'data', 'analysis', 'mongodb')
+        # will return tweets where the user has any of the terms 'python', 'data', 'analysis', 'mongodb'
+        # in their description.
+        """
+        search = self._regex_escape_and_concatenate(*terms)
+        regex = re.compile(search, re.IGNORECASE)
+        return self._copy_with_added_query({field: regex})
 
     def containing(self, *terms):
         """
@@ -48,11 +69,19 @@ class MongoTweetCollection:
 
         will return tweets containing either 'penguins' or 'antarctica'.
         """
-        search = re.escape(terms[0])
-        if len(terms) > 1:
-            for term in terms[1:]:
-                search += '|' + re.escape(term)
-        return self._copy_with_added_query({'text': {'$regex': '.*{}.*'.format(search)}})
+        return self.field_containing('text', *terms)
+
+    def user_location_containing(self, *names):
+        """
+        Only find tweets where the user's `location` field contains certain terms.
+        Terms are ORed, so that
+
+        collection.user_location_containing('chile', 'antarctica')
+
+        will return tweets with user location containing either 'chile' or 'antarctica'.
+        """
+        return self.field_containing('user.location', *names)
+
 
     def since(self, since):
         """

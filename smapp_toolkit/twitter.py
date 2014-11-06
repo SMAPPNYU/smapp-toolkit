@@ -82,6 +82,11 @@ class MongoTweetCollection:
         """
         return self.field_containing('user.location', *names)
 
+    def geo_enabled(self):
+        """
+        Only return tweets that are geo-tagged.
+        """
+        return self._copy_with_added_query({'coordinates.coordinates': {'$exists': True}})
 
     def since(self, since):
         """

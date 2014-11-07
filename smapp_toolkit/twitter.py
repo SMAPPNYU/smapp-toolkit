@@ -5,7 +5,7 @@ from pymongo import MongoClient, ASCENDING, DESCENDING
 from pymongo.cursor import Cursor
 
 
-class MongoTweetCollection:
+class MongoTweetCollection(object):
     """
     Collection object for performing queries and getting data out of a MongoDB collection of tweets.
 
@@ -253,3 +253,12 @@ class MongoTweetCollection:
             return (tweet for collection in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=self._limit).sort(*self._sort))
         else:
             return (tweet for collection in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=self._limit))
+
+    def __getattr__(self, name):
+        if name.endswith('_containing'):
+            field_name = '.'.join(name.split('_')[:-1])
+            def containing_method(*terms):
+                return self.field_containing(field_name, *terms)
+            return containing_method
+        else:
+            return object.__getattribute__(self, name)

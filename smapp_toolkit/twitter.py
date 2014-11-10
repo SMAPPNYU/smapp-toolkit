@@ -148,6 +148,11 @@ class MongoTweetCollection(object):
         """
         return self._copy_with_added_query({'random_number': {'$lt': pct}})
 
+    def using_latest_collection_only(self):
+        ret = copy.copy(self)
+        ret._mongo_collections = [self._mongo_collections[-1]]
+        return ret
+
     def limit(self, count):
         """
         Only return `count` tweets from the collection.

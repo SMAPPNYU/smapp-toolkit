@@ -149,6 +149,9 @@ class MongoTweetCollection(object):
         return self._copy_with_added_query({'random_number': {'$lt': pct}})
 
     def using_latest_collection_only(self):
+        """
+        Only apply query to the latest collection in the split-set.
+        """
         ret = copy.copy(self)
         ret._mongo_collections = [self._mongo_collections[-1]]
         return ret

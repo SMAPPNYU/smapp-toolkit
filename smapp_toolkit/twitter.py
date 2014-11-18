@@ -114,16 +114,16 @@ class MongoTweetCollection(object):
         """
         return self._copy_with_added_query({'timestamp': {'$lt': until}})
 
-    def language(self, lang):
+    def language(self, *langs):
         """
-        Only find tweets in a certain language. Goes by the 'lang' attribute in the tweet object.
+        Only find tweets in certain languages. Goes by the 'lang' attribute in the tweet object.
 
         Example:
         ########
 
-        collection.language('fr')
+        collection.language('fr', 'de')
         """
-        return self._copy_with_added_query({'lang': lang})
+        return self._copy_with_added_query({'lang': {'$in': langs}})
 
     def excluding_retweets(self):
         """

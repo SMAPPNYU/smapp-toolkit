@@ -76,7 +76,7 @@ collection.language('ru', 'uk')
 
 ### Tweets from users with their stated language preference to French OR German
 ```python
-collection.user_language_contains('de', 'fr')
+collection.user_lang_contains('de', 'fr')
 ```
 
 #### Exclude retweets

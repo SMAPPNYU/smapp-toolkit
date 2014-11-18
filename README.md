@@ -69,6 +69,16 @@ collection.since(datetime(2014,2,16)).until(datetime(2014,2,19)).containing('oba
 collection.language('en').texts()
 ```
 
+### Tweets in Russian OR Ukrainian
+```python
+collection.language('ru', 'uk')
+```
+
+### Tweets from users with their stated language preference to French OR German
+```python
+collection.user_language_contains('de', 'fr')
+```
+
 #### Exclude retweets
 ```python
 collection.excluding_retweets().count()

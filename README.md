@@ -123,7 +123,7 @@ for tweet in collection.containing('#nyc'):
 
 #### Dumping tweets to a CSV file
 ```python
-collection.csv_dump('my_tweets.csv')
+collection.dump_csv('my_tweets.csv')
 ```
 This will dump a CSV with the following columns:
 
@@ -132,7 +132,7 @@ This will dump a CSV with the following columns:
 The desired columns may be specified in the `columns=` named argument:
 
 ```python
-collection.csv_dump('my_tweets.csv', columns=['id_str', 'user.screen_name', 'user.location', 'user.description', 'text'])
+collection.dump_csv('my_tweets.csv', columns=['id_str', 'user.screen_name', 'user.location', 'user.description', 'text'])
 ```
 
 The full list of available fields from a tweet may be found on [the twitter REST-API documentation](https://dev.twitter.com/overview/api/tweets). In order to get nested fields (such as the user's location or the user's screen_name), use `user.location`, `user.screen_name`.

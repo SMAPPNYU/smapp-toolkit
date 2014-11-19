@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='smapp-toolkit',
-      version='0.1.8',
+      version='0.1.9',
       description='NYU SMaPP lab toolkit',
       author='NYU SMaPP',
       license='GPLv2',

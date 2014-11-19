@@ -121,5 +121,41 @@ for tweet in collection.containing('#nyc'):
     print(tweet['text'])
 ```
 
+## The Data Model
+SMAPP stores tweets in MongoDB databases, and splits the tweets across multiple MongoDB collections, because this gives better performance than a single large MongoDB collection. The MongoDB Database needs to have a `smapp_metadata` collection with a single `smapp-tweet-collection-metadata` document in it, which specifies the names of the tweet collections.
+
+The `smapp-tweet-collection-metadata` document has the following form:
+
+```json
+{
+  "document": "smapp-tweet-collection-metadata",
+  "tweet_collections": [
+    "tweets_1",
+    "tweets_2",
+    "tweets_3",
+  ]
+}
+```
+
+### Customization
+The `MongoTweetCollection` object may still be used if the metadata collection and document have different names:
+
+```python
+collection = MongoTweetCollection(..., metadata_collection='smapp_metadata', metadata_document='smapp-tweet-collection-metadata')
+```
+
+#### Already have tweets in your own mongo and want to use the smapp-toolkit?
+All you need to do is insert the following collection and document into your MongoDB database:
+
+(from the mongo shell)
+```
+db.smapp_metadata.save({
+  "document": "smapp-tweet-collection-metadata",
+  "tweet_collections": [ "tweets" ]
+})
+```
+
+and the default behavior will work as advertised.
+
 -----------
 Code and documentation &copy; 2014 New York University. Released under [the GPLv2 license](LICENSE).

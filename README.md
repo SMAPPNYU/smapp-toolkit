@@ -148,6 +148,7 @@ collection = MongoTweetCollection(..., metadata_collection='smapp_metadata', met
 All you need to do is insert the following collection and document into your MongoDB database:
 
 (from the mongo shell)
+
 ```
 db.smapp_metadata.save({
   "document": "smapp-tweet-collection-metadata",

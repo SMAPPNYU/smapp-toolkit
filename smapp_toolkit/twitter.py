@@ -1,8 +1,9 @@
 import re
 import copy
 from datetime import timedelta
-from pymongo import MongoClient, ASCENDING, DESCENDING
 from pymongo.cursor import Cursor
+from pymongo import MongoClient, ASCENDING, DESCENDING
+from smappPy.unicode_csv import UnicodeWriter
 
 
 class MongoTweetCollection(object):
@@ -234,8 +235,28 @@ class MongoTweetCollection(object):
 
         return bins, counts
 
-    def dump_csv(self):
-        pass
+    COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
+    def _make_row(self, tweet, columns=COLUMNS):
+        row = list()
+        for col_name in columns:
+            path = col_name.split('.')
+            try:
+                value = tweet[path.pop(0)]
+                for p in path:
+                    value = value[p]
+            except:
+                value = ''
+            row.append(unicode(value))
+        return row
+
+
+    def dump_csv(self, filename, columns=COLUMNS):
+        with open(filename, 'w') as outfile:
+            writer = UnicodeWriter(outfile)
+            writer.writerow(columns)
+            for tweet in self:
+                writer.writerow(self._make_row(tweet, columns))
+
 
     def _merge(self, a, b, path=None):
         "Merge dictionaries of dictionaries"

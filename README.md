@@ -121,6 +121,22 @@ for tweet in collection.containing('#nyc'):
     print(tweet['text'])
 ```
 
+#### Dumping tweets to a CSV file
+```python
+collection.csv_dump('my_tweets.csv')
+```
+This will dump a CSV with the following columns:
+
+    'id_str', 'user.screen_name', 'timestamp', 'text'
+
+The desired columns may be specified in the `columns=` named argument:
+
+```python
+collection.csv_dump('my_tweets.csv', columns=['id_str', 'user.screen_name', 'user.location', 'user.description', 'text'])
+```
+
+The full list of available fields from a tweet may be found on [the twitter REST-API documentation](https://dev.twitter.com/overview/api/tweets). In order to get nested fields (such as the user's location or the user's screen_name), use `user.location`, `user.screen_name`.
+
 ## The Data Model
 SMAPP stores tweets in MongoDB databases, and splits the tweets across multiple MongoDB collections, because this gives better performance than a single large MongoDB collection. The MongoDB Database needs to have a `smapp_metadata` collection with a single `smapp-tweet-collection-metadata` document in it, which specifies the names of the tweet collections.
 

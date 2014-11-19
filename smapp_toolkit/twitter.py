@@ -17,7 +17,7 @@ class MongoTweetCollection(object):
     collection.since(datetime(2014,1,1)).until(2014,2,1).mentioning('ebola').texts()
     """
     def __init__(self, address='localhost', port=27017, dbname='test', metadata_collection='smapp_metadata', metadata_document='smapp-tweet-collection-metadata', username=None, password=None):
-        self._client = MongoClient(address, port)
+        self._client = MongoClient(address, int(port))
         self._mongo_database = self._client[dbname]
         if username and password:
             self._mongo_database.authenticate(username, password)

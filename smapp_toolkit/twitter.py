@@ -251,6 +251,16 @@ class MongoTweetCollection(object):
 
 
     def dump_csv(self, filename, columns=COLUMNS):
+        """
+        Dumps the matching tweets to a CSV file specified by `filename`.
+        The default columns are ['id_str', 'user.screen_name', 'timestamp', 'text'].
+        Columns are specified by their path in the tweet dictionary, so that
+            'user.screen_name' will grab tweet['user']['screen_name']
+
+        Example:
+        ########
+        collection.since(one_hour_ago).dump_csv('my_tweets.csv', columns=['timestamp', 'text'])
+        """
         with open(filename, 'w') as outfile:
             writer = UnicodeWriter(outfile)
             writer.writerow(columns)

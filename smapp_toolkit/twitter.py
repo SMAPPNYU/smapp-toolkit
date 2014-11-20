@@ -249,7 +249,7 @@ class MongoTweetCollection(object):
                         value = value[p]
             except:
                 value = ''
-            row.append(unicode(value))
+            row.append(u','.join(unicode(v) for v in value) if isinstance(value, list) else unicode(value))
         return row
 
 

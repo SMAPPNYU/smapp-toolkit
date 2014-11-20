@@ -243,7 +243,10 @@ class MongoTweetCollection(object):
             try:
                 value = tweet[path.pop(0)]
                 for p in path:
-                    value = value[p]
+                    if isinstance(value, list):
+                        value = value[int(p)]
+                    else:
+                        value = value[p]
             except:
                 value = ''
             row.append(unicode(value))

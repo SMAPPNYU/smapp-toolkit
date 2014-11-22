@@ -58,7 +58,7 @@ class MongoTweetCollection(object):
         # in their description.
         """
         search = self._regex_escape_and_concatenate(*terms)
-        regex = re.compile(search, re.IGNORECASE)
+        regex = re.compile(search, re.IGNORECASE, )
         return self._copy_with_added_query({field: regex})
 
     def containing(self, *terms):
@@ -88,6 +88,12 @@ class MongoTweetCollection(object):
         Only return tweets that are geo-tagged.
         """
         return self._copy_with_added_query({'coordinates.coordinates': {'$exists': True}})
+
+    def non_geo_enabled(self):
+        """
+        Only return tweets that are geo-tagged.
+        """
+        return self._copy_with_added_query({'coordinates.coordinates': {'$exists': False}})
 
     def since(self, since):
         """

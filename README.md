@@ -99,6 +99,11 @@ collection.field_containing('user.description', 'python', 'data', 'analysis')
 collection.geo_enabled()
 ```
 
+#### Only get non-geotagged tweets
+```python
+collection.non_geo_enabled()
+```
+
 #### Sorting by time
 ```python
 collection.sort('timestamp',-1)

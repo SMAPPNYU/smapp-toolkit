@@ -1,10 +1,10 @@
 import re
 import copy
+import twitter_figure_makers
 from datetime import timedelta
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from smappPy.unicode_csv import UnicodeWriter
-
 
 class MongoTweetCollection(object):
     """
@@ -276,7 +276,6 @@ class MongoTweetCollection(object):
             for tweet in self:
                 writer.writerow(self._make_row(tweet, columns))
 
-
     def _merge(self, a, b, path=None):
         "Merge dictionaries of dictionaries"
         if path is None: path = []
@@ -308,5 +307,11 @@ class MongoTweetCollection(object):
             def containing_method(*terms):
                 return self.field_containing(field_name, *terms)
             return containing_method
+        elif name.endswith('_figure'):
+            figure_name = '_'.join(name.split('_')[:-1])
+            method = twitter_figure_makers.__getattribute__(figure_name)
+            def figure_method(*args, **kwargs):
+                return method(self, *args, **kwargs)
+            return figure_method
         else:
             return object.__getattribute__(self, name)

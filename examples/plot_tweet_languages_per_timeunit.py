@@ -16,7 +16,7 @@ collection = MongoTweetCollection(
     port=27011,
     username='smapp_readOnly',
     password='WRITE REAL PASSWORD HERE',
-    dbname='Ebola')
+    dbname='Ebola'
 )
 
 

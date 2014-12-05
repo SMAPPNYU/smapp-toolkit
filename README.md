@@ -146,6 +146,9 @@ The full list of available fields from a tweet may be found on [the twitter REST
 For geolocated tweets, in order to get the geolocation out in the csv, add `coordinates.coordinates` to the columns list. This will put the coordinates in [GeoJSON](http://geojson.org/geojson-spec.html#positions) (long, lat) in the column.
 *Alternatively*¸ add `coordinates.coordinates.0` and `coordinates.coordinates.1` to the columns list. This will add two columns with the longitude and latitude in them respectively.
 
+## Figures
+Smapp-toolkit has some built-in plotting functionality. See the example scripts, and check out the [gallery](http://philosoraptor.bio.nyu.edu:82/figure-gallery/)!
+
 ## The Data Model
 SMAPP stores tweets in MongoDB databases, and splits the tweets across multiple MongoDB collections, because this gives better performance than a single large MongoDB collection. The MongoDB Database needs to have a `smapp_metadata` collection with a single `smapp-tweet-collection-metadata` document in it, which specifies the names of the tweet collections.
 

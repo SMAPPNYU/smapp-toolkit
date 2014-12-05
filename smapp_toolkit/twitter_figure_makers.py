@@ -3,11 +3,10 @@ Module contains methods used to generate common figures from twitter data.
 
 @jonathanronen, @dpb
 """
-
+import matplotlib.pyplot as plt
+from seaborn import color_palette
 from collections import OrderedDict
 from datetime import datetime, timedelta
-from seaborn import color_palette
-import matplotlib.pyplot as plt
 
 
 def languages_per_day(collection, start, step_size=timedelta(days=1), num_steps=31,
@@ -77,5 +76,38 @@ def languages_per_day(collection, start, step_size=timedelta(days=1), num_steps=
     plt.legend(fontsize=14, loc=0)
     plt.xticks(range(num_steps)[::x_label_step],
                ["{0}-{1}-{2}".format(d.year, d.month, d.day) for d in [start + (i * step_size) for i in range(num_steps)][::x_label_step]],
+               rotation=55)
+    plt.show()
+
+def tweets_per_day_with_annotations(collection, start, num_steps, step_size=timedelta(days=1),
+    alpha=.4, line_width=2.0, line_color="red", x_label_step=10, events=[]):
+    """
+    Script to plot tweets per day with vertical annotation lines
+    """
+    # Get tweets per day
+    tweets_per_day = []
+    for step in range(num_steps):
+        query_start = start + (step * step_size)
+        tweets = collection.since(query_start).until(query_start+step_size)
+        total = tweets.count()
+        tweets_per_day.append(total)
+        print "{0}: {1} - {2}: {3}".format(step, query_start, query_start + step_size, total)
+
+    # Plot
+    plt.plot(range(num_steps), tweets_per_day, alpha=alpha, linewidth=line_width, color=line_color)
+
+    ymin, ymax = plt.ylim()
+    for e in events:
+        plt.axvline(e[0], linestyle="--", color="#999999")
+        if e[2] == "bottom":
+            plt.text(e[0] + 0.2, ymin + (0.05 * ymax), e[1], rotation=-90, verticalalignment="bottom")
+        else:
+            plt.text(e[0] + 0.2, ymax - (0.05 * ymax), e[1], rotation=-90, verticalalignment="top")
+
+    plt.xlim(0, num_steps-1)
+    plt.ylabel("# Tweets")
+    plt.tick_params(axis="x", which="both", bottom="on", top="off", length=8, width=1, color="#999999")
+    plt.xticks(range(num_steps)[::x_label_step],
+               ["{0}-{1}-{2}".format(d.year, d.month, d.day) for d in [start + (i * step_size) for i in range(num_steps)[::x_label_step]]],
                rotation=55)
     plt.show()

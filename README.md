@@ -116,8 +116,13 @@ collection.sort('timestamp',-1).limit(10).texts()
 
 #### Visualizing the volume of tweets
 ```python
-bins, counts = collection.containing('#sexy').histogram(bins='minutes')
-plt.plot(bins,counts)
+bins, counts = collection.containing('#sexy').histogram_figure(
+    start_time,
+    step_size=timedelta(minutes=1),
+    num_steps=60,
+    show=False)
+plt.title('Tweets containing "#sexy"')
+plt.show()
 ```
 
 #### Iterate over the full tweet objects

@@ -154,6 +154,11 @@ For geolocated tweets, in order to get the geolocation out in the csv, add `coor
 ## Figures
 Smapp-toolkit has some built-in plotting functionality. See the [example scripts](https://github.com/SMAPPNYU/smapp-toolkit/tree/master/examples), and check out the [gallery](http://philosoraptor.bio.nyu.edu:82/figure-gallery/)!
 
+Currently implemented:
+* histograms (volume per time unit)
+* histogram by language
+* histogram with vertical lines for annotating events
+
 ## The Data Model
 SMAPP stores tweets in MongoDB databases, and splits the tweets across multiple MongoDB collections, because this gives better performance than a single large MongoDB collection. The MongoDB Database needs to have a `smapp_metadata` collection with a single `smapp-tweet-collection-metadata` document in it, which specifies the names of the tweet collections.
 

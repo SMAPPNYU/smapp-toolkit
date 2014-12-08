@@ -211,36 +211,6 @@ class MongoTweetCollection(object):
         """
         return [tweet['text'] for tweet in self]
 
-    def histogram(self, bins='days'):
-        """
-        Counts tweet volume by bins. Legal values are 'days', 'hours', 'minutes', 'seconds'.
-
-        Example:
-        ########
-
-        bins, counts = collection.histogram(bins='minutes')
-        plot(bins, counts)
-        """
-        try:
-            dt = timedelta(**{bins: 1})
-        except TypeError as e:
-            raise Exception('"{}" is not a valid value for bins. Try "days", "hours", "minutes", "seconds.'.format(bins))
-
-        bins = list()
-        counts = list()
-
-        for tweet in self:
-            if len(bins) == 0:
-                bins.append(tweet['timestamp'])
-                counts.append(1)
-            else:
-                while tweet['timestamp'] > bins[-1] + dt:
-                    bins.append(bins[-1] + dt)
-                    counts.append(0)
-                counts[-1] += 1
-
-        return bins, counts
-
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
     def _make_row(self, tweet, columns=COLUMNS):
         row = list()

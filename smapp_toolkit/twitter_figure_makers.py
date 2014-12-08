@@ -3,15 +3,15 @@ Module contains methods used to generate common figures from twitter data.
 
 @jonathanronen, @dpb
 """
+import seaborn as sns
 import matplotlib.pyplot as plt
-from seaborn import color_palette
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
 
 def languages_per_day(collection, start, step_size=timedelta(days=1), num_steps=31,
   languages=['en', 'es', 'other'], language_colors=['red', 'royalblue', 'grey'],
-  x_label_step = 2, alpha=.65, bar_width=.8, print_progress_every=100000):
+  x_label_step = 2, alpha=.65, bar_width=.8, print_progress_every=100000, show=True):
     # Set up language count dict
     language_counts = OrderedDict()
     for p in range(num_steps):
@@ -77,10 +77,11 @@ def languages_per_day(collection, start, step_size=timedelta(days=1), num_steps=
     plt.xticks(range(num_steps)[::x_label_step],
                ["{0}-{1}-{2}".format(d.year, d.month, d.day) for d in [start + (i * step_size) for i in range(num_steps)][::x_label_step]],
                rotation=55)
-    plt.show()
+    if show:
+        plt.show()
 
 def tweets_per_day_with_annotations(collection, start, num_steps, step_size=timedelta(days=1),
-    alpha=.4, line_width=2.0, line_color="red", x_label_step=10, events=[]):
+    alpha=.4, line_width=2.0, line_color="red", x_label_step=10, events=[], show=True):
     """
     Script to plot tweets per day with vertical annotation lines
     """
@@ -110,4 +111,51 @@ def tweets_per_day_with_annotations(collection, start, num_steps, step_size=time
     plt.xticks(range(num_steps)[::x_label_step],
                ["{0}-{1}-{2}".format(d.year, d.month, d.day) for d in [start + (i * step_size) for i in range(num_steps)[::x_label_step]]],
                rotation=55)
-    plt.show()
+    if show:
+        plt.show()
+
+def histogram(collection, start, step_size=timedelta(days=1), num_steps=31, alpha=.7, bar_width=.8, x_label_step=7,
+    xtick_format=None, show=True):
+    """
+    Plot a histogram (tweets per timeunit)
+    """
+    x_label = "Time"
+    y_label = "Tweets"
+
+    times = [start + (i * step_size) for i in range(num_steps)]
+    counts = []
+    for step in times:
+        tweets = collection.since(step).until(step + step_size)
+        counts.append(tweets.count())
+
+    sns.set_style("darkgrid")
+    sns.set_palette("husl")
+
+    bars = plt.bar(range(num_steps),
+                   counts,
+                   width=bar_width,
+                   linewidth=0.0,
+                   alpha=alpha,
+                   align="edge")
+
+    plt.xlim(0, num_steps)
+    plt.tick_params(axis="x", which="both", bottom="on", top="off", length=8, width=1, color="#999999")
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+
+    if not xtick_format:
+        if step_size.total_seconds() < 60*60:
+            xtick_format = '%H:%M'
+        elif step_size.total_seconds() < 60*60*24:
+            xtick_format = '%m-%d %H:%M'
+        else:
+            xtick_format = '%Y-%m-%d'
+
+    plt.xticks(range(num_steps)[::x_label_step],
+               [t.strftime(xtick_format) for t in times[::x_label_step]],
+               rotation=90)
+
+    plt.tight_layout()
+    if show:
+        plt.show()
+    return times,counts

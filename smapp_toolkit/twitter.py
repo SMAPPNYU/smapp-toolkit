@@ -10,7 +10,7 @@ try:
     import twitter_figure_makers
     NO_FIGURES = False
 except:
-    sys.stderr.write("Missing some graphics packages, so making figures won't work.\n")
+    sys.stderr.write("smapp-toolkit: Missing some graphics packages, so making figures won't work.\n")
     NO_FIGURES = True
 
 class MongoTweetCollection(object):

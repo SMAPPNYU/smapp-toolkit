@@ -1,6 +1,6 @@
 import re
-import sys
 import copy
+import warnings
 from datetime import timedelta
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
@@ -10,7 +10,7 @@ try:
     import twitter_figure_makers
     NO_FIGURES = False
 except:
-    sys.stderr.write("smapp-toolkit: Missing some graphics packages, so making figures won't work.\n")
+    warnings.warn("smapp-toolkit: Missing some graphics packages, so making figures won't work.\n")
     NO_FIGURES = True
 
 class MongoTweetCollection(object):

@@ -1,10 +1,17 @@
 import re
+import sys
 import copy
-import twitter_figure_makers
 from datetime import timedelta
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from smappPy.unicode_csv import UnicodeWriter
+
+try:
+    import twitter_figure_makers
+    NO_FIGURES = False
+except:
+    sys.stderr.write("Missing some graphics packages, so making figures won't work.\n")
+    NO_FIGURES = True
 
 class MongoTweetCollection(object):
     """
@@ -277,7 +284,7 @@ class MongoTweetCollection(object):
             def containing_method(*terms):
                 return self.field_containing(field_name, *terms)
             return containing_method
-        elif name.endswith('_figure'):
+        elif name.endswith('_figure') and not NO_FIGURES:
             figure_name = '_'.join(name.split('_')[:-1])
             method = twitter_figure_makers.__getattribute__(figure_name)
             def figure_method(*args, **kwargs):

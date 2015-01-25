@@ -1,10 +1,17 @@
 import re
 import copy
-import twitter_figure_makers
+import warnings
 from datetime import timedelta
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from smappPy.unicode_csv import UnicodeWriter
+
+try:
+    import twitter_figure_makers
+    NO_FIGURES = False
+except:
+    warnings.warn("smapp-toolkit: Missing some graphics packages, so making figures won't work.\n")
+    NO_FIGURES = True
 
 class MongoTweetCollection(object):
     """
@@ -17,7 +24,7 @@ class MongoTweetCollection(object):
 
     collection.since(datetime(2014,1,1)).until(2014,2,1).mentioning('ebola').texts()
     """
-    def __init__(self, address='localhost', port=27017, dbname='test', metadata_collection='smapp_metadata', metadata_document='smapp-tweet-collection-metadata', username=None, password=None):
+    def __init__(self, address='localhost', port=27017, username=None, password=None, dbname='test', metadata_collection='smapp_metadata', metadata_document='smapp-tweet-collection-metadata',):
         self._client = MongoClient(address, int(port))
         self._mongo_database = self._client[dbname]
         if username and password:
@@ -211,36 +218,6 @@ class MongoTweetCollection(object):
         """
         return [tweet['text'] for tweet in self]
 
-    def histogram(self, bins='days'):
-        """
-        Counts tweet volume by bins. Legal values are 'days', 'hours', 'minutes', 'seconds'.
-
-        Example:
-        ########
-
-        bins, counts = collection.histogram(bins='minutes')
-        plot(bins, counts)
-        """
-        try:
-            dt = timedelta(**{bins: 1})
-        except TypeError as e:
-            raise Exception('"{}" is not a valid value for bins. Try "days", "hours", "minutes", "seconds.'.format(bins))
-
-        bins = list()
-        counts = list()
-
-        for tweet in self:
-            if len(bins) == 0:
-                bins.append(tweet['timestamp'])
-                counts.append(1)
-            else:
-                while tweet['timestamp'] > bins[-1] + dt:
-                    bins.append(bins[-1] + dt)
-                    counts.append(0)
-                counts[-1] += 1
-
-        return bins, counts
-
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
     def _make_row(self, tweet, columns=COLUMNS):
         row = list()
@@ -307,7 +284,7 @@ class MongoTweetCollection(object):
             def containing_method(*terms):
                 return self.field_containing(field_name, *terms)
             return containing_method
-        elif name.endswith('_figure'):
+        elif name.endswith('_figure') and not NO_FIGURES:
             figure_name = '_'.join(name.split('_')[:-1])
             method = twitter_figure_makers.__getattribute__(figure_name)
             def figure_method(*args, **kwargs):

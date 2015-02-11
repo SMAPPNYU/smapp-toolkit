@@ -7,4 +7,4 @@ This folder contains example scripts that use the `smapp-toolkit` to do common t
 | `save_all_tweets_with_location_in_kiev_to_csv.py` | demonstrates getting tweets by time frame, user-location, and saving them to a csv file. |
 | `plot_tweet_languages_per_timeunit.py` | demonstrates how to plot the volume of tweets per day<br/> broken up by language. |
 | `plot_tweets_per_day_with_annotations.py` | plots tweets volume per day, with vertical lines<br> for annotating events. |
-| `histograms.py` | shows how to make histograms plotting the volume of tweets per time unit |
+| `barcharts.py` | shows how to make barcharts plotting the volume of tweets per time unit |

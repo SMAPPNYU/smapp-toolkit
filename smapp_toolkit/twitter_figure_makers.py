@@ -114,10 +114,10 @@ def tweets_per_day_with_annotations(collection, start, num_steps, step_size=time
     if show:
         plt.show()
 
-def histogram(collection, start, step_size=timedelta(days=1), num_steps=31, alpha=.7, bar_width=.8, x_label_step=7,
+def tweets_over_time(collection, start, step_size=timedelta(days=1), num_steps=31, alpha=.7, bar_width=.8, x_label_step=7,
     xtick_format=None, show=True):
     """
-    Plot a histogram (tweets per timeunit)
+    Plot a barchart (tweets per timeunit)
     """
     x_label = "Time"
     y_label = "Tweets"

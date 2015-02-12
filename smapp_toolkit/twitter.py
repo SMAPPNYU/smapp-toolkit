@@ -194,7 +194,7 @@ class MongoTweetCollection(object):
         # Add collections that don't yet meet limit
         added_collection_count = 0
         for c, l in self._mongo_collections:
-            c_count = c.count()
+            c_count = c.find(limit=l).count(with_limit_and_skip=True)
             if count > added_collection_count + c_count:
                 ret._mongo_collections.append((c, c_count))
                 added_collection_count += c_count

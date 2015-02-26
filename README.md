@@ -116,7 +116,7 @@ collection.sort('timestamp',-1).limit(10).texts()
 
 #### Visualizing the volume of tweets
 ```python
-bins, counts = collection.containing('#sexy').histogram_figure(
+bins, counts = collection.containing('#sexy').tweets_over_time_figure(
     start_time,
     step_size=timedelta(minutes=1),
     num_steps=60,
@@ -155,9 +155,9 @@ For geolocated tweets, in order to get the geolocation out in the csv, add `coor
 Smapp-toolkit has some built-in plotting functionality. See the [example scripts](https://github.com/SMAPPNYU/smapp-toolkit/tree/master/examples), and check out the [gallery](http://philosoraptor.bio.nyu.edu:82/figure-gallery/)!
 
 Currently implemented:
-* histograms (volume per time unit)
-* histogram by language
-* histogram with vertical lines for annotating events
+* barchart of tweets per time-unit (tweets_over_time_figure(...))
+* barchart by language by day (languages_per_day_figure(...))
+* line chart (tweets per day) with vertical event annotations (tweets_per_day_with_annotations_figure(...))
 
 In order to get these to work, some extra packages (not automatically installed) need to be installed:
 * `matplotlib`

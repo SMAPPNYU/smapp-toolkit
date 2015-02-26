@@ -10,12 +10,13 @@ try:
     import twitter_figure_makers
     NO_FIGURES = False
 except:
-    warnings.warn("smapp-toolkit: Missing some graphics packages, so making figures won't work.\n")
+    warnings.warn("smapp-toolkit: Missing some graphics packages. Making figures won't work.\n")
     NO_FIGURES = True
 
 class MongoTweetCollection(object):
     """
-    Collection object for performing queries and getting data out of a MongoDB collection of tweets.
+    Collection object for performing queries and getting data out of a MongoDB collection 
+    of tweets.
 
     Example:
     ########
@@ -24,15 +25,18 @@ class MongoTweetCollection(object):
 
     collection.since(datetime(2014,1,1)).until(2014,2,1).mentioning('ebola').texts()
     """
-    def __init__(self, address='localhost', port=27017, username=None, password=None, dbname='test', metadata_collection='smapp_metadata', metadata_document='smapp-tweet-collection-metadata',):
+    def __init__(self, address='localhost', port=27017, username=None, password=None,
+                 dbname='test', metadata_collection='smapp_metadata', 
+                 metadata_document='smapp-tweet-collection-metadata'):
         self._client = MongoClient(address, int(port))
         self._mongo_database = self._client[dbname]
         if username and password:
             self._mongo_database.authenticate(username, password)
 
-        self.collection_metadata = self._mongo_database[metadata_collection].find_one({'document': metadata_document})
-        self._mongo_collections = [self._mongo_database[colname]
-            for colname in self.collection_metadata['tweet_collections']]
+        self._collection_metadata = self._mongo_database[metadata_collection].find_one({'document': metadata_document})
+        
+        # _mongo_collections list is a list of (collection_object, limit) pairs, in order to support good limit fctly
+        self._mongo_collections = [(self._mongo_database[colname], 0) for colname in self._collection_metadata['tweet_collections']]
         self._queries = list()
 
         self._limit = 0
@@ -98,7 +102,7 @@ class MongoTweetCollection(object):
 
     def non_geo_enabled(self):
         """
-        Only return tweets that are geo-tagged.
+        Only return tweets that are NOT geo-tagged.
         """
         return self._copy_with_added_query({'coordinates.coordinates': {'$exists': False}})
 
@@ -172,15 +176,34 @@ class MongoTweetCollection(object):
 
     def limit(self, count):
         """
-        Only return `count` tweets from the collection.
+        Only return `count` tweets from the collection. Note: this takes tweets from the
+        beginning of the collection(s)
 
         Example:
         ########
         collection.limit(5).texts()
         """
+        # Get copy of original object
         ret = copy.copy(self)
         ret._queries = copy.copy(self._queries)
-        ret._limit = count
+        
+        # Set new Object's mongo collections list to empty
+        ret._mongo_collections = []
+
+        # Iterate over old collections list, counting to get enough to satisfy limit.
+        # Add collections that don't yet meet limit
+        added_collection_count = 0
+        for c, l in self._mongo_collections:
+            c_count = c.find(limit=l).count(with_limit_and_skip=True)
+            if count > added_collection_count + c_count:
+                ret._mongo_collections.append((c, c_count))
+                added_collection_count += c_count
+                continue
+            else:
+                # count - added_collection_count is the number of tweets needed from
+                # current collection to satisfy limit
+                ret._mongo_collections.append((c, count - added_collection_count))
+                break
         return ret
 
     def sort(self, field, direction=ASCENDING):
@@ -205,7 +228,7 @@ class MongoTweetCollection(object):
 
         collection.containing('peace').count()
         """
-        return sum(col.find(self._query()).count() for col in self._mongo_collections)
+        return sum(col.find(self._query(), limit=lim).count(with_limit_and_skip=True) for col, lim in self._mongo_collections)
 
     def texts(self):
         """
@@ -234,7 +257,6 @@ class MongoTweetCollection(object):
                 value = ''
             row.append(u','.join(unicode(v) for v in value) if isinstance(value, list) else unicode(value))
         return row
-
 
     def dump_csv(self, filename, columns=COLUMNS):
         """
@@ -268,15 +290,14 @@ class MongoTweetCollection(object):
                 a[key] = b[key]
         return a
 
-
     def _query(self):
         return reduce(self._merge, self._queries, {})
 
     def __iter__(self):
         if self._sort:
-            return (tweet for collection in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=self._limit).sort(*self._sort))
+            return (tweet for collection, limit in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=limit, sort=[self._sort]))
         else:
-            return (tweet for collection in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=self._limit))
+            return (tweet for collection, limit in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=limit))
 
     def __getattr__(self, name):
         if name.endswith('_containing'):

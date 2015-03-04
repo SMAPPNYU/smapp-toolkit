@@ -2,9 +2,12 @@ import re
 import copy
 import warnings
 from datetime import timedelta
+from collections import Counter
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
+from smappPy.iter_util import get_ngrams
 from smappPy.unicode_csv import UnicodeWriter
+from smappPy.text_clean import basic_tokenize
 
 try:
     import twitter_figure_makers
@@ -240,6 +243,51 @@ class MongoTweetCollection(object):
         collection.since(datetime(2014,1,1)).texts()
         """
         return [tweet['text'] for tweet in self]
+
+    def top_unigrams(self, n=10, keep_hashtags, keep_mentions):
+        """
+        Return the top 'n' unigrams (tokenized words) in the collection.
+        Warning: may take a while, as it has to iterate over all tweets in collection.
+        Use with a limit for best (temporal) results.
+        
+        'keep_hastags' and 'keep_mentions' instruct the tokenizer to not remove hashtag 
+        and mention symbols when breaking words into tokens (all other non-alphanumeric + 
+        underscore characters are discarded)
+        """
+        unigrams = Counter()
+        for tweet in self:
+            tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
+            unigrams.update(tokens)
+        return unigrams.most_common(n)
+
+    def top_bigrams(self, n=10, keep_hashtags, keep_mentions):
+        bigrams = Counter()
+        for tweet in self:
+            tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
+            bigrams = get_ngrams(tokens, 2)
+            bigrams.update(bigrams)
+        return bigrams.most_common(n)
+
+    def top_trigrams(self, n=10, keep_hashtags, keep_mentions):
+        trigrams = Counter()
+        for tweet in self:
+            tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
+            trigrams = get_ngrams(tokens, 3)
+            trigrams.update(bigrams)
+        return trigrams.most_common(n)
+
+    def top_links(self, n=10):
+        pass
+
+    def top_images(self, n=10):
+        pass
+
+    def top_hashtags(self, n=10):
+        pass
+
+    def top_mentions(self, n=10):
+        pass
+
 
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
     def _make_row(self, tweet, columns=COLUMNS):

@@ -244,7 +244,7 @@ class MongoTweetCollection(object):
         """
         return [tweet['text'] for tweet in self]
 
-    def top_unigrams(self, n=10, keep_hashtags, keep_mentions):
+    def top_unigrams(self, n=10, keep_hashtags=True, keep_mentions=True):
         """
         Return the top 'n' unigrams (tokenized words) in the collection.
         Warning: may take a while, as it has to iterate over all tweets in collection.
@@ -260,7 +260,7 @@ class MongoTweetCollection(object):
             unigrams.update(tokens)
         return unigrams.most_common(n)
 
-    def top_bigrams(self, n=10, keep_hashtags, keep_mentions):
+    def top_bigrams(self, n=10, keep_hashtags=True, keep_mentions=True):
         bigrams = Counter()
         for tweet in self:
             tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
@@ -268,7 +268,7 @@ class MongoTweetCollection(object):
             bigrams.update(bigrams)
         return bigrams.most_common(n)
 
-    def top_trigrams(self, n=10, keep_hashtags, keep_mentions):
+    def top_trigrams(self, n=10, keep_hashtags=True, keep_mentions=True):
         trigrams = Counter()
         for tweet in self:
             tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
@@ -277,16 +277,16 @@ class MongoTweetCollection(object):
         return trigrams.most_common(n)
 
     def top_links(self, n=10):
-        pass
+        raise NotImplementedError()
 
     def top_images(self, n=10):
-        pass
+        raise NotImplementedError()
 
     def top_hashtags(self, n=10):
-        pass
+        raise NotImplementedError()
 
     def top_mentions(self, n=10):
-        pass
+        raise NotImplementedError()
 
 
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']

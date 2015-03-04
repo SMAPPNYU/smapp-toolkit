@@ -244,34 +244,59 @@ class MongoTweetCollection(object):
         """
         return [tweet['text'] for tweet in self]
 
-    def top_unigrams(self, n=10, keep_hashtags=True, keep_mentions=True):
+
+
+    def top_unigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False):
         """
         Return the top 'n' unigrams (tokenized words) in the collection.
         Warning: may take a while, as it has to iterate over all tweets in collection.
         Use with a limit for best (temporal) results.
         
-        'keep_hastags' and 'keep_mentions' instruct the tokenizer to not remove hashtag 
+        'hastags' and 'mentions' instruct the tokenizer to not remove hashtag 
         and mention symbols when breaking words into tokens (all other non-alphanumeric + 
-        underscore characters are discarded)
+        underscore characters are discarded). When set to True, this will differentiate
+        between the terms "#MichaelJackson" and "MichaelJackson" (two different tokens).
+        When False, these terms will become the same token, "MichaelJackson"
+
+        'rts', 'mts', and 'https' instruct the tokenizer to drop the following tokens,
+        respectively:
+            - "rt" only
+            - "mt" only
+            - any token containing the substring "http"
         """
         unigrams = Counter()
         for tweet in self:
-            tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
+            tokens = get_cleaned_tokens(tweet["text"],
+                                        keep_hashtags=hashtags,
+                                        keep_mentions=mentions,
+                                        rts=rts,
+                                        mts=mts,
+                                        https=https)
             unigrams.update(tokens)
         return unigrams.most_common(n)
 
-    def top_bigrams(self, n=10, keep_hashtags=True, keep_mentions=True):
+    def top_bigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False):
         bigrams = Counter()
         for tweet in self:
-            tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
+            tokens = get_cleaned_tokens(tweet["text"],
+                                        keep_hashtags=hashtags,
+                                        keep_mentions=mentions,
+                                        rts=rts,
+                                        mts=mts,
+                                        https=https)
             tweet_bigrams = get_ngrams(tokens, 2)
             bigrams.update(tweet_bigrams)
         return bigrams.most_common(n)
 
-    def top_trigrams(self, n=10, keep_hashtags=True, keep_mentions=True):
+    def top_trigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False):
         trigrams = Counter()
         for tweet in self:
-            tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
+            tokens = get_cleaned_tokens(tweet["text"],
+                                        keep_hashtags=hashtags,
+                                        keep_mentions=mentions,
+                                        rts=rts,
+                                        mts=mts,
+                                        https=https)
             tweet_trigrams = get_ngrams(tokens, 3)
             trigrams.update(tweet_trigrams)
         return trigrams.most_common(n)

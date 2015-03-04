@@ -264,16 +264,16 @@ class MongoTweetCollection(object):
         bigrams = Counter()
         for tweet in self:
             tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
-            bigrams = get_ngrams(tokens, 2)
-            bigrams.update(bigrams)
+            tweet_bigrams = get_ngrams(tokens, 2)
+            bigrams.update(tweet_bigrams)
         return bigrams.most_common(n)
 
     def top_trigrams(self, n=10, keep_hashtags=True, keep_mentions=True):
         trigrams = Counter()
         for tweet in self:
             tokens = basic_tokenize(tweet["text"], keep_hashtags=keep_hashtags, keep_mentions=keep_mentions)
-            trigrams = get_ngrams(tokens, 3)
-            trigrams.update(bigrams)
+            tweet_trigrams = get_ngrams(tokens, 3)
+            trigrams.update(tweet_trigrams)
         return trigrams.most_common(n)
 
     def top_links(self, n=10):

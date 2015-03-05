@@ -7,7 +7,7 @@ from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from smappPy.iter_util import get_ngrams
 from smappPy.unicode_csv import UnicodeWriter
-from smappPy.text_clean import basic_tokenize
+from smappPy.text_clean import get_cleaned_tokens
 
 try:
     import twitter_figure_makers

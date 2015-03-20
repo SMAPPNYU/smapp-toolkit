@@ -11,13 +11,6 @@ from smappPy.iter_util import get_ngrams
 from smappPy.unicode_csv import UnicodeWriter
 from smappPy.text_clean import get_cleaned_tokens
 
-try:
-    import twitter_figure_makers
-    NO_FIGURES = False
-except:
-    warnings.warn("smapp-toolkit: Missing some graphics packages. Making figures won't work.\n")
-    NO_FIGURES = True
-
 class BSONTweetCollection(object):
     """
     Collection object for performing queries and getting data out of a BSON file 

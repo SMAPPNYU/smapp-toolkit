@@ -1,6 +1,7 @@
 import re
 import copy
 import warnings
+from random import random
 from datetime import timedelta
 from collections import Counter
 from bson import decode_file_iter
@@ -99,23 +100,22 @@ class BSONTweetCollection(object):
         """
         return self.field_containing('user.location', *names)
 
-    def _geo_enabled_filter(tweet):
-        return 'coordinates' in tweet and 'coordinates' in tweet['coordinates']
-
     def geo_enabled(self):
         """
         Only return tweets that are geo-tagged.
         """
-        return self._copy_with_added_filter(_geo_enabled_filter)
+        def geo_enabled_filter(tweet):
+            return 'coordinates' in tweet and 'coordinates' in tweet['coordinates']
+        return self._copy_with_added_filter(geo_enabled_filter)
 
-    def _non_geo_enabled_filter(tweet):
-        return 'coordinates' not in tweet or 'coordinates' not in tweet['coordinates']
 
     def non_geo_enabled(self):
         """
         Only return tweets that are NOT geo-tagged.
         """
-        return self._copy_with_added_filter(_non_geo_enabled_filter)
+        def non_geo_enabled_filter(tweet):
+            return 'coordinates' not in tweet or 'coordinates' not in tweet['coordinates']
+        return self._copy_with_added_filter(non_geo_enabled_filter)
 
     def since(self, since):
         """
@@ -161,24 +161,24 @@ class BSONTweetCollection(object):
         collection.language('fr', 'de')
         """
         def lang_filter(tweet):
-            return any(tweet['lang'] == l for l in langs)
+            return tweet['lang'] in langs
         return self._copy_with_added_filter(lang_filter)
 
-    def _excluding_retweets_filter(tweet):
-        return 'retweeted_status' not in tweet
 
     def excluding_retweets(self):
         """
         Only find tweets that are not retweets.
         """
-        return self._copy_with_added_filter(_excluding_retweets_filter)
+        def excluding_retweets_filter(tweet):
+            return 'retweeted_status' not in tweet
+        return self._copy_with_added_filter(excluding_retweets_filter)
 
-    def _only_retweets_filter(tweet):
-        return 'retweeted_status' in tweet
 
     def only_retweets(self):
         "Only return retweets"
-        return self._copy_with_added_filter(_only_retweets_filter)
+        def only_retweets_filter(tweet):
+            return 'retweeted_status' in tweet
+        return self._copy_with_added_filter(only_retweets_filter)
 
     def sample(self, pct):
         """
@@ -192,7 +192,7 @@ class BSONTweetCollection(object):
         collection.sample(0.1).texts()
         """
         def sample_filter(tweet):
-            return tweet['random_number'] < pct
+            return random() < pct
         return self._copy_with_added_filter(sample_filter)
 
     def limit(self, count):
@@ -207,13 +207,6 @@ class BSONTweetCollection(object):
         self._limit = count
 
     def sort(self, field, direction=ASCENDING):
-        """
-        Order tweets by specified field in specified direction.
-
-        Example:
-        ########
-        collection.order('timestamp', collection.DESCENDING).texts()
-        """
         raise NotImplementedError("Sort not implemented for BSON collections")
 
     def count(self):
@@ -225,10 +218,7 @@ class BSONTweetCollection(object):
 
         collection.containing('peace').count()
         """
-        count = 0
-        for e in self:
-            count += 1
-        return count
+        return sum(1 for t in self)
 
     def texts(self):
         """

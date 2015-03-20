@@ -1,3 +1,4 @@
+import re
 from abc import ABCMeta, abstractmethod
 
 class BaseTweetCollection(object):

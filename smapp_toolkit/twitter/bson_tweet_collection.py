@@ -1,5 +1,7 @@
+import os
 import re
 import copy
+import pytz
 import warnings
 from random import random
 from datetime import timedelta
@@ -27,6 +29,10 @@ class BSONTweetCollection(BaseTweetCollection):
             raise IOError("File not found")
         self._filter_functions = list()
         self._limit = None
+
+    def __repr__(self, ):
+        return "BSON Tweet Collection (source, # filters, limit): {0}, {1}, {2}".format(
+            self._filename, len(self._filter_functions), self._limit)
 
     def _copy_with_added_filter(self, filter_function):
         ret = copy.copy(self)
@@ -61,7 +67,7 @@ class BSONTweetCollection(BaseTweetCollection):
         search = self._regex_escape_and_concatenate(*terms)
         regex = re.compile(search, re.IGNORECASE | re.UNICODE)
         def field_contains_filter(tweet):
-            return ex.search(tweet[field])
+            return regex.search(tweet[field])
         return self._copy_with_added_filter(field_contains_filter)
 
     def geo_enabled(self):
@@ -92,6 +98,9 @@ class BSONTweetCollection(BaseTweetCollection):
 
         collection.since(datetime(2014,10,1))
         """
+        if since.tzinfo is None:
+            since = since.replace(tzinfo=pytz.UTC)
+
         def since_filter(tweet):
             # Should this use parsedate(),
             # for cases where we don't have proper 'timestamp's?
@@ -190,7 +199,7 @@ class BSONTweetCollection(BaseTweetCollection):
             for tweet in decode_file_iter(f):
                 if self._limit and i > self._limit:
                     raise StopIteration
-                if all(filter_fnc(tweet) for filter_fnc in funs):
+                if all(func(tweet) for func in self._filter_functions):
                     i += 1
                     yield tweet
 

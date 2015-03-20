@@ -9,7 +9,7 @@ setup(name='smapp-toolkit',
       url='http://smapp.nyu.edu',
       packages=['smapp_toolkit'],
       install_requires=[
-          'pymongo',
+          'pymongo>=2.8',
           'smappPy>=0.1.1',
       ]
      )

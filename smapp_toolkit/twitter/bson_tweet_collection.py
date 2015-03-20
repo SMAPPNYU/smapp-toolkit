@@ -3,6 +3,7 @@ import copy
 import warnings
 from datetime import timedelta
 from collections import Counter
+from bson import decode_file_iter
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from smappPy.iter_util import get_ngrams
@@ -16,34 +17,28 @@ except:
     warnings.warn("smapp-toolkit: Missing some graphics packages. Making figures won't work.\n")
     NO_FIGURES = True
 
-class MongoTweetCollection(object):
+class BSONTweetCollection(object):
     """
-    Collection object for performing queries and getting data out of a MongoDB collection 
+    Collection object for performing queries and getting data out of a BSON file 
     of tweets.
 
     Example:
     ########
-    collection = MongoTweetCollection(localhost, 27017, 'test', 'tweets')
-    collection.since(datetime(2014,1,1)).mentioning('bieber').count()
-
-    collection.since(datetime(2014,1,1)).until(2014,2,1).mentioning('ebola').texts()
+    
     """
-    def __init__(self, address='localhost', port=27017, username=None, password=None,
-                 dbname='test', metadata_collection='smapp_metadata', 
-                 metadata_document='smapp-tweet-collection-metadata'):
-        self._client = MongoClient(address, int(port))
-        self._mongo_database = self._client[dbname]
-        if username and password:
-            self._mongo_database.authenticate(username, password)
+    def __init__(self, filename):
+        self._filename = filename
+        if not os.path.isfile(filename):
+            raise IOError("File not found")
+        self._filter_functions = list()
+        self._limit = None
 
-        self._collection_metadata = self._mongo_database[metadata_collection].find_one({'document': metadata_document})
-        
-        # _mongo_collections list is a list of (collection_object, limit) pairs, in order to support good limit fctly
-        self._mongo_collections = [(self._mongo_database[colname], 0) for colname in self._collection_metadata['tweet_collections']]
-        self._queries = list()
 
-        self._limit = 0
-        self._sort = None
+    def _copy_with_added_filter(self, filter_function):
+        ret = copy.copy(self)
+        ret._filter_functions = copy.copy(self._filter_functions)
+        ret._filter_functions.append(filter_function)
+        return ret
 
     def _regex_escape_and_concatenate(self, *terms):
         search = re.escape(terms[0])
@@ -52,14 +47,19 @@ class MongoTweetCollection(object):
                 search += '|' + re.escape(term)
         return search
 
-    def _copy_with_added_query(self, query):
-        ret = copy.copy(self)
-        ret._queries = copy.copy(self._queries)
-        ret._queries.append(query)
-        return ret
-
     def matching_regex(self, expr):
-        return self._copy_with_added_query({'text': {'$regex': expr}})
+        """
+        Select tweets where the text matches a regex
+
+        Example:
+        ########
+        collection.matching_regex(r'@[A-Za-z]{1,3}')
+        # will return tweets with mentions of users with short handles
+        """
+        ex = re.compile(expr, re.IGNORECASE | re.UNICODE)
+        def regex_filter(tweet):
+            return ex.search(tweet['text'])
+        return self._copy_with_added_filter(regex_filter)
 
     def field_containing(self, field, *terms):
         """
@@ -72,8 +72,10 @@ class MongoTweetCollection(object):
         # in their description.
         """
         search = self._regex_escape_and_concatenate(*terms)
-        regex = re.compile(search, re.IGNORECASE, )
-        return self._copy_with_added_query({field: regex})
+        regex = re.compile(search, re.IGNORECASE | re.UNICODE)
+        def field_contains_filter(tweet):
+            return ex.search(tweet[field])
+        return self._copy_with_added_filter(field_contains_filter)
 
     def containing(self, *terms):
         """
@@ -97,17 +99,23 @@ class MongoTweetCollection(object):
         """
         return self.field_containing('user.location', *names)
 
+    def _geo_enabled_filter(tweet):
+        return 'coordinates' in tweet and 'coordinates' in tweet['coordinates']
+
     def geo_enabled(self):
         """
         Only return tweets that are geo-tagged.
         """
-        return self._copy_with_added_query({'coordinates.coordinates': {'$exists': True}})
+        return self._copy_with_added_filter(_geo_enabled_filter)
+
+    def _non_geo_enabled_filter(tweet):
+        return 'coordinates' not in tweet or 'coordinates' not in tweet['coordinates']
 
     def non_geo_enabled(self):
         """
         Only return tweets that are NOT geo-tagged.
         """
-        return self._copy_with_added_query({'coordinates.coordinates': {'$exists': False}})
+        return self._copy_with_added_filter(_non_geo_enabled_filter)
 
     def since(self, since):
         """
@@ -120,7 +128,11 @@ class MongoTweetCollection(object):
 
         collection.since(datetime(2014,10,1))
         """
-        return self._copy_with_added_query({'timestamp': {'$gt': since}})
+        def since_filter(tweet):
+            # Should this use parsedate(),
+            # for cases where we don't have proper 'timestamp's?
+            return tweet['timestamp'] > since
+        return self._copy_with_added_filter(since_filter)
 
     def until(self, until):
         """
@@ -133,7 +145,11 @@ class MongoTweetCollection(object):
 
         collection.until(datetime(2014,10,1))
         """
-        return self._copy_with_added_query({'timestamp': {'$lt': until}})
+        def until_filter(tweet):
+            # Should this use parsedate(),
+            # for cases where we don't have proper 'timestamp's?
+            return tweet['timestamp'] < until
+        return self._copy_with_added_filter(until_filter)
 
     def language(self, *langs):
         """
@@ -144,17 +160,25 @@ class MongoTweetCollection(object):
 
         collection.language('fr', 'de')
         """
-        return self._copy_with_added_query({'lang': {'$in': langs}})
+        def lang_filter(tweet):
+            return any(tweet['lang'] == l for l in langs)
+        return self._copy_with_added_filter(lang_filter)
+
+    def _excluding_retweets_filter(tweet):
+        return 'retweeted_status' not in tweet
 
     def excluding_retweets(self):
         """
         Only find tweets that are not retweets.
         """
-        return self._copy_with_added_query({'retweeted_status': {'$exists': False}})
+        return self._copy_with_added_filter(_excluding_retweets_filter)
+
+    def _only_retweets_filter(tweet):
+        return 'retweeted_status' in tweet
 
     def only_retweets(self):
         "Only return retweets"
-        return self._copy_with_added_query({'retweeted_status': {'$exists':True}})
+        return self._copy_with_added_filter(_only_retweets_filter)
 
     def sample(self, pct):
         """
@@ -167,15 +191,9 @@ class MongoTweetCollection(object):
 
         collection.sample(0.1).texts()
         """
-        return self._copy_with_added_query({'random_number': {'$lt': pct}})
-
-    def using_latest_collection_only(self):
-        """
-        Only apply query to the latest collection in the split-set.
-        """
-        ret = copy.copy(self)
-        ret._mongo_collections = [self._mongo_collections[-1]]
-        return ret
+        def sample_filter(tweet):
+            return tweet['random_number'] < pct
+        return self._copy_with_added_filter(sample_filter)
 
     def limit(self, count):
         """
@@ -186,28 +204,7 @@ class MongoTweetCollection(object):
         ########
         collection.limit(5).texts()
         """
-        # Get copy of original object
-        ret = copy.copy(self)
-        ret._queries = copy.copy(self._queries)
-        
-        # Set new Object's mongo collections list to empty
-        ret._mongo_collections = []
-
-        # Iterate over old collections list, counting to get enough to satisfy limit.
-        # Add collections that don't yet meet limit
-        added_collection_count = 0
-        for c, l in self._mongo_collections:
-            c_count = c.find(limit=l).count(with_limit_and_skip=True)
-            if count > added_collection_count + c_count:
-                ret._mongo_collections.append((c, c_count))
-                added_collection_count += c_count
-                continue
-            else:
-                # count - added_collection_count is the number of tweets needed from
-                # current collection to satisfy limit
-                ret._mongo_collections.append((c, count - added_collection_count))
-                break
-        return ret
+        self._limit = count
 
     def sort(self, field, direction=ASCENDING):
         """
@@ -217,10 +214,7 @@ class MongoTweetCollection(object):
         ########
         collection.order('timestamp', collection.DESCENDING).texts()
         """
-        ret = copy.copy(self)
-        ret._queries = copy.copy(self._queries)
-        ret._sort = (field, direction)
-        return ret
+        raise NotImplementedError("Sort not implemented for BSON collections")
 
     def count(self):
         """
@@ -231,7 +225,10 @@ class MongoTweetCollection(object):
 
         collection.containing('peace').count()
         """
-        return sum(col.find(self._query(), limit=lim).count(with_limit_and_skip=True) for col, lim in self._mongo_collections)
+        count = 0
+        for e in self:
+            count += 1
+        return count
 
     def texts(self):
         """
@@ -243,6 +240,7 @@ class MongoTweetCollection(object):
         collection.since(datetime(2014,1,1)).texts()
         """
         return [tweet['text'] for tweet in self]
+
 
     def _top_ngrams(self, ngram, n, hashtags, mentions, rts, mts, https):
         counts = Counter()
@@ -331,29 +329,15 @@ class MongoTweetCollection(object):
             for tweet in self:
                 writer.writerow(self._make_row(tweet, columns))
 
-    def _merge(self, a, b, path=None):
-        "Merge dictionaries of dictionaries"
-        if path is None: path = []
-        for key in b:
-            if key in a:
-                if isinstance(a[key], dict) and isinstance(b[key], dict):
-                    self._merge(a[key], b[key], path + [str(key)])
-                elif a[key] == b[key]:
-                    pass # same leaf value
-                else:
-                    raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
-            else:
-                a[key] = b[key]
-        return a
-
-    def _query(self):
-        return reduce(self._merge, self._queries, {})
-
     def __iter__(self):
-        if self._sort:
-            return (tweet for collection, limit in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=limit, sort=[self._sort]))
-        else:
-            return (tweet for collection, limit in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=limit))
+        with open(self._filename, 'rb') as f:
+            i = 0
+            for tweet in decode_file_iter(f):
+                if self._limit and i > self._limit:
+                    raise StopIteration
+                if all(filter_fnc(tweet) for filter_fnc in funs):
+                    i += 1
+                    yield tweet
 
     def __getattr__(self, name):
         if name.endswith('_containing'):

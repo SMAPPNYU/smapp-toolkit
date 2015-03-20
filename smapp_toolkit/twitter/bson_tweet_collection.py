@@ -75,16 +75,19 @@ class BSONTweetCollection(BaseTweetCollection):
         Only return tweets that are geo-tagged.
         """
         def geo_enabled_filter(tweet):
-            return 'coordinates' in tweet and 'coordinates' in tweet['coordinates']
+            return "coordinates" in tweet and \
+                tweet["coordinates"] is not None and \
+                "coordinates" in tweet["coordinates"]
         return self._copy_with_added_filter(geo_enabled_filter)
-
 
     def non_geo_enabled(self):
         """
         Only return tweets that are NOT geo-tagged.
         """
         def non_geo_enabled_filter(tweet):
-            return 'coordinates' not in tweet or 'coordinates' not in tweet['coordinates']
+            return 'coordinates' not in tweet or \
+                tweet['coordinates'] is None or \
+                'coordinates' not in tweet['coordinates']
         return self._copy_with_added_filter(non_geo_enabled_filter)
 
     def since(self, since):
@@ -118,6 +121,9 @@ class BSONTweetCollection(BaseTweetCollection):
 
         collection.until(datetime(2014,10,1))
         """
+        if until.tzinfo is None:
+            until = until.replace(tzinfo=pytz.UTC)
+
         def until_filter(tweet):
             # Should this use parsedate(),
             # for cases where we don't have proper 'timestamp's?
@@ -177,7 +183,9 @@ class BSONTweetCollection(BaseTweetCollection):
         ########
         collection.limit(5).texts()
         """
-        self._limit = count
+        ret = copy.copy(self)
+        ret._limit = count
+        return ret
 
     def sort(self, field, direction=ASCENDING):
         raise NotImplementedError("Sort not implemented for BSON collections")
@@ -195,7 +203,7 @@ class BSONTweetCollection(BaseTweetCollection):
 
     def __iter__(self):
         with open(self._filename, 'rb') as f:
-            i = 0
+            i = 1
             for tweet in decode_file_iter(f):
                 if self._limit and i > self._limit:
                     raise StopIteration

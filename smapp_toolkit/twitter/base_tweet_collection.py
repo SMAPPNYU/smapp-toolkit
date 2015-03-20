@@ -1,5 +1,6 @@
 import re
 from abc import ABCMeta, abstractmethod
+from smappPy.unicode_csv import UnicodeWriter
 
 class BaseTweetCollection(object):
     __metaclass__ = ABCMeta

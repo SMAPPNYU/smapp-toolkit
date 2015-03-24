@@ -1,6 +1,8 @@
 import re
 from abc import ABCMeta, abstractmethod
+from smappPy.iter_util import get_ngrams
 from smappPy.unicode_csv import UnicodeWriter
+from smappPy.store_tweets import tweets_to_file
 
 class BaseTweetCollection(object):
     __metaclass__ = ABCMeta
@@ -87,6 +89,7 @@ class BaseTweetCollection(object):
         """
         return self._top_ngrams(1, **kwargs)
 
+
     def top_bigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False):
         return self._top_ngrams(2, **kwargs)
 
@@ -104,6 +107,10 @@ class BaseTweetCollection(object):
 
     def top_mentions(self, n=10):
         raise NotImplementedError()
+
+    def top_retweets(self, n=10):
+        raise NotImplementedError()
+
 
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
     def _make_row(self, tweet, columns=COLUMNS):
@@ -138,3 +145,12 @@ class BaseTweetCollection(object):
             writer.writerow(columns)
             for tweet in self:
                 writer.writerow(self._make_row(tweet, columns))
+
+    def dump_json(self, filename, append=False, pure_json=False, pretty=False):
+        """
+        Dumps the matching tweets in raw Mongo JSON (default) or Pure JSON (pure_json=True)
+        format. To append to given filename, pass append=True. To pretty-print (line breaks
+        and spacing), pass pretty=True.
+        """
+        tweets_to_file(self, filename, append, pure_json, pretty)
+

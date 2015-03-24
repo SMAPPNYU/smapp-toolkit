@@ -5,7 +5,6 @@ from datetime import timedelta
 from collections import Counter
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
-from smappPy.iter_util import get_ngrams
 from smappPy.unicode_csv import UnicodeWriter
 from smappPy.text_clean import get_cleaned_tokens
 from base_tweet_collection import BaseTweetCollection
@@ -38,6 +37,12 @@ class MongoTweetCollection(BaseTweetCollection):
 
         self._limit = 0
         self._sort = None
+
+    def __repr__(self, ):
+        return "Mongo Tweet Collection (DB, # filters, limit): {0}, {1}, {2}".format(
+            "{0}:{1}/{2}".format(self._client.host, self._client.port, self._mongo_database.name),
+            len(self._queries),
+            self._limit)
 
     def _copy_with_added_query(self, query):
         ret = copy.copy(self)
@@ -154,6 +159,9 @@ class MongoTweetCollection(BaseTweetCollection):
         # Get copy of original object
         ret = copy.copy(self)
         ret._queries = copy.copy(self._queries)
+
+        # Set self limit variable (for info only)
+        ret._limit = count
         
         # Set new Object's mongo collections list to empty
         ret._mongo_collections = []
@@ -173,6 +181,19 @@ class MongoTweetCollection(BaseTweetCollection):
                 ret._mongo_collections.append((c, count - added_collection_count))
                 break
         return ret
+
+    def time_range(self, ):
+        """
+        Returns a tuple: (first_tweet_date, last_tweet_date)
+
+        Example:
+        ########
+        collection.time_range()
+        >> (datetime.datetime(2014, 10, 8, 12, 51), datetime.datetime(2015, 3, 24, 5, 32))
+        """
+        first = list(self.sort("timestamp", direction=ASCENDING).limit(1))[0]["timestamp"]
+        last = list(self.sort("timestamp", direction=DESCENDING).limit(1))[0]["timestamp"]
+        return (first, last)
 
     def sort(self, field, direction=ASCENDING):
         """

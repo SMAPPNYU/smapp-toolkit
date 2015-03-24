@@ -21,7 +21,7 @@ class BSONTweetCollection(BaseTweetCollection):
 
     Example:
     ########
-    
+    collection = BSONTweetCollection("/home/smapp/data/RawTweets.bson")
     """
     def __init__(self, filename):
         self._filename = filename
@@ -187,8 +187,11 @@ class BSONTweetCollection(BaseTweetCollection):
         ret._limit = count
         return ret
 
+    def time_range(self, ):
+        raise NotImplementedError("Timerange not implemented for BSON collections (inefficient)")
+
     def sort(self, field, direction=ASCENDING):
-        raise NotImplementedError("Sort not implemented for BSON collections")
+        raise NotImplementedError("Sort not implemented for BSON collections (inefficient)")
 
     def count(self):
         """

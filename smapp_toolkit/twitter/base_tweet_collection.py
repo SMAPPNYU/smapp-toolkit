@@ -57,7 +57,7 @@ class BaseTweetCollection(object):
         """
         return [tweet['text'] for tweet in self]
 
-    def _top_ngrams(self, ngram, n, hashtags, mentions, rts, mts, https):
+    def _top_ngrams(self, ngram, n, hashtags, mentions, rts, mts, https, stopwords):
         counts = Counter()
         for tweet in self:
             tokens = get_cleaned_tokens(tweet["text"],
@@ -65,13 +65,13 @@ class BaseTweetCollection(object):
                                         keep_mentions=mentions,
                                         rts=rts,
                                         mts=mts,
-                                        https=https)
+                                        https=https,
+                                        stopwords=stopwords)
             ngrams = get_ngrams(tokens, ngram)
             counts.update(tokens)
         return counts.most_common(n)
 
-
-    def top_unigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False):
+    def top_unigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
         """
         Return the top 'n' unigrams (tokenized words) in the collection.
         Warning: may take a while, as it has to iterate over all tweets in collection.
@@ -85,18 +85,28 @@ class BaseTweetCollection(object):
 
         'rts', 'mts', and 'https' instruct the tokenizer to drop the following tokens,
         respectively:
-            - "rt" only
-            - "mt" only
+            - "rt" exactly
+            - "mt" exactly
             - any token containing the substring "http"
+
+        'stopwords' can be a list of words to remove from each tweet before considering.
+        Seel nltk (http://www.nltk.org/book/ch02.html) stopwords corpuses, for example.
+
+        Example (get top 100 unigrams, removing english stopwords from consideration):
+        ##############################################################################
+        import nltk
+        collection.top_unigrams(n=100, stopwords=nltk.stopwords.words("english"))
         """
-        return self._top_ngrams(1, **kwargs)
+        return self._top_ngrams(1, n, hashtags, mentions, rts, mts, https, stopwords)
+
+    def top_bigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
+        return self._top_ngrams(2, n, hashtags, mentions, rts, mts, https, stopwords)
+
+    def top_trigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
+        return self._top_ngrams(3, n, hashtags, mentions, rts, mts, https, stopwords)
 
 
-    def top_bigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False):
-        return self._top_ngrams(2, **kwargs)
 
-    def top_trigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False):
-        return self._top_ngrams(3, **kwargs)
 
     def top_links(self, n=10):
         raise NotImplementedError()
@@ -113,6 +123,10 @@ class BaseTweetCollection(object):
     def top_retweets(self, n=10):
         raise NotImplementedError()
 
+    def top_user_locations(self, n=10):
+        raise NotImplementedError()
+
+        
 
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
     def _make_row(self, tweet, columns=COLUMNS):

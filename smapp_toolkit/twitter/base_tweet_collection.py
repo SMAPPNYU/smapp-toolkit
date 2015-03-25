@@ -1,8 +1,10 @@
 import re
+from collections import Counter
 from abc import ABCMeta, abstractmethod
 from smappPy.iter_util import get_ngrams
 from smappPy.unicode_csv import UnicodeWriter
 from smappPy.store_tweets import tweets_to_file
+from smappPy.text_clean import get_cleaned_tokens
 
 class BaseTweetCollection(object):
     __metaclass__ = ABCMeta

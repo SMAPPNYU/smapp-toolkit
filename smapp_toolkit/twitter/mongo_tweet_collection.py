@@ -2,11 +2,8 @@ import re
 import copy
 import warnings
 from datetime import timedelta
-from collections import Counter
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
-from smappPy.unicode_csv import UnicodeWriter
-from smappPy.text_clean import get_cleaned_tokens
 from base_tweet_collection import BaseTweetCollection
 
 class MongoTweetCollection(BaseTweetCollection):

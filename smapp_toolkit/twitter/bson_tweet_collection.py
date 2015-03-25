@@ -4,14 +4,7 @@ import copy
 import pytz
 import warnings
 from random import random
-from datetime import timedelta
-from collections import Counter
 from bson import decode_file_iter
-from pymongo.cursor import Cursor
-from pymongo import MongoClient, ASCENDING, DESCENDING
-from smappPy.iter_util import get_ngrams
-from smappPy.unicode_csv import UnicodeWriter
-from smappPy.text_clean import get_cleaned_tokens
 from base_tweet_collection import BaseTweetCollection
 
 class BSONTweetCollection(BaseTweetCollection):
@@ -190,7 +183,7 @@ class BSONTweetCollection(BaseTweetCollection):
     def time_range(self, ):
         raise NotImplementedError("Timerange not implemented for BSON collections (inefficient)")
 
-    def sort(self, field, direction=ASCENDING):
+    def sort(self, field, direction=1):
         raise NotImplementedError("Sort not implemented for BSON collections (inefficient)")
 
     def count(self):

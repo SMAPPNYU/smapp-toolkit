@@ -214,17 +214,6 @@ class BSONTweetCollection(BaseTweetCollection):
                     i += 1
                     yield tweet
 
-    def __getattr__(self, name):
-        if name.endswith('_containing'):
-            field_name = '.'.join(name.split('_')[:-1])
-            def containing_method(*terms):
-                return self.field_containing(field_name, *terms)
-            return containing_method
-        elif name.endswith('_figure') and not NO_FIGURES:
-            figure_name = '_'.join(name.split('_')[:-1])
-            method = twitter_figure_makers.__getattribute__(figure_name)
-            def figure_method(*args, **kwargs):
-                return method(self, *args, **kwargs)
-            return figure_method
-        else:
-            return object.__getattribute__(self, name)
+
+
+

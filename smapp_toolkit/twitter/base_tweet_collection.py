@@ -1,4 +1,5 @@
 import re
+import figure_makers
 from collections import Counter
 from abc import ABCMeta, abstractmethod
 from smappPy.iter_util import get_ngrams

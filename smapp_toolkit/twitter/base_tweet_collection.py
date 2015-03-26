@@ -3,8 +3,11 @@ from collections import Counter
 from abc import ABCMeta, abstractmethod
 from smappPy.iter_util import get_ngrams
 from smappPy.unicode_csv import UnicodeWriter
+from smappPy.retweet import is_official_retweet
 from smappPy.store_tweets import tweets_to_file
 from smappPy.text_clean import get_cleaned_tokens
+from smappPy.entities import get_users_mentioned, get_hashtags
+from smappPy.entities import get_urls, get_links, get_image_urls
 
 class BaseTweetCollection(object):
     __metaclass__ = ABCMeta
@@ -68,7 +71,7 @@ class BaseTweetCollection(object):
                                         https=https,
                                         stopwords=stopwords)
             ngrams = get_ngrams(tokens, ngram)
-            counts.update(tokens)
+            counts.update(ngrams)
         return counts.most_common(n)
 
     def top_unigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
@@ -105,28 +108,62 @@ class BaseTweetCollection(object):
     def top_trigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
         return self._top_ngrams(3, n, hashtags, mentions, rts, mts, https, stopwords)
 
-
-
-
     def top_links(self, n=10):
-        raise NotImplementedError()
+        """
+        Returns a list of tuples representing the top 'n' links (default: 10) in the
+        collection. 
+        Return: [(link_n, #occurrences), (link_m, #occurrences)...]
+        Note: "Links" include both URLs and Twitter Media (images, etc)
+        Note: If a tweet contains the same link multiple times, each time is counted
+        as one occurrence (ie, it is not top links-per-tweet).
+        """
+        return Counter([l for tweet in self for l in get_links(tweet)]).most_common(n)
+
+    def top_urls(self, n=10):
+        """
+        See 'top_links()'. Same, but for only embedded links (not Tweet Media).
+        """
+        return Counter([u for tweet in self for u in get_urls(tweet)]).most_common(n)
 
     def top_images(self, n=10):
-        raise NotImplementedError()
+        return Counter([i for tweet in self for i in get_image_urls(tweet)]).most_common(n)
 
     def top_hashtags(self, n=10):
-        raise NotImplementedError()
+        return Counter([h for tweet in self for h in get_hashtags(tweet)]).most_common(n)
 
     def top_mentions(self, n=10):
-        raise NotImplementedError()
-
-    def top_retweets(self, n=10):
-        raise NotImplementedError()
+        """
+        Same as other top functions, except returns the number of unique (user_id, user_screen_name) pairs.
+        """
+        return Counter([m for tweet in self for m in get_users_mentioned(tweet)]).most_common(n)
 
     def top_user_locations(self, n=10):
-        raise NotImplementedError()
+        """
+        Return top user location strings. Note that a user's location string is only considered
+        once, regardless of how often the user appears in the collection.
+        """
+        users = set()
+        loc_counts = Counter()
+        for tweet in self:
+            if tweet["user"]["id"] in users:
+                continue
+            users.add(tweet["user"]["id"])
+            if tweet["user"]["location"]:
+                loc_counts[tweet["user"]["location"]] += 1
+        return loc_counts.most_common(n)
 
-        
+    def top_retweets(self, n=10):
+        """
+        Returns a list of top retweets. Return is a list of triples:
+        [(retweet ID, RT count, retweet), ...]
+        """
+        rt_dict = {}
+        rt_counts = Counter()
+        for tweet in self:
+            if is_official_retweet(tweet):
+                rt_dict[tweet["retweeted_status"]["id"]] = tweet["retweeted_status"]
+                rt_counts[tweet["retweeted_status"]["id"]] += 1
+        return [(tid, tcount, rt_dict[tid]) for tid, tcount in rt_counts.most_common(n)]
 
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
     def _make_row(self, tweet, columns=COLUMNS):

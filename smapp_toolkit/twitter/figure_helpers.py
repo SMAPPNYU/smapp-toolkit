@@ -24,6 +24,7 @@ def plot_histo(d, *args, **kwargs):
     else:
         raise Exception("Can't plot histogram by {}. Legal values are ['minutes', 'hours', 'days'].".format(count_by))
     plt.plot(t,y, *args, **kwargs)
+    return t,y
 
 
 def term_counts_histogram(data, key_format, count_by,):
@@ -53,7 +54,7 @@ def term_counts_histogram(data, key_format, count_by,):
     colors = sns.color_palette('hls', len(data[data.keys()[0]].keys()))
 
     for c, term in zip(colors,data[data.keys()[0]].keys()):
-        plot_histo({k : data[k][term] for k in data.keys()}, label=term, color=c, count_by=count_by, key_format=key_format)
+        t,y = plot_histo({k : data[k][term] for k in data.keys()}, label=term, color=c, count_by=count_by, key_format=key_format)
 
     plt.legend()
     plt.xticks(t[::len(t)/10],

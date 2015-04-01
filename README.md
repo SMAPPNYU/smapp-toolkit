@@ -53,9 +53,16 @@ texts = collection.containing('#bieber').texts()
 ```
 
 #### Tweets containing one of several keywords (#bieber OR #sexy)
-
 ```python
 collection.containing('#bieber', '#sexy')
+```
+
+### Count occerences of multiple keywords over time
+```python
+collection.term_counts(['justin', 'miley'], count_by='days', plot=False)
+Out[]:
+{'2015-04-01': {'justin': 1312, 'miley': 837},
+ '2015-04-02': {'justin': 3287, 'miley': 932}}
 ```
 
 #### Random sample of tweets

@@ -1,8 +1,8 @@
 import re
 import figure_makers
-from collections import Counter
 from abc import ABCMeta, abstractmethod
 from smappPy.iter_util import get_ngrams
+from collections import Counter, defaultdict
 from smappPy.unicode_csv import UnicodeWriter
 from smappPy.retweet import is_official_retweet
 from smappPy.store_tweets import tweets_to_file
@@ -165,6 +165,55 @@ class BaseTweetCollection(object):
                 rt_dict[tweet["retweeted_status"]["id"]] = tweet["retweeted_status"]
                 rt_counts[tweet["retweeted_status"]["id"]] += 1
         return [(tid, tcount, rt_dict[tid]) for tid, tcount in rt_counts.most_common(n)]
+
+    def term_counts(self, terms, count_by='days', plot=False, match='tokens', case_sensitive=False):
+        """
+        Returns a dict with term counts aggregated by `count_by`. Acceptable values for `count_by` are 'days', 'hours', 'minutes'.
+        if `plot` is True, also plots a histogram.
+
+        Example:
+        ########
+        collection.term_counts(['justin', 'miley'])
+        >> {'2015-04-01': {'justin': 1312, 'miley': 837},
+            '2015-04-02': {'justin': 3287, 'miley': 932}}
+        """
+        if count_by == 'days':
+            KEY_FORMAT = '%Y-%m-%d'
+        elif count_by == 'hours':
+            KEY_FORMAT = '%Y-%m-%d %H:00'
+        elif count_by == 'minutes':
+            KEY_FORMAT = '%Y-%m-%d %H:%M'
+        else:
+            raise Exception("Illegal value for `count_by` ({}). Legal values are ['days', 'hours', 'minutes'].".format(count_by))
+
+        if not case_sensitive:
+            terms = [t.lower() for t in terms]
+
+        _DEFAULT_COUNTS_TOKENIZER_REGEXP = re.compile('\w+')
+        _DEFAULT_COUNTS_TOKENIZER = lambda s: _DEFAULT_COUNTS_TOKENIZER_REGEXP.findall(s)
+        if match == 'tokens' and case_sensitive:
+            contains = lambda text, term: term in _DEFAULT_COUNTS_TOKENIZER(text)
+        elif match == 'tokens' and not case_sensitive:
+            contains = lambda text, term: term in _DEFAULT_COUNTS_TOKENIZER(text.lower())
+        elif match == 'substring' and case_sensitive:
+            contains = lambda text, term: term in text
+        elif match == 'substring' and not case_sensitive:
+            contains = lambda text, term: term in text.lower()
+        else:
+            raise Exception("Illegal value for `match`. Legal values are ['tokens', 'substring'].")
+
+        ret = defaultdict(lambda: {t: 0 for t in terms})
+
+        for tweet in self:
+            d = ret[tweet['timestamp'].strftime(KEY_FORMAT)]
+            for term in terms:
+                if contains(tweet['text'], term):
+                    d[term] += 1
+
+        if plot:
+            warnings.warn("Haven't implemented plot=True here yet.")
+
+        return ret
 
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
     def _make_row(self, tweet, columns=COLUMNS):

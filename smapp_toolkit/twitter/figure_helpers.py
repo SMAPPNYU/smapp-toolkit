@@ -57,7 +57,6 @@ def term_counts_histogram(data, key_format, count_by,):
         t,y = plot_histo({k : data[k][term] for k in data.keys()}, label=term, color=c, count_by=count_by, key_format=key_format)
 
     plt.legend()
-    # plt.xticks(rotation=45)
     plt.xticks(t[::len(t)/10],
                [ts.strftime(key_format) for ts in t[::len(t)/10]],
                rotation=45)

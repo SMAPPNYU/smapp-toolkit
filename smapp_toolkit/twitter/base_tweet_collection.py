@@ -1,5 +1,6 @@
 import re
 import figure_makers
+import figure_helpers
 from abc import ABCMeta, abstractmethod
 from smappPy.iter_util import get_ngrams
 from collections import Counter, defaultdict
@@ -211,7 +212,7 @@ class BaseTweetCollection(object):
                     d[term] += 1
 
         if plot:
-            warnings.warn("Haven't implemented plot=True here yet.")
+            figure_helpers.term_counts_histogram(ret, KEY_FORMAT, count_by)
 
         return ret
 

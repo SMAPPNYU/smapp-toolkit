@@ -204,7 +204,7 @@ class BaseTweetCollection(object):
 
         ret = defaultdict(lambda: {t: 0 for t in terms})
 
-        for tweet in self:
+        for tweet in self.containing(*terms):
             d = ret[tweet['timestamp'].strftime(KEY_FORMAT)]
             for term in terms:
                 if contains(tweet['text'], term):

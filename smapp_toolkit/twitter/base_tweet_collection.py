@@ -203,10 +203,11 @@ class BaseTweetCollection(object):
         else:
             raise Exception("Illegal value for `match`. Legal values are ['tokens', 'substring'].")
 
-        ret = defaultdict(lambda: {t: 0 for t in terms})
+        ret = defaultdict(lambda: {t: 0 for t in terms+['_total']})
 
         for tweet in self.containing(*terms):
             d = ret[tweet['timestamp'].strftime(KEY_FORMAT)]
+            d['_total'] += 1
             for term in terms:
                 if contains(tweet['text'], term):
                     d[term] += 1

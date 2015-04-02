@@ -167,7 +167,7 @@ class BaseTweetCollection(object):
                 rt_counts[tweet["retweeted_status"]["id"]] += 1
         return [(tid, tcount, rt_dict[tid]) for tid, tcount in rt_counts.most_common(n)]
 
-    def term_counts(self, terms, count_by='days', plot=False, match='tokens', case_sensitive=False):
+    def term_counts(self, terms, count_by='days', plot=False, plot_total=True, match='tokens', case_sensitive=False):
         """
         Returns a dict with term counts aggregated by `count_by`. Acceptable values for `count_by` are 'days', 'hours', 'minutes'.
         if `plot` is True, also plots a histogram.
@@ -213,7 +213,7 @@ class BaseTweetCollection(object):
                     d[term] += 1
 
         if plot:
-            figure_helpers.term_counts_histogram(ret, KEY_FORMAT, count_by)
+            figure_helpers.term_counts_histogram(ret, KEY_FORMAT, count_by, plot_total)
 
         return ret
 

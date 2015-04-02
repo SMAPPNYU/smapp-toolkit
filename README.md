@@ -65,6 +65,7 @@ Out[]:
  '2015-04-02': {'justin': 3287, 'miley': 932}}
 ```
 
+
 #### Random sample of tweets
 ```python
 collection.containing('#bieber').sample(0.33).texts()
@@ -136,6 +137,11 @@ bins, counts = collection.containing('#sexy').tweets_over_time_figure(
     show=False)
 plt.title('Tweets containing "#sexy"')
 plt.show()
+```
+
+#### Vizualizing volume of selected terms over time
+```python
+collection.term_counts(['justin', 'miley'], count_by='days', plot=True, plot_total=True)
 ```
 
 #### Iterate over the full tweet objects

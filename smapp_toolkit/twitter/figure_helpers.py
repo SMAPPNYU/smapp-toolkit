@@ -27,7 +27,7 @@ def plot_histo(d, *args, **kwargs):
     return t,y
 
 
-def term_counts_histogram(data, key_format, count_by,):
+def term_counts_histogram(data, key_format, count_by, plot_total=True):
     """
     Function to make histogram plot for data created using `term_counts()`.
 
@@ -53,8 +53,13 @@ def term_counts_histogram(data, key_format, count_by,):
     """
     colors = sns.color_palette('hls', len(data[data.keys()[0]].keys()))
 
-    for c, term in zip(colors,data[data.keys()[0]].keys()):
-        t,y = plot_histo({k : data[k][term] for k in data.keys()}, label=term, color=c, count_by=count_by, key_format=key_format)
+    terms = data[data.keys()[0]].keys()
+    terms.remove('_total')
+    for c, term in zip(colors,terms):
+        t,y = plot_histo({k : data[k][term] for k in data}, label=term, color=c, count_by=count_by, key_format=key_format)
+
+    if plot_total:
+        plot_histo({k: data[k]['_total'] for k in data}, label='total', color='grey', linestyle='--', count_by=count_by, key_format=key_format)
 
     plt.legend()
     plt.xticks(t[::len(t)/10],

@@ -142,6 +142,7 @@ plt.show()
 #### Vizualizing volume of selected terms over time
 ```python
 collection.term_counts(['justin', 'miley'], count_by='days', plot=True, plot_total=True)
+plt.show()
 ```
 
 #### Iterate over the full tweet objects

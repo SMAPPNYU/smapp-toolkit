@@ -27,7 +27,7 @@ def plot_histo(d, *args, **kwargs):
     return t,y
 
 
-def term_counts_histogram(data, key_format, count_by, plot_total=True):
+def term_counts_histogram(data, key_format, count_by, plot_total=True, interactive_off=False):
     """
     Function to make histogram plot for data created using `term_counts()`.
 
@@ -51,6 +51,12 @@ def term_counts_histogram(data, key_format, count_by, plot_total=True):
     Legal values for count_by are ['days', 'hours', 'minutes']
     and the `key_format` is the strftime string for the keys of the data dict.
     """
+    if interactive_off:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        plt.ioff()
+
     colors = sns.color_palette('hls', len(data[data.keys()[0]].keys()))
 
     terms = data[data.keys()[0]].keys()

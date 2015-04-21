@@ -4,18 +4,12 @@ import warnings
 from datetime import timedelta
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
-from smappPy.unicode_csv import UnicodeWriter
+from base_tweet_collection import BaseTweetCollection
 
-try:
-    import twitter_figure_makers
-    NO_FIGURES = False
-except:
-    warnings.warn("smapp-toolkit: Missing some graphics packages, so making figures won't work.\n")
-    NO_FIGURES = True
-
-class MongoTweetCollection(object):
+class MongoTweetCollection(BaseTweetCollection):
     """
-    Collection object for performing queries and getting data out of a MongoDB collection of tweets.
+    Collection object for performing queries and getting data out of a MongoDB collection 
+    of tweets.
 
     Example:
     ########
@@ -24,32 +18,40 @@ class MongoTweetCollection(object):
 
     collection.since(datetime(2014,1,1)).until(2014,2,1).mentioning('ebola').texts()
     """
-    def __init__(self, address='localhost', port=27017, username=None, password=None, dbname='test', metadata_collection='smapp_metadata', metadata_document='smapp-tweet-collection-metadata',):
+    def __init__(self, address='localhost', port=27017, username=None, password=None,
+                 dbname='test', metadata_collection='smapp_metadata', 
+                 metadata_document='smapp-tweet-collection-metadata'):
         self._client = MongoClient(address, int(port))
         self._mongo_database = self._client[dbname]
         if username and password:
             self._mongo_database.authenticate(username, password)
 
-        self.collection_metadata = self._mongo_database[metadata_collection].find_one({'document': metadata_document})
-        self._mongo_collections = [self._mongo_database[colname]
-            for colname in self.collection_metadata['tweet_collections']]
+        self._collection_metadata = self._mongo_database[metadata_collection].find_one({'document': metadata_document})
+        
+        # _mongo_collections list is a list of (collection_object, limit) pairs, in order to support good limit fctly
+        self._mongo_collections = [(self._mongo_database[colname], 0) for colname in self._collection_metadata['tweet_collections']]
         self._queries = list()
 
         self._limit = 0
         self._sort = None
 
-    def _regex_escape_and_concatenate(self, *terms):
-        search = re.escape(terms[0])
-        if len(terms) > 1:
-            for term in terms[1:]:
-                search += '|' + re.escape(term)
-        return search
+    def __repr__(self, ):
+        return "Mongo Tweet Collection (DB, # filters, limit): {0}, {1}, {2}".format(
+            "{0}:{1}/{2}".format(self._client.host, self._client.port, self._mongo_database.name),
+            len(self._queries),
+            self._limit)
 
     def _copy_with_added_query(self, query):
         ret = copy.copy(self)
         ret._queries = copy.copy(self._queries)
         ret._queries.append(query)
         return ret
+
+    def ids_lookup(self, ids):
+        """
+        Return tweet objects from tweet ids
+        """
+        return self._copy_with_added_query({'id': {'$in': list(ids)}})
 
     def matching_regex(self, expr):
         return self._copy_with_added_query({'text': {'$regex': expr}})
@@ -68,28 +70,6 @@ class MongoTweetCollection(object):
         regex = re.compile(search, re.IGNORECASE, )
         return self._copy_with_added_query({field: regex})
 
-    def containing(self, *terms):
-        """
-        Only find tweets containing certain terms.
-        Terms are OR'd, so that
-
-        collection.containing('penguins', 'antarctica')
-
-        will return tweets containing either 'penguins' or 'antarctica'.
-        """
-        return self.field_containing('text', *terms)
-
-    def user_location_containing(self, *names):
-        """
-        Only find tweets where the user's `location` field contains certain terms.
-        Terms are ORed, so that
-
-        collection.user_location_containing('chile', 'antarctica')
-
-        will return tweets with user location containing either 'chile' or 'antarctica'.
-        """
-        return self.field_containing('user.location', *names)
-
     def geo_enabled(self):
         """
         Only return tweets that are geo-tagged.
@@ -98,7 +78,7 @@ class MongoTweetCollection(object):
 
     def non_geo_enabled(self):
         """
-        Only return tweets that are geo-tagged.
+        Only return tweets that are NOT geo-tagged.
         """
         return self._copy_with_added_query({'coordinates.coordinates': {'$exists': False}})
 
@@ -172,16 +152,51 @@ class MongoTweetCollection(object):
 
     def limit(self, count):
         """
-        Only return `count` tweets from the collection.
+        Only return `count` tweets from the collection. Note: this takes tweets from the
+        beginning of the collection(s)
 
         Example:
         ########
         collection.limit(5).texts()
         """
+        # Get copy of original object
         ret = copy.copy(self)
         ret._queries = copy.copy(self._queries)
+
+        # Set self limit variable (for info only)
         ret._limit = count
+        
+        # Set new Object's mongo collections list to empty
+        ret._mongo_collections = []
+
+        # Iterate over old collections list, counting to get enough to satisfy limit.
+        # Add collections that don't yet meet limit
+        added_collection_count = 0
+        for c, l in self._mongo_collections:
+            c_count = c.find(limit=l).count(with_limit_and_skip=True)
+            if count > added_collection_count + c_count:
+                ret._mongo_collections.append((c, c_count))
+                added_collection_count += c_count
+                continue
+            else:
+                # count - added_collection_count is the number of tweets needed from
+                # current collection to satisfy limit
+                ret._mongo_collections.append((c, count - added_collection_count))
+                break
         return ret
+
+    def time_range(self, ):
+        """
+        Returns a tuple: (first_tweet_date, last_tweet_date)
+
+        Example:
+        ########
+        collection.time_range()
+        >> (datetime.datetime(2014, 10, 8, 12, 51), datetime.datetime(2015, 3, 24, 5, 32))
+        """
+        first = list(self.sort("timestamp", direction=ASCENDING).limit(1))[0]["timestamp"]
+        last = list(self.sort("timestamp", direction=DESCENDING).limit(1))[0]["timestamp"]
+        return (first, last)
 
     def sort(self, field, direction=ASCENDING):
         """
@@ -205,53 +220,7 @@ class MongoTweetCollection(object):
 
         collection.containing('peace').count()
         """
-        return sum(col.find(self._query()).count() for col in self._mongo_collections)
-
-    def texts(self):
-        """
-        Return the tweet texts matching all specified criteria.
-
-        Example:
-        ########
-
-        collection.since(datetime(2014,1,1)).texts()
-        """
-        return [tweet['text'] for tweet in self]
-
-    COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
-    def _make_row(self, tweet, columns=COLUMNS):
-        row = list()
-        for col_name in columns:
-            path = col_name.split('.')
-            try:
-                value = tweet[path.pop(0)]
-                for p in path:
-                    if isinstance(value, list):
-                        value = value[int(p)]
-                    else:
-                        value = value[p]
-            except:
-                value = ''
-            row.append(u','.join(unicode(v) for v in value) if isinstance(value, list) else unicode(value))
-        return row
-
-
-    def dump_csv(self, filename, columns=COLUMNS):
-        """
-        Dumps the matching tweets to a CSV file specified by `filename`.
-        The default columns are ['id_str', 'user.screen_name', 'timestamp', 'text'].
-        Columns are specified by their path in the tweet dictionary, so that
-            'user.screen_name' will grab tweet['user']['screen_name']
-
-        Example:
-        ########
-        collection.since(one_hour_ago).dump_csv('my_tweets.csv', columns=['timestamp', 'text'])
-        """
-        with open(filename, 'w') as outfile:
-            writer = UnicodeWriter(outfile)
-            writer.writerow(columns)
-            for tweet in self:
-                writer.writerow(self._make_row(tweet, columns))
+        return sum(col.find(self._query(), limit=lim).count(with_limit_and_skip=True) for col, lim in self._mongo_collections)
 
     def _merge(self, a, b, path=None):
         "Merge dictionaries of dictionaries"
@@ -268,27 +237,16 @@ class MongoTweetCollection(object):
                 a[key] = b[key]
         return a
 
-
     def _query(self):
         return reduce(self._merge, self._queries, {})
 
     def __iter__(self):
         if self._sort:
-            return (tweet for collection in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=self._limit).sort(*self._sort))
+            return (tweet for collection, limit in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=limit, sort=[self._sort]))
         else:
-            return (tweet for collection in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=self._limit))
+            return (tweet for collection, limit in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=limit))
 
-    def __getattr__(self, name):
-        if name.endswith('_containing'):
-            field_name = '.'.join(name.split('_')[:-1])
-            def containing_method(*terms):
-                return self.field_containing(field_name, *terms)
-            return containing_method
-        elif name.endswith('_figure') and not NO_FIGURES:
-            figure_name = '_'.join(name.split('_')[:-1])
-            method = twitter_figure_makers.__getattribute__(figure_name)
-            def figure_method(*args, **kwargs):
-                return method(self, *args, **kwargs)
-            return figure_method
-        else:
-            return object.__getattribute__(self, name)
+
+
+
+

@@ -24,7 +24,7 @@ start_time = datetime(2014,11,1)
 plt.figure()
 
 plt.subplot(211)
-bins, counts = collection.histogram_figure(
+bins, counts = collection.tweets_over_time_figure(
     start_time,
     step_size=timedelta(minutes=1),
     num_steps=60,
@@ -32,7 +32,7 @@ bins, counts = collection.histogram_figure(
 plt.title('All tweets')
 
 plt.subplot(212)
-bins, counts = collection.containing('death').histogram_figure(
+bins, counts = collection.containing('death').tweets_over_time_figure(
     start_time,
     step_size=timedelta(minutes=1),
     num_steps=60,

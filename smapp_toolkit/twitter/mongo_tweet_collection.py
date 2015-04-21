@@ -47,6 +47,12 @@ class MongoTweetCollection(BaseTweetCollection):
         ret._queries.append(query)
         return ret
 
+    def ids_lookup(self, ids):
+        """
+        Return tweet objects from tweet ids
+        """
+        return self._copy_with_added_query({'id': {'$in': ids}})
+
     def matching_regex(self, expr):
         return self._copy_with_added_query({'text': {'$regex': expr}})
 

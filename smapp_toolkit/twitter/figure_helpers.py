@@ -4,8 +4,12 @@ Module contains helper functions for plotting.
 @jonathanronen 4/2015
 """
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
+import warnings
+try:
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+except:
+    warnings.warn("Error importing plotting libraries (seaborn and matplotlib). Plotting functionality will not work.")
 from datetime import datetime, timedelta
 
 

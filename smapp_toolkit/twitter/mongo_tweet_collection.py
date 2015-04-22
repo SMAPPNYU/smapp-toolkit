@@ -1,6 +1,5 @@
 import re
 import copy
-import warnings
 from datetime import timedelta
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING

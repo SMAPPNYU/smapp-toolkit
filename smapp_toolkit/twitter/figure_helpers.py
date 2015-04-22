@@ -3,7 +3,10 @@ Module contains helper functions for plotting.
 
 @jonathanronen 4/2015
 """
-import numpy as np
+try:
+    import numpy as np
+except:
+    warnings.warn("Cannot import numpy. Plotting will not work.")
 import warnings
 try:
     import seaborn as sns

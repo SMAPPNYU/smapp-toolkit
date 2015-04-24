@@ -9,7 +9,8 @@ setup(name='smapp-toolkit',
       url='http://smapp.nyu.edu',
       packages=['smapp_toolkit', 'smapp_toolkit.twitter'],
       install_requires=[
-          'pymongo>=2.8',
-          'smappPy>=0.1.12',
+          'pymongo>=3.0.1',
+          'smappPy>=0.1.14',
+          'networkx>=1.9.1',
       ]
      )

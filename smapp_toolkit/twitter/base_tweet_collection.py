@@ -1,6 +1,7 @@
 import re
 import figure_makers
 import figure_helpers
+import networkx as nx
 from abc import ABCMeta, abstractmethod
 from smappPy.iter_util import get_ngrams
 from collections import Counter, defaultdict
@@ -217,20 +218,24 @@ class BaseTweetCollection(object):
 
         return ret
 
+    def _recursive_read(self, tweet, col_name):
+        path = col_name.split('.')
+        try:
+            value = tweet[path.pop(0)]
+            for p in path:
+                if isinstance(value, list):
+                    value = value[int(p)]
+                else:
+                    value = value[p]
+        except:
+            value = ''
+        return value
+
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
     def _make_row(self, tweet, columns=COLUMNS):
         row = list()
         for col_name in columns:
-            path = col_name.split('.')
-            try:
-                value = tweet[path.pop(0)]
-                for p in path:
-                    if isinstance(value, list):
-                        value = value[int(p)]
-                    else:
-                        value = value[p]
-            except:
-                value = ''
+            value = self._recursive_read(tweet, col_name)
             row.append(u','.join(unicode(v) for v in value) if isinstance(value, list) else unicode(value))
         return row
 
@@ -258,6 +263,34 @@ class BaseTweetCollection(object):
         and spacing), pass pretty=True.
         """
         tweets_to_file(self, filename, append, pure_json, pretty)
+
+    def retweet_network(self,user_metadata=['id_str', 'screen_name', 'location', 'description'], tweet_metadata=['id_str', 'retweeted_status.id_str', 'timestamp', 'text', 'lang']):
+        """
+        Generate a retweet graph from the selection of tweets.
+        Users are nodes, retweets are directed links.
+
+        `user_metadata` is a list of fields from the User object that will be included as
+        attributes in the nodes.
+        `tweet_metadata` is a list of the fields from the Tweet object that will be included
+        as attributes on the edges.
+
+        If the collection result includes non-retweets as well, users with no retweets
+        will also appear in the graph as isolated nodes. Only retweets are edges in the
+        resulting graph.
+
+
+        Example:
+        ########
+        imprt networkx as nx
+        digraph = collection.containing('#AnyoneButHillary').only_retweets().retweet_network()
+        nx.write_graphml(digraph, '/path/to/outputfile.graphml')
+        """
+        # dg = nx.DiGraph(name=u"RT graph of {}".format(unicode(self)))
+        # for tweet in self:
+        #     if tweet['user']['id_str'] not in dg:
+        #         dg.add_node()
+        pass
+
 
     def __getattr__(self, name):
         """

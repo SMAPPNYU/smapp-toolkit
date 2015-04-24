@@ -1,6 +1,5 @@
 import re
 import copy
-import warnings
 from datetime import timedelta
 from pymongo.cursor import Cursor
 from pymongo import MongoClient, ASCENDING, DESCENDING
@@ -20,11 +19,15 @@ class MongoTweetCollection(BaseTweetCollection):
     """
     def __init__(self, address='localhost', port=27017, username=None, password=None,
                  dbname='test', metadata_collection='smapp_metadata', 
-                 metadata_document='smapp-tweet-collection-metadata'):
+                 metadata_document='smapp-tweet-collection-metadata',
+                 authentication_database=None):
         self._client = MongoClient(address, int(port))
         self._mongo_database = self._client[dbname]
         if username and password:
-            self._mongo_database.authenticate(username, password)
+            if authentication_database:
+                self._client[authentication_database].authenticate(username, password)
+            else:
+                self._mongo_database.authenticate(username, password)
 
         self._collection_metadata = self._mongo_database[metadata_collection].find_one({'document': metadata_document})
         
@@ -47,7 +50,13 @@ class MongoTweetCollection(BaseTweetCollection):
         ret._queries.append(query)
         return ret
 
-    def ids_lookup(self, ids):
+    def only_for_users(self, *ids):
+        """
+        Only return tweets from users with ids
+        """
+        return self._copy_with_added_query({'user.id': {'$in': list(ids)}})
+
+    def ids_lookup(self, *ids):
         """
         Return tweet objects from tweet ids
         """

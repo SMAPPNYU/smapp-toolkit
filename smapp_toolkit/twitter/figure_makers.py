@@ -3,8 +3,12 @@ Module contains methods used to generate common figures from twitter data.
 
 @jonathanronen, @dpb
 """
-import seaborn as sns
-import matplotlib.pyplot as plt
+import warnings
+try:
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+except:
+    warnings.warn("Error importing plotting libraries (seaborn and matplotlib). Plotting functionality will not work.")
 from collections import OrderedDict
 from datetime import datetime, timedelta
 

@@ -65,7 +65,6 @@ Out[]:
  '2015-04-02': {'justin': 3287, 'miley': 932}}
 ```
 
-
 #### Random sample of tweets
 ```python
 collection.containing('#bieber').sample(0.33).texts()
@@ -127,6 +126,30 @@ collection.sort('timestamp',-1)
 ```python
 collection.sort('timestamp',-1).limit(10).texts()
 ```
+
+#### Counting top entities
+**top 10 hashtags on a given day**
+```python
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_hashtags(n=10)
+```
+
+**top bigrams in the last hour**
+```python
+counts = collection.since(datetime.utcnow()-timedelta(hours=1)).top_bigrams(n=5)
+```
+
+**top urls**
+```python
+counts = collection.top_urls(n=10)
+```
+
+**other `top_x` methods**
+* `top_unigrams()`
+* `top_trigrams()`
+* `top_images()`
+* `top_mentions()`
+* `top_links()`
+* `top_user_locations()`
 
 #### Visualizing the volume of tweets
 ```python

@@ -2,7 +2,6 @@ import os
 import re
 import copy
 import pytz
-import warnings
 from random import random
 from bson import decode_file_iter
 from base_tweet_collection import BaseTweetCollection

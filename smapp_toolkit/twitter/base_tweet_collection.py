@@ -9,6 +9,7 @@ from smappPy.unicode_csv import UnicodeWriter
 from smappPy.retweet import is_official_retweet
 from smappPy.store_tweets import tweets_to_file
 from smappPy.text_clean import get_cleaned_tokens
+from smappPy.xml_util import clear_unicode_control_chars
 from smappPy.entities import get_users_mentioned, get_hashtags
 from smappPy.entities import get_urls, get_links, get_image_urls
 
@@ -229,7 +230,7 @@ class BaseTweetCollection(object):
                     value = value[p]
         except:
             value = ''
-        return value
+        return unicode(value)
 
     COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
     def _make_row(self, tweet, columns=COLUMNS):
@@ -264,7 +265,14 @@ class BaseTweetCollection(object):
         """
         tweets_to_file(self, filename, append, pure_json, pretty)
 
-    def retweet_network(self,user_metadata=['id_str', 'screen_name', 'location', 'description'], tweet_metadata=['id_str', 'retweeted_status.id_str', 'timestamp', 'text', 'lang']):
+    def _make_metadata_dict(self, obj, fields):
+        return { field: clear_unicode_control_chars(self._recursive_read(obj, field))\
+         for field in fields }
+
+    def retweet_network(
+        self,
+        user_metadata=['id_str', 'screen_name', 'location', 'description'],
+        tweet_metadata=['id_str', 'retweeted_status.id_str', 'timestamp', 'text', 'lang']):
         """
         Generate a retweet graph from the selection of tweets.
         Users are nodes, retweets are directed links.
@@ -278,18 +286,25 @@ class BaseTweetCollection(object):
         will also appear in the graph as isolated nodes. Only retweets are edges in the
         resulting graph.
 
-
         Example:
         ########
         imprt networkx as nx
         digraph = collection.containing('#AnyoneButHillary').only_retweets().retweet_network()
         nx.write_graphml(digraph, '/path/to/outputfile.graphml')
         """
-        # dg = nx.DiGraph(name=u"RT graph of {}".format(unicode(self)))
-        # for tweet in self:
-        #     if tweet['user']['id_str'] not in dg:
-        #         dg.add_node()
-        pass
+        dg = nx.DiGraph(name=u"RT graph of {}".format(unicode(self)))
+        for tweet in self:
+            user = tweet['user']
+            if user['id_str'] not in dg:
+                dg.add_node(tweet['user']['id_str'],
+                    attr_dict=self._make_metadata_dict(user, user_metadata))
+            if 'retweeted_status' in tweet:
+                retweeted_user = tweet['retweeted_status']['user']
+                dg.add_node(retweeted_user['id_str'],
+                    attr_dict=self._make_metadata_dict(retweeted_user, user_metadata))
+                dg.add_edge(user['id_str'], retweeted_user['id_str'],
+                    attr_dict=self._make_metadata_dict(tweet, tweet_metadata))
+        return dg
 
 
     def __getattr__(self, name):

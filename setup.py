@@ -10,7 +10,7 @@ setup(name='smapp-toolkit',
       packages=['smapp_toolkit', 'smapp_toolkit.twitter'],
       install_requires=[
           'pymongo>=3.0.1',
-          'smappPy>=0.1.14',
+          'smappPy>=0.1.15',
           'networkx>=1.9.1',
       ]
      )

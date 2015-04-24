@@ -8,3 +8,4 @@ This folder contains example scripts that use the `smapp-toolkit` to do common t
 | `plot_tweet_languages_per_timeunit.py` | demonstrates how to plot the volume of tweets per day<br/> broken up by language. |
 | `plot_tweets_per_day_with_annotations.py` | plots tweets volume per day, with vertical lines<br> for annotating events. |
 | `barcharts.py` | shows how to make barcharts plotting the volume of tweets per time unit |
+| `plot_user_per_day_histograms.py` | makes a histogram of the avg number of tweets per day per user |

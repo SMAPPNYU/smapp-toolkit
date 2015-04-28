@@ -173,8 +173,10 @@ plt.show()
 for tweet in collection.containing('#nyc'):
     print(tweet['text'])
 ```
+## Exporting
+Here are functions for exporting data from collections to different formats.
 
-#### Dumping tweets to a CSV file
+### Dumping tweets to a CSV file
 ```python
 collection.dump_csv('my_tweets.csv')
 ```
@@ -193,6 +195,17 @@ The full list of available fields from a tweet may be found on [the twitter REST
 **tweet coordinates**
 For geolocated tweets, in order to get the geolocation out in the csv, add `coordinates.coordinates` to the columns list. This will put the coordinates in [GeoJSON](http://geojson.org/geojson-spec.html#positions) (long, lat) in the column.
 *Alternatively*¸ add `coordinates.coordinates.0` and `coordinates.coordinates.1` to the columns list. This will add two columns with the longitude and latitude in them respectively.
+
+### Dumping tweets to raw JSON file
+This will dump whole tweets in their original JSON format into a specified file, one tweet per line.
+'''python
+collection.dump_json("my_json.json")
+'''
+
+Available options are:
+* append=True, to append tweets in the collection to an existing file
+* pure_json=True, to remove MongoDB-specific fields from the tweet (mostly, you can ignore this)
+* pretty=True, to write JSON into pretty, line-broken and properly indented format (this takes up much more space, so is not recommended for large collections)
 
 ## Figures
 Smapp-toolkit has some built-in plotting functionality. See the [example scripts](https://github.com/SMAPPNYU/smapp-toolkit/tree/master/examples), and check out the [gallery](http://philosoraptor.bio.nyu.edu:82/figure-gallery/)!

@@ -30,7 +30,7 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
 
 ## Usage
 
-#### Using MongoDB as the backend
+### Using MongoDB as the backend
 ```python
 from smapp_toolkit.twitter import MongoTweetCollection
 collection = MongoTweetCollection(address='mongodb-address',
@@ -40,7 +40,7 @@ collection = MongoTweetCollection(address='mongodb-address',
                                   dbname='database-name')
 ```
 
-#### Using a BSON file as the backend
+### Using a BSON file as the backend
 ```python
 from smapp_toolkit.twitter import BSONTweetCollection
 collection = BSONTweetCollection("path/to/file.bson")
@@ -57,7 +57,7 @@ texts = collection.containing('#bieber').texts()
 collection.containing('#bieber', '#sexy')
 ```
 
-### Count occerences of multiple keywords over time
+#### Count occurences of multiple keywords over time
 ```python
 collection.term_counts(['justin', 'miley'], count_by='days', plot=False)
 Out[]:
@@ -82,12 +82,12 @@ collection.since(datetime(2014,2,16)).until(datetime(2014,2,19)).containing('oba
 collection.language('en').texts()
 ```
 
-### Tweets in Russian OR Ukrainian
+#### Tweets in Russian OR Ukrainian
 ```python
 collection.language('ru', 'uk')
 ```
 
-### Tweets from users with their stated language preference to French OR German
+#### Tweets from users with their stated language preference to French OR German
 ```python
 collection.user_lang_contains('de', 'fr')
 ```
@@ -198,9 +198,9 @@ For geolocated tweets, in order to get the geolocation out in the csv, add `coor
 
 ### Dumping tweets to raw JSON file
 This will dump whole tweets in their original JSON format into a specified file, one tweet per line.
-'''python
+```python
 collection.dump_json("my_json.json")
-'''
+```
 
 Available options are:
 * append=True, to append tweets in the collection to an existing file

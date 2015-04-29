@@ -119,7 +119,7 @@ class BSONTweetCollection(BaseTweetCollection):
 
         collection.until(datetime(2014,10,1))
         """
-        if until.tzinfo is None:
+        if self._has_tzinfo and until.tzinfo is None:
             until = until.replace(tzinfo=pytz.UTC)
 
         def until_filter(tweet):

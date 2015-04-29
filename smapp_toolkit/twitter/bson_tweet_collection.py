@@ -21,6 +21,12 @@ class BSONTweetCollection(BaseTweetCollection):
             raise IOError("File not found")
         self._filter_functions = list()
         self._limit = None
+        for tweet in self:
+            break
+        if tweet['timestamp'].tzinfo:
+            self._has_tzinfo = True
+        else:
+            self._has_tzinfo = False
 
     def __repr__(self, ):
         return "BSON Tweet Collection (source, # filters, limit): {0}, {1}, {2}".format(
@@ -93,7 +99,7 @@ class BSONTweetCollection(BaseTweetCollection):
 
         collection.since(datetime(2014,10,1))
         """
-        if since.tzinfo is None:
+        if self._has_tzinfo and since.tzinfo is None:
             since = since.replace(tzinfo=pytz.UTC)
 
         def since_filter(tweet):

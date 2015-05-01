@@ -37,6 +37,7 @@ class MongoTweetCollection(BaseTweetCollection):
 
         self._limit = 0
         self._sort = None
+        self._no_cursor_timeout = False
 
     def __repr__(self, ):
         return "Mongo Tweet Collection (DB, # filters, limit): {0}, {1}, {2}".format(
@@ -249,13 +250,21 @@ class MongoTweetCollection(BaseTweetCollection):
     def _query(self):
         return reduce(self._merge, self._queries, {})
 
+    def no_cursor_timeout(self):
+        ret = copy.copy(self)
+        ret._queries = copy.copy(self._queries)
+        ret._no_cursor_timeout = True
+        return ret
+
     def __iter__(self):
         if self._sort:
-            return (tweet for collection, limit in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=limit, sort=[self._sort]))
+            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout, limit=limit, sort=[self._sort]) for collection, limit in self._mongo_collections]
         else:
-            return (tweet for collection, limit in self._mongo_collections for tweet in Cursor(collection, self._query(), limit=limit))
-
-
-
-
-
+            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout, limit=limit) for collection, limit in self._mongo_collections]
+        try:
+            for cursor in cursors:
+                for tweet in cursor:
+                    yield tweet
+        finally:
+            for cursor in cursors:
+                cursor.close()

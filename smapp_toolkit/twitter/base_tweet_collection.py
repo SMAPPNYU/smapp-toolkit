@@ -1,4 +1,5 @@
 import re
+import time
 import figure_makers
 import figure_helpers
 import networkx as nx
@@ -272,7 +273,8 @@ class BaseTweetCollection(object):
     def retweet_network(
         self,
         user_metadata=['id_str', 'screen_name', 'location', 'description'],
-        tweet_metadata=['id_str', 'retweeted_status.id_str', 'timestamp', 'text', 'lang']):
+        tweet_metadata=['id_str', 'retweeted_status.id_str', 'timestamp', 'text', 'lang'],
+        print_debug=False):
         """
         Generate a retweet graph from the selection of tweets.
         Users are nodes, retweets are directed links.
@@ -293,7 +295,12 @@ class BaseTweetCollection(object):
         nx.write_graphml(digraph, '/path/to/outputfile.graphml')
         """
         dg = nx.DiGraph(name=u"RT graph of {}".format(unicode(self)))
-        for tweet in self:
+        if print_debug:
+            start_time = time.time()
+            total = self.count()
+            cent = total/100
+            print("Expecting {} tweets".format(total))
+        for i,tweet in enumerate(self):
             user = tweet['user']
             if user['id_str'] not in dg:
                 dg.add_node(tweet['user']['id_str'],
@@ -304,6 +311,16 @@ class BaseTweetCollection(object):
                     attr_dict=self._make_metadata_dict(retweeted_user, user_metadata))
                 dg.add_edge(user['id_str'], retweeted_user['id_str'],
                     attr_dict=self._make_metadata_dict(tweet, tweet_metadata))
+            if print_debug and not(i % cent):
+                elapsed = time.time() - start_time
+                tps = i / elapsed or 1
+                remain = (total-i)/tps
+                print("Gone through {} tweets in {:.2f} seconds".format(i, elapsed))
+                print("\tThat's {:.2f} tweets per second".format(tps))
+                print("\tAbout {:.2f} seconds ({} tweets) remain".format(remain, total-i))
+        if print_debug:
+            print("Finished exporting {total} tweets in {:.2f} seconds.".format(
+                total, time.time()-start_time))
         return dg
 
 

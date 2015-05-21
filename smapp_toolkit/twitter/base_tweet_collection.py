@@ -134,7 +134,7 @@ class BaseTweetCollection(object):
         return Counter([i for tweet in self for i in get_image_urls(tweet)]).most_common(n)
 
     def top_hashtags(self, n=10):
-        return Counter([h for tweet in self for h in get_hashtags(tweet)]).most_common(n)
+        return Counter([h for tweet in self for h in [x.lower() for x in get_hashtags(tweet)]]).most_common(n)
 
     def top_mentions(self, n=10):
         """
@@ -172,7 +172,8 @@ class BaseTweetCollection(object):
 
     def term_counts(self, terms, count_by='days', plot=False, plot_total=True, match='tokens', case_sensitive=False):
         """
-        Returns a dict with term counts aggregated by `count_by`. Acceptable values for `count_by` are 'days', 'hours', 'minutes'.
+        Returns a dict with term counts aggregated by `count_by`. Acceptable values for `count_by` are 'days', 'hours',
+        'minutes'.
         if `plot` is True, also plots a histogram.
 
         Example:

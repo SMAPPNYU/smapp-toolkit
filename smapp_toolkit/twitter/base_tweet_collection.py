@@ -1,5 +1,5 @@
 import re
-import time
+import pandas as pd
 import figure_makers
 import figure_helpers
 import networkx as nx
@@ -76,8 +76,8 @@ class BaseTweetCollection(object):
                                         https=https,
                                         stopwords=stopwords)
             ngrams = get_ngrams(tokens, ngram)
-            counts.update(ngrams)
-        return counts.most_common(n)
+            counts.update(' '.join(e) for e in ngrams)
+        return pd.DataFrame(counts.most_common(n), columns=['{}-gram'.format(ngram), 'count'])
 
     def top_unigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
         """
@@ -117,30 +117,29 @@ class BaseTweetCollection(object):
         """
         Returns a list of tuples representing the top 'n' links (default: 10) in the
         collection. 
-        Return: [(link_n, #occurrences), (link_m, #occurrences)...]
         Note: "Links" include both URLs and Twitter Media (images, etc)
         Note: If a tweet contains the same link multiple times, each time is counted
         as one occurrence (ie, it is not top links-per-tweet).
         """
-        return Counter([l for tweet in self for l in get_links(tweet)]).most_common(n)
+        return pd.DataFrame(Counter([l for tweet in self for l in get_links(tweet)]).most_common(n), columns=['link', 'count'])
 
     def top_urls(self, n=10):
         """
         See 'top_links()'. Same, but for only embedded links (not Tweet Media).
         """
-        return Counter([u for tweet in self for u in get_urls(tweet)]).most_common(n)
+        return pd.DataFrame(Counter([u for tweet in self for u in get_urls(tweet)]).most_common(n), columns=['url', 'count'])
 
     def top_images(self, n=10):
-        return Counter([i for tweet in self for i in get_image_urls(tweet)]).most_common(n)
+        return pd.DataFrame(Counter([i for tweet in self for i in get_image_urls(tweet)]).most_common(n), columns=['image', 'count'])
 
     def top_hashtags(self, n=10):
-        return Counter([h for tweet in self for h in [x.lower() for x in get_hashtags(tweet)]]).most_common(n)
+        return pd.DataFrame(Counter([h for tweet in self for h in [x.lower() for x in get_hashtags(tweet)]]).most_common(n), columns=['hashtag', 'count'])
 
     def top_mentions(self, n=10):
         """
         Same as other top functions, except returns the number of unique (user_id, user_screen_name) pairs.
         """
-        return Counter([m for tweet in self for m in get_users_mentioned(tweet)]).most_common(n)
+        return pd.DataFrame(Counter([m for tweet in self for m in get_users_mentioned(tweet)]).most_common(n), columns=['mention', 'count'])
 
     def top_user_locations(self, n=10, count_each_user_once=True):
         """
@@ -158,20 +157,25 @@ class BaseTweetCollection(object):
             users.add(tweet["user"]["id"])
             if tweet["user"]["location"]:
                 loc_counts[tweet["user"]["location"]] += 1
-        return loc_counts.most_common(n)
+        return pd.DataFrame(loc_counts.most_common(n), columns=['user location', 'count'])
 
     def top_geolocation_names(self, n=10):
         """
         Return top location names from geotagged tweets. Place names come from twitter's "Places".
         """
-        loc_counts = Counter(tweet['place']['full_name'] if 'place' in tweet else None for tweet in self.geo_enabled())
-        return loc_counts.most_common(n)
+        loc_counts = Counter(tweet['place']['full_name'] if 'place' in tweet and tweet['place'] is not None else None for tweet in self.geo_enabled())
+        return pd.DataFrame(loc_counts.most_common(n), columns=['place name', 'count'])
 
-
-    def top_retweets(self, n=10):
+    DEFAULT_RT_COLUMNS = ['user.screen_name', 'created_at', 'text']
+    def top_retweets(self, n=10, rt_columns=DEFAULT_RT_COLUMNS):
         """
-        Returns a list of top retweets. Return is a list of triples:
-        [(retweet ID, RT count, retweet), ...]
+        Returns a list of top retweets as a pandas DataFrame.
+        Columns to include in the dataframe from the original retweet are passed in `rt_columns`.
+        The default `rt_columns=['user.screen_name', 'created_at', 'text']`
+
+        Example:
+        ########
+        col.top_retweets(rt_columns=['timestamp', 'text'])
         """
         rt_dict = {}
         rt_counts = Counter()
@@ -179,12 +183,11 @@ class BaseTweetCollection(object):
             if is_official_retweet(tweet):
                 rt_dict[tweet["retweeted_status"]["id"]] = tweet["retweeted_status"]
                 rt_counts[tweet["retweeted_status"]["id"]] += 1
-        return [(tid, tcount, rt_dict[tid]) for tid, tcount in rt_counts.most_common(n)]
+        return pd.DataFrame([[tid, tcount] + self._make_row(rt_dict[tid], rt_columns) for tid, tcount in rt_counts.most_common(n)], columns=['id', 'count']+rt_columns)
 
     def term_counts(self, terms, count_by='days', plot=False, plot_total=True, match='tokens', case_sensitive=False):
         """
-        Returns a dict with term counts aggregated by `count_by`. Acceptable values for `count_by` are 'days', 'hours',
-        'minutes'.
+        Returns a dict with term counts aggregated by `count_by`. Acceptable values for `count_by` are 'days', 'hours', 'minutes'.
         if `plot` is True, also plots a histogram.
 
         Example:
@@ -245,15 +248,15 @@ class BaseTweetCollection(object):
             value = ''
         return unicode(value)
 
-    COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
-    def _make_row(self, tweet, columns=COLUMNS):
+    DEFAULT_CSV_COLUMNS = ['id_str', 'user.screen_name', 'timestamp', 'text']
+    def _make_row(self, tweet, columns=DEFAULT_CSV_COLUMNS):
         row = list()
         for col_name in columns:
             value = self._recursive_read(tweet, col_name)
             row.append(u','.join(unicode(v) for v in value) if isinstance(value, list) else unicode(value))
         return row
 
-    def dump_csv(self, filename, columns=COLUMNS):
+    def dump_csv(self, filename, columns=DEFAULT_CSV_COLUMNS):
         """
         Dumps the matching tweets to a CSV file specified by `filename`.
         The default columns are ['id_str', 'user.screen_name', 'timestamp', 'text'].
@@ -285,8 +288,7 @@ class BaseTweetCollection(object):
     def retweet_network(
         self,
         user_metadata=['id_str', 'screen_name', 'location', 'description'],
-        tweet_metadata=['id_str', 'retweeted_status.id_str', 'timestamp', 'text', 'lang'],
-        print_debug=False):
+        tweet_metadata=['id_str', 'retweeted_status.id_str', 'timestamp', 'text', 'lang']):
         """
         Generate a retweet graph from the selection of tweets.
         Users are nodes, retweets are directed links.
@@ -307,12 +309,7 @@ class BaseTweetCollection(object):
         nx.write_graphml(digraph, '/path/to/outputfile.graphml')
         """
         dg = nx.DiGraph(name=u"RT graph of {}".format(unicode(self)))
-        if print_debug:
-            start_time = time.time()
-            total = self.count()
-            cent = total/100
-            print("Expecting {} tweets".format(total))
-        for i,tweet in enumerate(self):
+        for tweet in self:
             user = tweet['user']
             if user['id_str'] not in dg:
                 dg.add_node(tweet['user']['id_str'],
@@ -323,16 +320,6 @@ class BaseTweetCollection(object):
                     attr_dict=self._make_metadata_dict(retweeted_user, user_metadata))
                 dg.add_edge(user['id_str'], retweeted_user['id_str'],
                     attr_dict=self._make_metadata_dict(tweet, tweet_metadata))
-            if print_debug and not(i % cent):
-                elapsed = time.time() - start_time
-                tps = i / elapsed or 1
-                remain = (total-i)/tps
-                print("Gone through {} tweets in {:.2f} seconds".format(i, elapsed))
-                print("\tThat's {:.2f} tweets per second".format(tps))
-                print("\tAbout {:.2f} seconds ({} tweets) remain".format(remain, total-i))
-        if print_debug:
-            print("Finished exporting {total} tweets in {:.2f} seconds.".format(
-                total, time.time()-start_time))
         return dg
 
 

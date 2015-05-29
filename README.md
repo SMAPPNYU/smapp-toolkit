@@ -226,18 +226,6 @@ Available options are:
 * pure_json=True, to remove MongoDB-specific fields from the tweet (mostly, you can ignore this)
 * pretty=True, to write JSON into pretty, line-broken and properly indented format (this takes up much more space, so is not recommended for large collections)
 
-## Figures
-Smapp-toolkit has some built-in plotting functionality. See the [example scripts](https://github.com/SMAPPNYU/smapp-toolkit/tree/master/examples), and check out the [gallery](http://philosoraptor.bio.nyu.edu:82/figure-gallery/)!
-
-Currently implemented:
-* barchart of tweets per time-unit (tweets_over_time_figure(...))
-* barchart by language by day (languages_per_day_figure(...))
-* line chart (tweets per day) with vertical event annotations (tweets_per_day_with_annotations_figure(...))
-
-In order to get these to work, some extra packages (not automatically installed) need to be installed:
-* `matplotlib`
-* `seaborn`
-
 ### Exporting a retweet graph
 The toolkit supports exporting a retweet graph using the `networkx` library. In the exported graph users are nodes, retweets are directed edges.
 
@@ -270,6 +258,18 @@ nx.write_graphml(digraph, '/path/to/outputfile.graphml')
 The `.graphml` file may then be opened in graph analysis/visualization programs such as [Gephi](http://gephi.github.io/) or [Pajek](http://vlado.fmf.uni-lj.si/pub/networks/pajek/).
 
 The `networkx` library also provides algorithms for [vizualization](http://networkx.github.io/documentation/networkx-1.9.1/reference/drawing.html) and [analysis](http://networkx.github.io/documentation/networkx-1.9.1/reference/algorithms.html).
+
+## Figures
+Smapp-toolkit has some built-in plotting functionality. See the [example scripts](https://github.com/SMAPPNYU/smapp-toolkit/tree/master/examples), and check out the [gallery](http://philosoraptor.bio.nyu.edu:82/figure-gallery/)!
+
+Currently implemented:
+* barchart of tweets per time-unit (tweets_over_time_figure(...))
+* barchart by language by day (languages_per_day_figure(...))
+* line chart (tweets per day) with vertical event annotations (tweets_per_day_with_annotations_figure(...))
+
+In order to get these to work, some extra packages (not automatically installed) need to be installed:
+* `matplotlib`
+* `seaborn`
 
 ## The MongoDB Data Model
 SMAPP stores tweets in MongoDB databases, and splits the tweets across multiple MongoDB collections, because this gives better performance than a single large MongoDB collection. The MongoDB Database needs to have a `smapp_metadata` collection with a single `smapp-tweet-collection-metadata` document in it, which specifies the names of the tweet collections.

@@ -238,6 +238,39 @@ In order to get these to work, some extra packages (not automatically installed)
 * `matplotlib`
 * `seaborn`
 
+### Exporting a retweet graph
+The toolkit supports exporting a retweet graph using the `networkx` library. In the exported graph users are nodes, retweets are directed edges.
+
+If the collection result includes non-retweets as well, users with no retweets
+will also appear in the graph as isolated nodes. Only retweets are edges in the resulting graph.
+
+Exporting a retweet graph is done as follows:
+```python
+import networkx as nx
+digraph = collection.containing('#AnyoneButHillary').only_retweets().retweet_network()
+nx.write_graphml(digraph, '/path/to/outputfile.graphml')
+```
+
+Nodes and edges have attributes attached to them, which are customizable using the `user_metadata` and `tweet_metadata` arguments.
+
+* `user_metadata` is a list of fields from the User object that will be included as attributes of the nodes.
+* `tweet_metadata` is a list of the fields from the Tweet object that will be included as attributes of the edges.
+
+The defaults are
+* `user_metadata=['id_str', 'screen_name', 'location', 'description']`
+* `tweet_metadata=['id_str', 'retweeted_status.id_str', 'timestamp', 'text', 'lang']`
+
+For large graphs where the structure is interesting but the tweet text itself is not, it is advisable to ommit most of the metadata. This will make the resulting file smaller, and is done as follows:
+```python
+import networkx as nx
+digraph = collection.containing('#AnyoneButHillary').only_retweets().retweet_network(user_metadata=['screen_name'], tweet_metadata=[''])
+nx.write_graphml(digraph, '/path/to/outputfile.graphml')
+```
+
+The `.graphml` file may then be opened in graph analysis/visualization programs such as [Gephi](http://gephi.github.io/) or [Pajek](http://vlado.fmf.uni-lj.si/pub/networks/pajek/).
+
+The `networkx` library also provides algorithms for [vizualization](http://networkx.github.io/documentation/networkx-1.9.1/reference/drawing.html) and [analysis](http://networkx.github.io/documentation/networkx-1.9.1/reference/algorithms.html).
+
 ## The MongoDB Data Model
 SMAPP stores tweets in MongoDB databases, and splits the tweets across multiple MongoDB collections, because this gives better performance than a single large MongoDB collection. The MongoDB Database needs to have a `smapp_metadata` collection with a single `smapp-tweet-collection-metadata` document in it, which specifies the names of the tweet collections.
 

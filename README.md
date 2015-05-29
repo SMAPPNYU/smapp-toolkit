@@ -130,22 +130,22 @@ collection.sort('timestamp',-1).limit(10).texts()
 ```
 
 #### Counting top entities
-**top 10 hashtags on a given day**
+#####top 10 hashtags on a given day
 ```python
 counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_hashtags(n=10)
 ```
 
-**top bigrams in the last hour**
+#####top bigrams in the last hour
 ```python
 counts = collection.since(datetime.utcnow()-timedelta(hours=1)).top_bigrams(n=5)
 ```
 
-**top urls**
+#####top urls
 ```python
 counts = collection.top_urls(n=10)
 ```
 
-**other `top_x` methods**
+#####other `top_x` methods
 * `top_unigrams()`
 * `top_trigrams()`
 * `top_images()`
@@ -154,7 +154,7 @@ counts = collection.top_urls(n=10)
 * `top_user_locations()`
 * `top_geolocation_names()`
 
-**writing `top_x()` results to a csv file**
+#####writing `top_x()` results to a csv file
 
 All `top_x()` methods return `pandas.DataFrame` objects. They may be easily exported to a csv file, as follows:
 ```python
@@ -162,7 +162,7 @@ hashtags = collection.top_hashtags(n=5)
 hashtags.to_csv('/path/to/my/output.csv', encoding='utf8')
 ```
 
-**top retweets**
+#####top retweets
 
 To get the top retweets for a certain collection, use the `top_retweets()` method. Specify which columns (of the original tweet) to include in the result, by passing thr `rt_columns` argument, as follows:
 ```python

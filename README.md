@@ -27,6 +27,8 @@ or download [the tarball](https://github.com/SMAPPNYU/smapp-toolkit/tarball/mast
 The `smapp-toolkit` depends on the following packages, which will be automatically installed when installing `smapp-toolkit`:
 * [pymongo](http://api.mongodb.org/python/current/), the Python MongoDB driver
 * [smappPy](https://github.com/SMAPPNYU/smappPy), a utility library from SMaPP
+* [networkx](https://github.com/networkx/networkx), a library for building and analyzing graphs
+* [pandas](http://pandas.pydata.org/), a Python data analysis library
 
 ## Usage
 
@@ -150,6 +152,7 @@ counts = collection.top_urls(n=10)
 * `top_mentions()`
 * `top_links()`
 * `top_user_locations()`
+* `top_geolocation_names()`
 
 #### Visualizing the volume of tweets
 ```python

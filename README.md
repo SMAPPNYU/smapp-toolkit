@@ -159,7 +159,7 @@ counts = collection.top_urls(n=10)
 All `top_x()` methods return `pandas.DataFrame` objects. They may be easily exported to a csv file, as follows:
 ```python
 hashtags = collection.top_hashtags(n=5)
-hashtags.to_csv('/path/to/my/output.csv')
+hashtags.to_csv('/path/to/my/output.csv', encoding='utf8')
 ```
 
 **top retweets**

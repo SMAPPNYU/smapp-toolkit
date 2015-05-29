@@ -142,20 +142,31 @@ class BaseTweetCollection(object):
         """
         return Counter([m for tweet in self for m in get_users_mentioned(tweet)]).most_common(n)
 
-    def top_user_locations(self, n=10):
+    def top_user_locations(self, n=10, count_each_user_once=True):
         """
-        Return top user location strings. Note that a user's location string is only considered
+        Return top user location strings.
+
+        If `count_each_user_once` is True, a user's location string is only considered
         once, regardless of how often the user appears in the collection.
+        If False, a user's location string is counted multiple times.
         """
         users = set()
         loc_counts = Counter()
         for tweet in self:
-            if tweet["user"]["id"] in users:
+            if tweet["user"]["id"] in users and count_each_user_once:
                 continue
             users.add(tweet["user"]["id"])
             if tweet["user"]["location"]:
                 loc_counts[tweet["user"]["location"]] += 1
         return loc_counts.most_common(n)
+
+    def top_geolocation_names(self, n=10):
+        """
+        Return top location names from geotagged tweets. Place names come from twitter's "Places".
+        """
+        loc_counts = Counter(tweet['place']['full_name'] if 'place' in tweet else None for tweet in self.geo_enabled())
+        return loc_counts.most_common(n)
+
 
     def top_retweets(self, n=10):
         """

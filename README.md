@@ -154,6 +154,22 @@ counts = collection.top_urls(n=10)
 * `top_user_locations()`
 * `top_geolocation_names()`
 
+**writing `top_x()` results to a csv file**
+
+All `top_x()` methods return `pandas.DataFrame` objects. They may be easily exported to a csv file, as follows:
+```python
+hashtags = collection.top_hashtags(n=5)
+hashtags.to_csv('/path/to/my/output.csv')
+```
+
+**top retweets**
+
+To get the top retweets for a certain collection, use the `top_retweets()` method. Specify which columns (of the original tweet) to include in the result, by passing thr `rt_columns` argument, as follows:
+```python
+top_rts = collection.since(datetime.utcnow()-timedelta(hours=1)).top_retweets(n=10, rt_columns=['user.screen_name', 'user.location', 'created_at', 'text'])
+```
+The default columns included are `['user.screen_name', 'created_at', 'text']`.
+
 #### Visualizing the volume of tweets
 ```python
 bins, counts = collection.containing('#sexy').tweets_over_time_figure(

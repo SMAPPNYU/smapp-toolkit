@@ -263,9 +263,11 @@ The `networkx` library also provides algorithms for [vizualization](http://netwo
 Smapp-toolkit has some built-in plotting functionality. See the [example scripts](https://github.com/SMAPPNYU/smapp-toolkit/tree/master/examples), and check out the [gallery](http://philosoraptor.bio.nyu.edu:82/figure-gallery/)!
 
 Currently implemented:
-* barchart of tweets per time-unit (tweets_over_time_figure(...))
-* barchart by language by day (languages_per_day_figure(...))
-* line chart (tweets per day) with vertical event annotations (tweets_per_day_with_annotations_figure(...))
+* barchart of tweets per time-unit (`tweets_over_time_figure(...)`)
+* barchart by language by day (`languages_per_day_figure(...)`)
+* line chart (tweets per day) with vertical event annotations (`tweets_per_day_with_annotations_figure(...)`)
+* geolocation names by time (`geolocation_names_by_day_figure(...)`)
+* user locations by time (`user_locations_by_day_figure(...)`)
 
 In order to get these to work, some extra packages (not automatically installed) need to be installed:
 * `matplotlib`

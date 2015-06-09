@@ -166,7 +166,7 @@ def tweets_over_time(collection, start, step_size=timedelta(days=1), num_steps=3
 
 def geolocation_names_per_day(collection, start, step_size=timedelta(days=1), num_steps=31,
   names=None, name_colors=None, n_names=10,
-  x_label_step = 2, alpha=.65, bar_width=.8, print_progress_every=100000, show=True):
+  x_label_step = 2, alpha=.65, bar_width=.8, xtick_format='%Y-%m-%d', print_progress_every=100000, show=True):
     """
     If `names` is set, use those. Otherwise, use top `n_names` names.
     """
@@ -255,7 +255,7 @@ def geolocation_names_per_day(collection, start, step_size=timedelta(days=1), nu
     plt.legend(fontsize=14, loc=1)
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize=14)
     plt.xticks(range(num_steps)[::x_label_step],
-               ["{0}-{1}-{2}".format(d.year, d.month, d.day) for d in [start + (i * step_size) for i in range(num_steps)][::x_label_step]],
+               [d.strftime(xtick_format) for d in [start + (i * step_size) for i in range(num_steps)][::x_label_step]],
                rotation=55)
     plt.subplots_adjust(right=.6)
     if show:
@@ -263,7 +263,7 @@ def geolocation_names_per_day(collection, start, step_size=timedelta(days=1), nu
 
 def user_locations_per_day(collection, start, step_size=timedelta(days=1), num_steps=31,
   names=None, name_colors=None, n_names=10,
-  x_label_step = 2, alpha=.65, bar_width=.8, print_progress_every=100000, show=True):
+  x_label_step = 2, alpha=.65, bar_width=.8, xtick_format='%Y-%m-%d', print_progress_every=100000, show=True):
     """
     If `names` is set, use those. Otherwise, use top `n_names` names.
     """
@@ -348,11 +348,11 @@ def user_locations_per_day(collection, start, step_size=timedelta(days=1), num_s
                           label=l)
     plt.xlim(0, num_steps)
     plt.tick_params(axis="x", which="both", bottom="on", top="off", length=8, width=1, color="#999999")
-    plt.ylabel("# Tweets (by geolocation place name)")
+    plt.ylabel("# Tweets (by user location)")
     plt.legend(fontsize=14, loc=1)
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize=14)
     plt.xticks(range(num_steps)[::x_label_step],
-               ["{0}-{1}-{2}".format(d.year, d.month, d.day) for d in [start + (i * step_size) for i in range(num_steps)][::x_label_step]],
+               [d.strftime(xtick_format) for d in [start + (i * step_size) for i in range(num_steps)][::x_label_step]],
                rotation=55)
     plt.subplots_adjust(right=.6)
     if show:

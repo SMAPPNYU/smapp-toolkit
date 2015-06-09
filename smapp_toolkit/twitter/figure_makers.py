@@ -208,7 +208,6 @@ def geolocation_names_per_day(collection, start, step_size=timedelta(days=1), nu
             count_total += name_counts[step][n]
         # assert count_total == total, "Error: Tweet by-name count does not match query total"
         print "\tQuery total: {0}, Count total: {1}".format(total, count_total)
-        print "\t{0}".format(name_counts[step])
 
     # Pick top N places
     if names is None:
@@ -219,6 +218,7 @@ def geolocation_names_per_day(collection, start, step_size=timedelta(days=1), nu
     elif len(name_colors) != len(names):
         warnings.warn("name_colors length doesn't match names length. Picking new colors.")
         name_colors = sns.color_palette("hls", n_names)
+    name_colors.append((.65,.65,.65))
 
     for step in range(num_steps):
         other = sum(name_counts[step][name] for name in name_counts[step] if name not in names)
@@ -227,6 +227,8 @@ def geolocation_names_per_day(collection, start, step_size=timedelta(days=1), nu
             new_name_counts[name] = name_counts[step].get(name, 0)
         new_name_counts['other'] = other
         name_counts[step] = new_name_counts
+
+    names.append('other')
 
     # Plot tweets in bars by name (in order of names list)
     bars = OrderedDict()
@@ -249,13 +251,12 @@ def geolocation_names_per_day(collection, start, step_size=timedelta(days=1), nu
                           label=l)
     plt.xlim(0, num_steps)
     plt.tick_params(axis="x", which="both", bottom="on", top="off", length=8, width=1, color="#999999")
-    # plt.xlabel(x_label)
     plt.ylabel("# Tweets (by geolocation place name)")
-    # plt.title(plot_title)
     plt.legend(fontsize=14, loc=1)
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., fontsize=14)
     plt.xticks(range(num_steps)[::x_label_step],
                ["{0}-{1}-{2}".format(d.year, d.month, d.day) for d in [start + (i * step_size) for i in range(num_steps)][::x_label_step]],
                rotation=55)
+    plt.subplots_adjust(right=.6)
     if show:
         plt.show()

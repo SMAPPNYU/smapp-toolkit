@@ -9,3 +9,4 @@ This folder contains example scripts that use the `smapp-toolkit` to do common t
 | `plot_tweets_per_day_with_annotations.py` | plots tweets volume per day, with vertical lines<br> for annotating events. |
 | `barcharts.py` | shows how to make barcharts plotting the volume of tweets per time unit |
 | `plot_user_per_day_histograms.py` | makes a histogram of the avg number of tweets per day per user |
+| `locations_by_timeunit.py` | Makes stacked bar of tweet volume by location |

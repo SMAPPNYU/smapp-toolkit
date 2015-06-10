@@ -1,7 +1,8 @@
 import pandas as pd
 from collections import Counter
 from datetime import datetime, timedelta
-from counter_functions import _top_user_locations, _top_unigrams, _top_bigrams, _top_trigrams, _top_links
+from counter_functions import _top_user_locations, _top_unigrams, _top_bigrams, _top_trigrams, _top_links, _top_urls, \
+    _top_images, _top_hashtags, _top_mentions, _top_geolocation_names
 
 
 class Aggregator(object):
@@ -87,3 +88,18 @@ class Aggregator(object):
 
     def top_links(self, n=10):
         return self.grouped_top_n_result(n, _top_links)
+
+    def top_urls(self, n=10):
+        return self.grouped_top_n_result(n, _top_urls)
+
+    def top_images(self, n=10):
+        return self.grouped_top_n_result(n, _top_images)
+
+    def top_hashtags(self, n=10):
+        return self.grouped_top_n_result(n, _top_hashtags)
+
+    def top_mentions(self, n=10):
+        return self.grouped_top_n_result(n, _top_mentions)
+
+    def top_geolocation_names(self, n=10):
+        return self.grouped_top_n_result(n, _top_geolocation_names)

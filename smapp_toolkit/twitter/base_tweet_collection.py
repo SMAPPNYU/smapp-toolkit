@@ -12,9 +12,8 @@ from smappPy.retweet import is_official_retweet
 from smappPy.store_tweets import tweets_to_file
 from smappPy.text_clean import get_cleaned_tokens
 from smappPy.xml_util import clear_unicode_control_chars
-from smappPy.entities import get_users_mentioned, get_hashtags
-from smappPy.entities import get_urls, get_links, get_image_urls
-from counter_functions import _top_user_locations, _top_ngrams, _top_unigrams, _top_bigrams, _top_trigrams, _top_links
+from counter_functions import _top_user_locations, _top_ngrams, _top_unigrams, _top_bigrams, _top_trigrams, _top_links, \
+    _top_urls, _top_images, _top_hashtags, _top_mentions, _top_geolocation_names
 
 class BaseTweetCollection(object):
     __metaclass__ = ABCMeta
@@ -158,19 +157,19 @@ class BaseTweetCollection(object):
         """
         See 'top_links()'. Same, but for only embedded links (not Tweet Media).
         """
-        return pd.DataFrame(Counter([u for tweet in self for u in get_urls(tweet)]).most_common(n), columns=['url', 'count'])
+        return _top_urls(self, n)
 
     def top_images(self, n=10):
-        return pd.DataFrame(Counter([i for tweet in self for i in get_image_urls(tweet)]).most_common(n), columns=['image', 'count'])
+        return _top_images(self, n)
 
     def top_hashtags(self, n=10):
-        return pd.DataFrame(Counter([h for tweet in self for h in [x.lower() for x in get_hashtags(tweet)]]).most_common(n), columns=['hashtag', 'count'])
+        return _top_hashtags(self, n)
 
     def top_mentions(self, n=10):
         """
         Same as other top functions, except returns the number of unique (user_id, user_screen_name) pairs.
         """
-        return pd.DataFrame(Counter([m for tweet in self for m in get_users_mentioned(tweet)]).most_common(n), columns=['mention', 'count'])
+        return _top_mentions(self, n)
 
     def top_user_locations(self, n=10, count_each_user_once=True):
         """
@@ -186,8 +185,7 @@ class BaseTweetCollection(object):
         """
         Return top location names from geotagged tweets. Place names come from twitter's "Places".
         """
-        loc_counts = Counter(tweet['place']['full_name'] if 'place' in tweet and tweet['place'] is not None else None for tweet in self.geo_enabled())
-        return pd.DataFrame(loc_counts.most_common(n), columns=['place name', 'count'])
+        return _top_geolocation_names(self, n)
 
     DEFAULT_RT_COLUMNS = ['user.screen_name', 'created_at', 'text']
     def top_retweets(self, n=10, rt_columns=DEFAULT_RT_COLUMNS):

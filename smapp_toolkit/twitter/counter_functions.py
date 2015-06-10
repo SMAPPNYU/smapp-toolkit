@@ -6,6 +6,7 @@ import pandas as pd
 from collections import Counter
 from smappPy.iter_util import get_ngrams
 from smappPy.text_clean import get_cleaned_tokens
+from smappPy.entities import get_users_mentioned, get_hashtags
 from smappPy.entities import get_urls, get_links, get_image_urls
 
 def _counter_to_series(counter, n=None):
@@ -55,37 +56,22 @@ def _top_links(collection, n=None):
     counter = Counter([l for tweet in collection for l in get_links(tweet)])
     return _counter_to_series(counter, n)
 
-    # def top_urls(self, n=10):
-    #     """
-    #     See 'top_links()'. Same, but for only embedded links (not Tweet Media).
-    #     """
-    #     return pd.DataFrame(Counter([u for tweet in self for u in get_urls(tweet)]).most_common(n), columns=['url', 'count'])
+def _top_urls(collection, n=None):
+    counter = Counter([u for tweet in collection for u in get_urls(tweet)])
+    return _counter_to_series(counter, n)
 
-    # def top_images(self, n=10):
-    #     return pd.DataFrame(Counter([i for tweet in self for i in get_image_urls(tweet)]).most_common(n), columns=['image', 'count'])
+def _top_images(collection, n=10):
+    counter = Counter([i for tweet in collection for i in get_image_urls(tweet)])
+    return _counter_to_series(counter, n)
 
-    # def top_hashtags(self, n=10):
-    #     return pd.DataFrame(Counter([h for tweet in self for h in [x.lower() for x in get_hashtags(tweet)]]).most_common(n), columns=['hashtag', 'count'])
+def _top_hashtags(collection, n=10):
+    counter = Counter([h for tweet in collection for h in [x.lower() for x in get_hashtags(tweet)]])
+    return _counter_to_series(counter, n)
 
-    # def top_mentions(self, n=10):
-    #     """
-    #     Same as other top functions, except returns the number of unique (user_id, user_screen_name) pairs.
-    #     """
-    #     return pd.DataFrame(Counter([m for tweet in self for m in get_users_mentioned(tweet)]).most_common(n), columns=['mention', 'count'])
+def _top_mentions(collection, n=10):
+    counter = Counter([m for tweet in collection for m in get_users_mentioned(tweet)])
+    return _counter_to_series(counter, n)
 
-    # def top_user_locations(self, n=10, count_each_user_once=True):
-    #     """
-    #     Return top user location strings.
-
-    #     If `count_each_user_once` is True, a user's location string is only considered
-    #     once, regardless of how often the user appears in the collection.
-    #     If False, a user's location string is counted multiple times.
-    #     """
-    #     return _top_user_locations(self, n, count_each_user_once)
-
-    # def top_geolocation_names(self, n=10):
-    #     """
-    #     Return top location names from geotagged tweets. Place names come from twitter's "Places".
-    #     """
-    #     loc_counts = Counter(tweet['place']['full_name'] if 'place' in tweet and tweet['place'] is not None else None for tweet in self.geo_enabled())
-    #     return pd.DataFrame(loc_counts.most_common(n), columns=['place name', 'count'])
+def _top_geolocation_names(collection, n=10):
+    loc_counts = Counter(tweet['place']['full_name'] if 'place' in tweet and tweet['place'] is not None else None for tweet in collection)
+    return _counter_to_series(loc_counts, n)

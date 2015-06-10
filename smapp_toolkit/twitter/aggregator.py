@@ -1,7 +1,7 @@
 import pandas as pd
 from collections import Counter
 from datetime import datetime, timedelta
-from counter_functions import _top_user_locations, _top_unigrams, _top_links
+from counter_functions import _top_user_locations, _top_unigrams, _top_bigrams, _top_trigrams, _top_links
 
 
 class Aggregator(object):
@@ -71,15 +71,19 @@ class Aggregator(object):
         res = self.grouped_result(callable_)
         su = res.sum()
         su.sort(ascending=False)
-        for col in su.index[n:]:
-            del res[col]
-        return res
+        return res[list(su[:n].index)]
 
     def top_user_locations(self, n=10):
         return self.grouped_top_n_result(n, _top_user_locations)
 
     def top_unigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
         return self.grouped_top_n_result(n, lambda col: _top_unigrams(col, n=None, hashtags=hashtags, mentions=mentions, rts=rts, mts=mts, https=https, stopwords=stopwords))
+
+    def top_bigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
+        return self.grouped_top_n_result(n, lambda col: _top_bigramss(col, n=None, hashtags=hashtags, mentions=mentions, rts=rts, mts=mts, https=https, stopwords=stopwords))
+
+    def top_trigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
+        return self.grouped_top_n_result(n, lambda col: _top_trigrams(col, n=None, hashtags=hashtags, mentions=mentions, rts=rts, mts=mts, https=https, stopwords=stopwords))
 
     def top_links(self, n=10):
         return self.grouped_top_n_result(n, _top_links)

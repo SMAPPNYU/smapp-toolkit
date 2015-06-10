@@ -4,6 +4,7 @@ Module contains methods used to generate common figures from twitter data.
 @jonathanronen, @dpb
 """
 import warnings
+import numpy as np
 try:
     import seaborn as sns
     import matplotlib.pyplot as plt
@@ -357,3 +358,39 @@ def user_locations_per_day(collection, start, step_size=timedelta(days=1), num_s
     plt.subplots_adjust(right=.6)
     if show:
         plt.show()
+
+def _entity_stacked_bar_plot(collection, column, labels, group_by='days', alpha=.65, bar_width=.8, show=True):
+    data = collection.group_by(group_by).entities_counts()
+
+    urlbars = plt.bar(np.arange(len(data)),
+                      data[column],
+                      width=bar_width,
+                      linewidth=0.0,
+                      color='b',
+                      alpha=alpha,
+                      label=labels[0])
+    plt.bar(np.arange(len(data)),
+                      data['_total'] - data[column],
+                      width=bar_width,
+                      linewidth=0.0,
+                      color='grey',
+                      alpha=alpha,
+                      bottom=[c.get_y() + c.get_height() for c in urlbars.get_children()],
+                      label=labels[1])
+    plt.xticks(np.arange(len(data))+.3, data.index, rotation=45)
+    plt.legend()
+
+    if show:
+        plt.show()
+
+def tweets_with_urls(collection, group_by='days', alpha=.65, bar_width=.8, show=True):
+    _entity_stacked_bar_plot(collection, group_by=group_by, column='url', labels=['Tweets with URLs', 'Tweets without URLs'],
+        alpha=alpha, bar_width=bar_width, show=show)
+
+def tweets_with_images(collection, group_by='days', alpha=.65, bar_width=.8, show=True):
+    _entity_stacked_bar_plot(collection, group_by=group_by, column='image', labels=['Tweets with images', 'Tweets without images'],
+        alpha=alpha, bar_width=bar_width, show=show)
+
+def tweets_retweets(collection, group_by='days', alpha=.65, bar_width=.8, show=True):
+    _entity_stacked_bar_plot(collection, group_by=group_by, column='retweet', labels=['RTs', 'Non-RTs'],
+        alpha=alpha, bar_width=bar_width, show=show)

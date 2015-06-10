@@ -1,6 +1,6 @@
 import pandas as pd
+from collections import Counter
 from datetime import datetime, timedelta
-from collections import Counter, defaultdict
 
 from smappPy.retweet import is_retweet
 from smappPy.geo_tweet import is_geocoded
@@ -114,7 +114,7 @@ class Aggregator(object):
 
     def entities_counts(self, urls=True, images=True, hashtags=True, mentions=True, geo_enabled=True, retweets=True):
         def props(collection, urls=urls, images=images, hashtags=hashtags, mentions=mentions, geo_enabled=geo_enabled, retweets=retweets):
-            res = defaultdict(lambda: 0)
+            res = Counter()
             for tweet in collection:
                 res['_total'] += 1
                 if urls and contains_url(tweet):

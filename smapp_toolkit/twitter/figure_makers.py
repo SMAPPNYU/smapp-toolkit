@@ -359,7 +359,7 @@ def user_locations_per_day(collection, start, step_size=timedelta(days=1), num_s
     if show:
         plt.show()
 
-def _entity_stacked_bar_plot(collection, column, labels, group_by='days', alpha=.65, bar_width=.8, show=True):
+def _entity_stacked_bar_plot(collection, column, labels, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     data = collection.group_by(group_by).entities_counts()
 
     urlbars = plt.bar(np.arange(len(data)),
@@ -377,20 +377,32 @@ def _entity_stacked_bar_plot(collection, column, labels, group_by='days', alpha=
                       alpha=alpha,
                       bottom=[c.get_y() + c.get_height() for c in urlbars.get_children()],
                       label=labels[1])
-    plt.xticks(np.arange(len(data))+.3, data.index, rotation=45)
+    plt.xticks(np.arange(len(data))+.3, [ts.strftime(xtick_format) for ts in data.index], rotation=45)
     plt.legend()
 
     if show:
         plt.show()
 
-def tweets_with_urls(collection, group_by='days', alpha=.65, bar_width=.8, show=True):
+def tweets_with_urls(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     _entity_stacked_bar_plot(collection, group_by=group_by, column='url', labels=['Tweets with URLs', 'Tweets without URLs'],
         alpha=alpha, bar_width=bar_width, show=show)
 
-def tweets_with_images(collection, group_by='days', alpha=.65, bar_width=.8, show=True):
+def tweets_with_images(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     _entity_stacked_bar_plot(collection, group_by=group_by, column='image', labels=['Tweets with images', 'Tweets without images'],
         alpha=alpha, bar_width=bar_width, show=show)
 
-def tweets_retweets(collection, group_by='days', alpha=.65, bar_width=.8, show=True):
+def tweets_with_mentions(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
+    _entity_stacked_bar_plot(collection, group_by=group_by, column='mention', labels=['Tweets with mentions', 'Tweets without mentions'],
+        alpha=alpha, bar_width=bar_width, show=show)
+
+def tweets_with_hashtags(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
+    _entity_stacked_bar_plot(collection, group_by=group_by, column='hashtag', labels=['Tweets with hashtags', 'Tweets without hashtags'],
+        alpha=alpha, bar_width=bar_width, show=show)
+
+def tweets_retweets(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     _entity_stacked_bar_plot(collection, group_by=group_by, column='retweet', labels=['RTs', 'Non-RTs'],
+        alpha=alpha, bar_width=bar_width, show=show)
+
+def geocoded_tweets(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
+    _entity_stacked_bar_plot(collection, group_by=group_by, column='geo_enabled', labels=['Geocoded tweets', 'Non-geocoded tweets'],
         alpha=alpha, bar_width=bar_width, show=show)

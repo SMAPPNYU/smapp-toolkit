@@ -11,3 +11,4 @@ This folder contains example scripts that use the `smapp-toolkit` to do common t
 | `plot_user_per_day_histograms.py` | makes a histogram of the avg number of tweets per day per user |
 | `locations_by_timeunit.py` | Makes stacked bar of tweet volume by location |
 | `tweets_retweets.py` | Makes stacked bar plot of retweet proportion |
+| `tweets_hashtags.py` | Makes stacked bar plot of tweets with hashtags proportions |

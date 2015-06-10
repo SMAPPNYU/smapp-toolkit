@@ -37,6 +37,9 @@ class Aggregator(object):
             start_time = start_time.replace(microsecond=0)
         return start_time
 
+    def __iter__(self):
+        return self._splits()
+
     def _splits(self):
         start_time = self._get_start_time()
 

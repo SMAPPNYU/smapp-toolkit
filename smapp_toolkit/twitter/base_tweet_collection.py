@@ -95,20 +95,6 @@ class BaseTweetCollection(object):
         """
         return Aggregator(self, time_unit=time_unit)
 
-    def _top_ngrams(self, ngram, n, hashtags, mentions, rts, mts, https, stopwords):
-        counts = Counter()
-        for tweet in self:
-            tokens = get_cleaned_tokens(tweet["text"],
-                                        keep_hashtags=hashtags,
-                                        keep_mentions=mentions,
-                                        rts=rts,
-                                        mts=mts,
-                                        https=https,
-                                        stopwords=stopwords)
-            ngrams = get_ngrams(tokens, ngram)
-            counts.update(' '.join(e) for e in ngrams)
-        return pd.DataFrame(counts.most_common(n), columns=['{}-gram'.format(ngram), 'count'])
-
     def top_unigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
         """
         Return the top 'n' unigrams (tokenized words) in the collection.

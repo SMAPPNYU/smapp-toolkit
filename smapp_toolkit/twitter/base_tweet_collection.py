@@ -3,12 +3,14 @@ import pandas as pd
 import figure_makers
 import figure_helpers
 import networkx as nx
+from aggregator import Aggregator
 from abc import ABCMeta, abstractmethod
 from smappPy.iter_util import get_ngrams
 from collections import Counter, defaultdict
 from smappPy.unicode_csv import UnicodeWriter
 from smappPy.retweet import is_official_retweet
 from smappPy.store_tweets import tweets_to_file
+from counter_functions import _top_user_locations
 from smappPy.text_clean import get_cleaned_tokens
 from smappPy.xml_util import clear_unicode_control_chars
 from smappPy.entities import get_users_mentioned, get_hashtags
@@ -64,6 +66,9 @@ class BaseTweetCollection(object):
         collection.since(datetime(2014,1,1)).texts()
         """
         return [tweet['text'] for tweet in self]
+
+    def aggregate_by(self, time_unit):
+        return Aggregator(self, time_unit=time_unit)
 
     def _top_ngrams(self, ngram, n, hashtags, mentions, rts, mts, https, stopwords):
         counts = Counter()
@@ -149,15 +154,7 @@ class BaseTweetCollection(object):
         once, regardless of how often the user appears in the collection.
         If False, a user's location string is counted multiple times.
         """
-        users = set()
-        loc_counts = Counter()
-        for tweet in self:
-            if tweet["user"]["id"] in users and count_each_user_once:
-                continue
-            users.add(tweet["user"]["id"])
-            if tweet["user"]["location"]:
-                loc_counts[tweet["user"]["location"]] += 1
-        return pd.DataFrame(loc_counts.most_common(n), columns=['user location', 'count'])
+        return _top_user_locations(self, n, count_each_user_once)
 
     def top_geolocation_names(self, n=10):
         """

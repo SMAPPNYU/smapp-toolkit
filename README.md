@@ -183,7 +183,7 @@ which outputs:
 2015-01-12 18:00:00: 23590
 ```
 
-### top_x methods grouped by time slice
+#### top_x methods grouped by time slice
 The framework also supports `top_x` methods with results grouped by time slice.
 
 Example:
@@ -197,6 +197,18 @@ collection.since(datetime(2015,6,1)).group_by('days').top_user_locations(n=5)
   # 2015-06-4      17           1           5         1   6
   # 2015-06-5      10           3           3         3   3
 ```
+
+#### counting entities in tweets by time slice
+```python
+In []: col.group_by('hours').entities_counts()
+Out[]: 
+                     _total   url  image  mention  hashtag  geo_enabled  retweet
+2015-01-12 17:00:00   13275   881   1428     6612     2001        10628       15 
+2015-01-12 18:00:00   23590  1668   2509    12091     3575        19019       36
+
+```
+
+### Visualizations
 
 #### Visualizing the volume of tweets
 ```python

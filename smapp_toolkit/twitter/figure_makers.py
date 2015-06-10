@@ -385,24 +385,24 @@ def _entity_stacked_bar_plot(collection, column, labels, group_by='days', xtick_
 
 def tweets_with_urls(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     _entity_stacked_bar_plot(collection, group_by=group_by, column='url', labels=['Tweets with URLs', 'Tweets without URLs'],
-        alpha=alpha, bar_width=bar_width, show=show)
+        xtick_format=xtick_format, alpha=alpha, bar_width=bar_width, show=show)
 
 def tweets_with_images(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     _entity_stacked_bar_plot(collection, group_by=group_by, column='image', labels=['Tweets with images', 'Tweets without images'],
-        alpha=alpha, bar_width=bar_width, show=show)
+        xtick_format=xtick_format, alpha=alpha, bar_width=bar_width, show=show)
 
 def tweets_with_mentions(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     _entity_stacked_bar_plot(collection, group_by=group_by, column='mention', labels=['Tweets with mentions', 'Tweets without mentions'],
-        alpha=alpha, bar_width=bar_width, show=show)
+        xtick_format=xtick_format, alpha=alpha, bar_width=bar_width, show=show)
 
 def tweets_with_hashtags(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     _entity_stacked_bar_plot(collection, group_by=group_by, column='hashtag', labels=['Tweets with hashtags', 'Tweets without hashtags'],
-        alpha=alpha, bar_width=bar_width, show=show)
+        xtick_format=xtick_format, alpha=alpha, bar_width=bar_width, show=show)
 
 def tweets_retweets(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     _entity_stacked_bar_plot(collection, group_by=group_by, column='retweet', labels=['RTs', 'Non-RTs'],
-        alpha=alpha, bar_width=bar_width, show=show)
+        xtick_format=xtick_format, alpha=alpha, bar_width=bar_width, show=show)
 
 def geocoded_tweets(collection, group_by='days', xtick_format='%Y-%m-%d', alpha=.65, bar_width=.8, show=True):
     _entity_stacked_bar_plot(collection, group_by=group_by, column='geo_enabled', labels=['Geocoded tweets', 'Non-geocoded tweets'],
-        alpha=alpha, bar_width=bar_width, show=show)
+        xtick_format=xtick_format, alpha=alpha, bar_width=bar_width, show=show)

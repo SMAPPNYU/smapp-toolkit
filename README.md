@@ -170,6 +170,34 @@ top_rts = collection.since(datetime.utcnow()-timedelta(hours=1)).top_retweets(n=
 ```
 The default columns included are `['user.screen_name', 'created_at', 'text']`.
 
+### Grouping by time slice
+Use the `collection.group_by(time_unit)` method to group tweets by time slices. Supported time slices are `days`, `hours`, `minutes`, and `seconds`. Here's a basic example:
+
+```python
+for time, tweets in collection.group_by('hours'):
+    print("{time}: {count}".format(time=time, count=len(list(tweets))))
+```
+which outputs:
+```
+2015-01-12 17:00:00: 13275
+2015-01-12 18:00:00: 23590
+```
+
+### top_x methods grouped by time slice
+The framework also supports `top_x` methods with results grouped by time slice.
+
+Example:
+```python
+collection.since(datetime(2015,6,1)).group_by('days').top_user_locations(n=5)
+
+  #            London  London, UK  Manchester  Scotland  UK
+  # 2015-06-1       4           2           1         1   2
+  # 2015-06-2      11           4           9         3   3
+  # 2015-06-3      14           1           5       NaN   4
+  # 2015-06-4      17           1           5         1   6
+  # 2015-06-5      10           3           3         3   3
+```
+
 #### Visualizing the volume of tweets
 ```python
 bins, counts = collection.containing('#sexy').tweets_over_time_figure(

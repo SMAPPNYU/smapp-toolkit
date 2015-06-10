@@ -68,6 +68,22 @@ class BaseTweetCollection(object):
         return [tweet['text'] for tweet in self]
 
     def aggregate_by(self, time_unit):
+        """
+        Get results by time slice ('days', 'hours', 'minutes', 'seconds').
+        Supports top_x() methods like this:
+
+        Example:
+        ########
+
+        collection.since(datetime(2015,6,1)).aggregate_by('days').top_user_locations(n=5)
+        >
+        #            London  London, UK  Manchester  Scotland  UK
+        # 2015-06-1       4           2           1         1   2
+        # 2015-06-2      11           4           9         3   3
+        # 2015-06-3      14           1           5       NaN   4
+        # 2015-06-4      17           1           5         1   6
+        # 2015-06-5      10           3           3         3   3
+        """
         return Aggregator(self, time_unit=time_unit)
 
     def _top_ngrams(self, ngram, n, hashtags, mentions, rts, mts, https, stopwords):

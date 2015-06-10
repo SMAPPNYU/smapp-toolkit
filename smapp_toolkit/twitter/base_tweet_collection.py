@@ -10,11 +10,11 @@ from collections import Counter, defaultdict
 from smappPy.unicode_csv import UnicodeWriter
 from smappPy.retweet import is_official_retweet
 from smappPy.store_tweets import tweets_to_file
-from counter_functions import _top_user_locations
 from smappPy.text_clean import get_cleaned_tokens
 from smappPy.xml_util import clear_unicode_control_chars
 from smappPy.entities import get_users_mentioned, get_hashtags
 from smappPy.entities import get_urls, get_links, get_image_urls
+from counter_functions import _top_user_locations, _top_ngrams, _top_unigrams, _top_bigrams, _top_trigrams, _top_links
 
 class BaseTweetCollection(object):
     __metaclass__ = ABCMeta
@@ -70,7 +70,17 @@ class BaseTweetCollection(object):
     def group_by(self, time_unit):
         """
         Get results by time slice ('days', 'hours', 'minutes', 'seconds').
-        Supports top_x() methods like this:
+        Returns a generator of times and tweet-generators, like this:
+
+        Example:
+        ########
+        for time, tweets in collection.group_by('minutes'):
+            for tweet in tweets:
+                # do something
+
+        ---------------------------------------------------
+
+        Also supports top_x() methods like this:
 
         Example:
         ########
@@ -126,13 +136,13 @@ class BaseTweetCollection(object):
         import nltk
         collection.top_unigrams(n=100, stopwords=nltk.stopwords.words("english"))
         """
-        return self._top_ngrams(1, n, hashtags, mentions, rts, mts, https, stopwords)
+        return _top_unigrams(self, n, hashtags, mentions, rts, mts, https, stopwords)
 
     def top_bigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
-        return self._top_ngrams(2, n, hashtags, mentions, rts, mts, https, stopwords)
+        return _top_bigrams(self, n, hashtags, mentions, rts, mts, https, stopwords)
 
     def top_trigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
-        return self._top_ngrams(3, n, hashtags, mentions, rts, mts, https, stopwords)
+        return _top_trigrams(self, n, hashtags, mentions, rts, mts, https, stopwords)
 
     def top_links(self, n=10):
         """
@@ -142,7 +152,7 @@ class BaseTweetCollection(object):
         Note: If a tweet contains the same link multiple times, each time is counted
         as one occurrence (ie, it is not top links-per-tweet).
         """
-        return pd.DataFrame(Counter([l for tweet in self for l in get_links(tweet)]).most_common(n), columns=['link', 'count'])
+        return _top_links(self, n)
 
     def top_urls(self, n=10):
         """

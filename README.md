@@ -205,7 +205,6 @@ Out[]:
                      _total   url  image  mention  hashtag  geo_enabled  retweet
 2015-01-12 17:00:00   13275   881   1428     6612     2001        10628       15 
 2015-01-12 18:00:00   23590  1668   2509    12091     3575        19019       36
-
 ```
 
 ### Visualizations
@@ -221,13 +220,31 @@ plt.title('Tweets containing "#sexy"')
 plt.show()
 ```
 
-#### Vizualizing volume of selected terms over time
+#### Visualizing volume of selected terms over time
 ```python
 collection.term_counts(['justin', 'miley'], count_by='days', plot=True, plot_total=True)
 plt.show()
 ```
 
-#### Iterate over the full tweet objects
+#### Visualize the retweet proportion over time
+```python
+collection.since(datetime(2015,6,1)).tweet_retweet_figure(group_by='days')
+```
+you may set `group_by=` to `days`, `hours`, `minutes`, or `seconds`.
+
+#### Visualize proportion of geocoded tweets over time
+```python
+collection.since(datetime(2015,6,1)).geocoded_tweets_figure()
+```
+
+#### Visualize tweets with links, images, mentions
+* `collection.tweets_with_urls_figure()`
+* `collection.tweets_with_images_figure()`
+* `collection.tweets_with_mentions_figure()`
+* `collection.tweets_with_hashtags_figure()`
+
+
+### Iterate over the full tweet objects
 ```python
 for tweet in collection.containing('#nyc'):
     print(tweet['text'])

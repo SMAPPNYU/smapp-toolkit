@@ -1,8 +1,13 @@
 import pandas as pd
-from collections import Counter
 from datetime import datetime, timedelta
+from collections import Counter, defaultdict
+
+from smappPy.retweet import is_retweet
+from smappPy.geo_tweet import is_geocoded
+from smappPy.entities import contains_url, contains_image, contains_hashtag, contains_mention
+
 from counter_functions import _top_user_locations, _top_unigrams, _top_bigrams, _top_trigrams, _top_links, _top_urls, \
-    _top_images, _top_hashtags, _top_mentions, _top_geolocation_names
+    _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _counter_to_series
 
 
 class Aggregator(object):
@@ -106,3 +111,23 @@ class Aggregator(object):
 
     def top_geolocation_names(self, n=10):
         return self.grouped_top_n_result(n, _top_geolocation_names)
+
+    def entities_counts(self, urls=True, images=True, hashtags=True, mentions=True, geo_enabled=True, retweets=True):
+        def props(collection, urls=urls, images=images, hashtags=hashtags, mentions=mentions, geo_enabled=geo_enabled, retweets=retweets):
+            res = defaultdict(lambda: 0)
+            for tweet in collection:
+                res['_total'] += 1
+                if urls and contains_url(tweet):
+                    res['url'] += 1
+                if images and contains_image(tweet):
+                    res['image'] += 1
+                if hashtags and contains_hashtag(tweet):
+                    res['hashtag'] += 1
+                if mentions and contains_mention(tweet):
+                    res['mention'] += 1
+                if geo_enabled and is_geocoded(tweet):
+                    res['geo_enabled'] += 1
+                if retweets and is_retweet(tweet):
+                    res['retweet'] += 1
+            return _counter_to_series(res)
+        return self.grouped_result(props)

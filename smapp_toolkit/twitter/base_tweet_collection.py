@@ -67,7 +67,7 @@ class BaseTweetCollection(object):
         """
         return [tweet['text'] for tweet in self]
 
-    def aggregate_by(self, time_unit):
+    def group_by(self, time_unit):
         """
         Get results by time slice ('days', 'hours', 'minutes', 'seconds').
         Supports top_x() methods like this:
@@ -75,7 +75,7 @@ class BaseTweetCollection(object):
         Example:
         ########
 
-        collection.since(datetime(2015,6,1)).aggregate_by('days').top_user_locations(n=5)
+        collection.since(datetime(2015,6,1)).group_by('days').top_user_locations(n=5)
         >
         #            London  London, UK  Manchester  Scotland  UK
         # 2015-06-1       4           2           1         1   2

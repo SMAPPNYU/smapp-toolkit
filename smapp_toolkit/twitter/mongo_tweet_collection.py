@@ -47,7 +47,7 @@ class MongoTweetCollection(BaseTweetCollection):
 
     def _copy(self):
         ret = copy.copy(self)
-        ret._queries = [copy.copy(q) for q in self._queries]
+        ret._queries = [copy.deepcopy(q) for q in self._queries]
         return ret
 
     def _copy_with_added_query(self, query):
@@ -227,7 +227,7 @@ class MongoTweetCollection(BaseTweetCollection):
         """
         # Get copy of original object
         ret = copy.copy(self)
-        ret._queries = [copy.copy(q) for q in self._queries]
+        ret._queries = [copy.deepcopy(q) for q in self._queries]
 
         # Set self limit variable (for info only)
         ret._limit = count
@@ -273,7 +273,7 @@ class MongoTweetCollection(BaseTweetCollection):
         collection.order('timestamp', collection.DESCENDING).texts()
         """
         ret = copy.copy(self)
-        ret._queries = [copy.copy(q) for q in self._queries]
+        ret._queries = [copy.deepcopy(q) for q in self._queries]
         ret._sort = (field, direction)
         return ret
 
@@ -308,7 +308,7 @@ class MongoTweetCollection(BaseTweetCollection):
 
     def no_cursor_timeout(self):
         ret = copy.copy(self)
-        ret._queries = [copy.copy(q) for q in self._queries]
+        ret._queries = [copy.deepcopy(q) for q in self._queries]
         ret._no_cursor_timeout = True
         return ret
 

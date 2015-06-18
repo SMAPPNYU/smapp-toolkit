@@ -45,9 +45,13 @@ class MongoTweetCollection(BaseTweetCollection):
             len(self._queries),
             self._limit)
 
-    def _copy_with_added_query(self, query):
+    def _copy(self):
         ret = copy.copy(self)
-        ret._queries = copy.copy(self._queries)
+        ret._queries = [copy.copy(q) for q in self._queries]
+        return ret
+
+    def _copy_with_added_query(self, query):
+        ret = self._copy()
         ret._queries.append(query)
         return ret
 
@@ -105,6 +109,32 @@ class MongoTweetCollection(BaseTweetCollection):
         """
         return self._copy_with_added_query({'timestamp': {'$gt': since}})
 
+    def _get_since(self):
+        """
+        Get 'since' criteria that was added by calling col.since(...)
+
+        Example:
+        ########
+        col._get_since()
+        # => None
+        col.since(datetime(2011,1,1))._get_since()
+        # => datetime(2011,1,1)
+        """
+        for q in self._queries:
+            if q.keys()[0]=='timestamp' and q['timestamp'].keys()[0]=='$gt':
+                return q['timestamp']['$gt']
+        return None
+
+    def _override_since(self, since):
+        """
+        Overrides since criterium.
+        """
+        for q in self._queries:
+            if q.keys()[0]=='timestamp' and q['timestamp'].keys()[0]=='$gt':
+                q['timestamp']['$gt'] = since
+                return True
+        raise Exception("Collection had no SINCE set")
+
     def until(self, until):
         """
         Only find tweets authored before a certain time. If no timezone is specified, UTC is assumed.
@@ -117,6 +147,32 @@ class MongoTweetCollection(BaseTweetCollection):
         collection.until(datetime(2014,10,1))
         """
         return self._copy_with_added_query({'timestamp': {'$lt': until}})
+
+    def _get_until(self):
+        """
+        Get 'until' criteria that was added by calling col.until(...)
+
+        Example:
+        ########
+        col._get_until()
+        # => None
+        col.until(datetime(2011,1,1))._get_until()
+        # => datetime(2011,1,1)
+        """
+        for q in self._queries:
+            if q.keys()[0]=='timestamp' and q['timestamp'].keys()[0]=='$lt':
+                return q['timestamp']['$lt']
+        return None
+
+    def _override_until(self, until):
+        """
+        Overrides until criterium.
+        """
+        for q in self._queries:
+            if q.keys()[0]=='timestamp' and q['timestamp'].keys()[0]=='$lt':
+                q['timestamp']['$lt'] = until
+                return True
+        raise Exception("Collection had no UNTIL set")
 
     def language(self, *langs):
         """
@@ -171,7 +227,7 @@ class MongoTweetCollection(BaseTweetCollection):
         """
         # Get copy of original object
         ret = copy.copy(self)
-        ret._queries = copy.copy(self._queries)
+        ret._queries = [copy.copy(q) for q in self._queries]
 
         # Set self limit variable (for info only)
         ret._limit = count
@@ -217,7 +273,7 @@ class MongoTweetCollection(BaseTweetCollection):
         collection.order('timestamp', collection.DESCENDING).texts()
         """
         ret = copy.copy(self)
-        ret._queries = copy.copy(self._queries)
+        ret._queries = [copy.copy(q) for q in self._queries]
         ret._sort = (field, direction)
         return ret
 
@@ -248,11 +304,11 @@ class MongoTweetCollection(BaseTweetCollection):
         return a
 
     def _query(self):
-        return reduce(self._merge, self._queries, {})
+        return reduce(self._merge, [copy.deepcopy(q) for q in self._queries], {})
 
     def no_cursor_timeout(self):
         ret = copy.copy(self)
-        ret._queries = copy.copy(self._queries)
+        ret._queries = [copy.copy(q) for q in self._queries]
         ret._no_cursor_timeout = True
         return ret
 

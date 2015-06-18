@@ -6,6 +6,7 @@ from smappPy.retweet import is_retweet
 from smappPy.geo_tweet import is_geocoded
 from smappPy.entities import contains_url, contains_image, contains_hashtag, contains_mention
 
+import mongo_tweet_collection
 from counter_functions import _top_user_locations, _top_unigrams, _top_bigrams, _top_trigrams, _top_links, _top_urls, \
     _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _counter_to_series, _language_counts
 
@@ -70,9 +71,29 @@ class Aggregator(object):
                 raise StopIteration()
             start_time = start_time + self._time_delta
 
+    def _mongo_splits(self):
+        if not self._collection._get_until():
+            raise Exception("Cannot time-split on a MongoTweetCollection without calling until()")
+        start_time = self._get_start_time()
+        end_time = self._collection._get_until()
+
+        while start_time < end_time:
+            tmpcol = self._collection._copy()
+            tmpcol._override_since(start_time)
+            tmpcol._override_until(start_time+self._time_delta)
+            yield (start_time, tmpcol)
+            start_time = start_time + self._time_delta
+
+
     def grouped_result(self, callable_, *args, **kwargs):
         results = dict()
         for t, split in self._splits():
+            results[t] = callable_(split, *args, **kwargs)
+        return pd.concat(results, axis=1).T
+
+    def grouped_mongo_result(self, callable_, *args, **kwargs):
+        results = dict()
+        for t, split in self._mongo_splits():
             results[t] = callable_(split, *args, **kwargs)
         return pd.concat(results, axis=1).T
 
@@ -134,3 +155,9 @@ class Aggregator(object):
 
     def language_counts(self, langs):
         return self.grouped_result(_language_counts, langs=langs)
+
+    def count(self):
+        if isinstance(self._collection, mongo_tweet_collection.MongoTweetCollection):
+            return self.grouped_mongo_result(lambda it: pd.Series(it.count(), index=['count']))
+        else:
+            return self.grouped_result(lambda it: pd.Series(sum(1 for e in it), index=['count']))

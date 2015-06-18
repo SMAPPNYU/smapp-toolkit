@@ -44,7 +44,10 @@ class Aggregator(object):
         return start_time
 
     def __iter__(self):
-        return self._splits()
+        if isinstance(self._collection, mongo_tweet_collection.MongoTweetCollection):
+            return self._mongo_splits()
+        else:
+            return self._splits()
 
     def _splits(self):
         start_time = self._get_start_time()
@@ -84,16 +87,9 @@ class Aggregator(object):
             yield (start_time, tmpcol)
             start_time = start_time + self._time_delta
 
-
     def grouped_result(self, callable_, *args, **kwargs):
         results = dict()
-        for t, split in self._splits():
-            results[t] = callable_(split, *args, **kwargs)
-        return pd.concat(results, axis=1).T
-
-    def grouped_mongo_result(self, callable_, *args, **kwargs):
-        results = dict()
-        for t, split in self._mongo_splits():
+        for t, split in self:
             results[t] = callable_(split, *args, **kwargs)
         return pd.concat(results, axis=1).T
 
@@ -158,6 +154,6 @@ class Aggregator(object):
 
     def count(self):
         if isinstance(self._collection, mongo_tweet_collection.MongoTweetCollection):
-            return self.grouped_mongo_result(lambda it: pd.Series(it.count(), index=['count']))
+            return self.grouped_result(lambda it: pd.Series(it.count(), index=['count']))
         else:
             return self.grouped_result(lambda it: pd.Series(sum(1 for e in it), index=['count']))

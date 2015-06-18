@@ -183,6 +183,16 @@ which outputs:
 2015-01-12 18:00:00: 23590
 ```
 
+#### Counting tweets per time slice
+```python
+In []: col.since(datetime(2015,6,18,12)).until(datetime(2015,6,18,15)).group_by('hours').count()
+Out[]:
+                      count
+2015-06-18 12:00:00  164181
+2015-06-18 13:00:00  167129
+2015-06-18 14:00:00  165057
+```
+
 #### top_x methods grouped by time slice
 The framework also supports `top_x` methods with results grouped by time slice.
 
@@ -201,7 +211,7 @@ collection.since(datetime(2015,6,1)).group_by('days').top_user_locations(n=5)
 #### counting entities in tweets by time slice
 ```python
 In []: col.group_by('hours').entities_counts()
-Out[]: 
+Out[]:
                      _total   url  image  mention  hashtag  geo_enabled  retweet
 2015-01-12 17:00:00   13275   881   1428     6612     2001        10628       15 
 2015-01-12 18:00:00   23590  1668   2509    12091     3575        19019       36
@@ -210,7 +220,7 @@ Out[]:
 #### Counting tweet languages over time slice
 ```python
 In []: col.since(datetime.utcnow()-timedelta(minutes=10)).until(datetime.utcnow()).group_by('minutes').language_counts(langs=['en', 'es', 'other'])   
-Out[]: 
+Out[]:
                        en   es  other
 2015-06-18 21:23:00   821   75    113
 2015-06-18 21:24:00  2312  228    339

@@ -75,3 +75,11 @@ def _top_mentions(collection, n=10):
 def _top_geolocation_names(collection, n=10):
     loc_counts = Counter(tweet['place']['full_name'] if 'place' in tweet and tweet['place'] is not None else None for tweet in collection)
     return _counter_to_series(loc_counts, n)
+
+def _language_counts(collection, langs=['en', 'other']):
+    lang_counts = Counter(tweet['lang'] for tweet in collection)
+    if 'other' in langs:
+        other_ct = sum(ct for lang, ct in lang_counts.items() if lang not in langs)
+        lang_counts['other'] = other_ct
+    cts = [lang_counts[l] for l in langs]
+    return pd.Series(cts, index=langs)

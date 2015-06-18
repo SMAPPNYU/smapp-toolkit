@@ -7,7 +7,7 @@ from smappPy.geo_tweet import is_geocoded
 from smappPy.entities import contains_url, contains_image, contains_hashtag, contains_mention
 
 from counter_functions import _top_user_locations, _top_unigrams, _top_bigrams, _top_trigrams, _top_links, _top_urls, \
-    _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _counter_to_series
+    _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _counter_to_series, _language_counts
 
 
 class Aggregator(object):
@@ -70,10 +70,10 @@ class Aggregator(object):
                 raise StopIteration()
             start_time = start_time + self._time_delta
 
-    def grouped_result(self, callable_):
+    def grouped_result(self, callable_, *args, **kwargs):
         results = dict()
         for t, split in self._splits():
-            results[t] = callable_(split)
+            results[t] = callable_(split, *args, **kwargs)
         return pd.concat(results, axis=1).T
 
     def grouped_top_n_result(self, n, callable_):
@@ -131,3 +131,6 @@ class Aggregator(object):
                     res['retweet'] += 1
             return _counter_to_series(res)
         return self.grouped_result(props)
+
+    def language_counts(self, langs):
+        return self.grouped_result(_language_counts, langs=langs)

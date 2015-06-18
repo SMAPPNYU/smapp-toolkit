@@ -207,6 +207,24 @@ Out[]:
 2015-01-12 18:00:00   23590  1668   2509    12091     3575        19019       36
 ```
 
+#### Counting tweet languages over time slice
+```python
+In []: col.since(datetime.utcnow()-timedelta(minutes=10)).until(datetime.utcnow()).group_by('minutes').language_counts(langs=['en', 'es', 'other'])   
+Out[]: 
+                       en   es  other
+2015-06-18 21:23:00   821   75    113
+2015-06-18 21:24:00  2312  228    339
+2015-06-18 21:25:00  2378  196    339
+2015-06-18 21:26:00  2352  233    295
+2015-06-18 21:27:00  2297  239    344
+2015-06-18 21:28:00  1776  173    247
+2015-06-18 21:29:00  1825  162    269
+2015-06-18 21:30:00  2317  237    326
+2015-06-18 21:31:00  2305  233    342
+2015-06-18 21:32:00  2337  235    308
+2015-06-18 21:33:00  1508  136    228
+```
+
 ### Visualizations
 
 #### Visualizing the volume of tweets

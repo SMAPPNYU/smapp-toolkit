@@ -15,13 +15,26 @@ def stacked_bar_plot(data, columns, x_tick_date_format='%Y-%m-%d', x_tick_step=2
     Makes a stacked bars plot from data in a pandas.DataFrame.
     columns are the columns to be stacked.
 
-    Example:
-    ########
-    data = collection.language_counts(langs=['en','es','other'])
-    
-    plt.figure(10,10)
-    stacked_bar_plot(data, ['en','es','other'], colors=['royalblue', 'yellow', 'grey'])
-    plt.title('Tweet proportions in English and Spanish', fontsize=24)
+    Example: Plot language proportions
+    ##################################
+        data = collection.group_by('days').language_counts(langs=['en','es','other'])
+
+        plt.figure(figsize=(10,10))
+        stacked_bar_plot(data, ['en','es','other'], colors=['royalblue', 'yellow', 'grey'])
+        plt.title('Tweet proportions in English and Spanish', fontsize=24)
+        plt.tight_layout()
+
+    -----------------------------------------------------------------
+
+    Example: Plot retweet proportion
+    ################################
+        data = col.since(datetime(2015,6,18,12)).until(datetime(2015,6,18,12,10)).group_by('minutes').entities_counts()
+        data['original tweet'] = data['_total'] - data['retweet']
+
+        plt.figure(figsize=(10,10))
+        stacked_bar_plot(data, ['retweet', 'original tweet'], colors=['salmon', 'lightgrey'])
+        plt.title('Retweet proportion', fontsize=24)
+        plt.tight_layout()
     """
     bars = OrderedDict()
     bars[columns[0]] = plt.bar(range(len(data)),

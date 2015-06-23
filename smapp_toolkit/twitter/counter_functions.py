@@ -85,7 +85,7 @@ def _language_counts(collection, langs=['en', 'other']):
     return pd.Series(cts, index=langs)
 
 def _top_entities(collection, n=10, urls=True, images=True, hts=True, mentions=True, geolocation_names=True,
-    user_locations=True, ngram_range=(1,2), ngram_stopwords=[], ngram_hashtags=True, ngram_mentions=True,
+    user_locations=True, ngrams=(1,2), ngram_stopwords=[], ngram_hashtags=True, ngram_mentions=True,
     ngram_rts=False, ngram_mts=False, ngram_https=False):
     counters = defaultdict(Counter)
     for tweet in collection:
@@ -105,7 +105,7 @@ def _top_entities(collection, n=10, urls=True, images=True, hts=True, mentions=T
             counters['geolocation_names'][tweet['place']['full_name'] if 'place' in tweet and tweet['place'] is not None else None] += 1
         if user_locations:
             counters['user_locations'][tweet['user'].get('location', None)] += 1
-        if ngram_range:
+        if ngrams:
             tokens = get_cleaned_tokens(tweet["text"],
                                 keep_hashtags=ngram_hashtags,
                                 keep_mentions=ngram_mentions,
@@ -113,7 +113,7 @@ def _top_entities(collection, n=10, urls=True, images=True, hts=True, mentions=T
                                 mts=ngram_mts,
                                 https=ngram_https,
                                 stopwords=ngram_stopwords)
-            for ngram in ngram_range:
-                ngrams = get_ngrams(tokens, ngram)
-                counters['{}-grams'.format(ngram)].update(' '.join(e) for e in ngrams)
+            for ngram in ngrams:
+                grams = get_ngrams(tokens, ngram)
+                counters['{}-grams'.format(ngram)].update(' '.join(e) for e in grams)
     return { key: _counter_to_series(counters[key], n) for key in counters }

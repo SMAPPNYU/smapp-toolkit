@@ -1,3 +1,4 @@
+# encoding: utf-8
 import re
 import pandas as pd
 import figure_makers
@@ -192,10 +193,37 @@ class BaseTweetCollection(object):
                 rt_counts[tweet["retweeted_status"]["id"]] += 1
         return pd.DataFrame([[tid, tcount] + self._make_row(rt_dict[tid], rt_columns) for tid, tcount in rt_counts.most_common(n)], columns=['id', 'count']+rt_columns)
 
-    def top_entities(self, n=10, urls=True, images=True, hts=True, mentions=True, geolocation_names=True, user_locations=True, ngram_range=(1,2),
+    def top_entities(self, n=10, urls=True, images=True, hts=True, mentions=True, geolocation_names=True, user_locations=True, ngrams=(1,2),
         ngram_stopwords=[], ngram_hashtags=True, ngram_mentions=True, ngram_rts=False, ngram_mts=False, ngram_https=False):
+        """
+        Returns a dictionary with top entities requested as arguments
+            * urls
+            * images
+            * hts
+            * mentions
+            * geolocation_names
+            * user_locations
+            * ngrams
+
+        Example:
+        ########
+        top_things = collection.top_entities(ngram_range=(1,3))
+        top_things['2-grams']
+        # Out[]: 
+        فيديو قوات          350
+        الطوارى السعودية    330
+        قوات الطوارى        305
+        #السعودية #saudi    266
+        #ksa #السعودية      244
+        قوات الطوارئ        236
+        الطوارئ السعودية    236
+        #saudi #الرياض      226
+        يقبضون على          185
+        السعودية يقبضون     185
+        dtype: int64
+        """
         return _top_entities(self, n=n, urls=urls, images=images, hts=hts, mentions=mentions, geolocation_names=geolocation_names,
-            ngram_range=ngram_range, ngram_stopwords=ngram_stopwords, ngram_hashtags=ngram_hashtags, ngram_mentions=ngram_mentions,
+            ngrams=ngrams, ngram_stopwords=ngram_stopwords, ngram_hashtags=ngram_hashtags, ngram_mentions=ngram_mentions,
             ngram_rts=ngram_rts, ngram_mts=ngram_mts, ngram_https=ngram_https)
 
 

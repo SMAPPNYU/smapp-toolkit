@@ -154,6 +154,27 @@ counts = collection.top_urls(n=10)
 * `top_user_locations()`
 * `top_geolocation_names()`
 
+#####Multiple top_x methods in one go
+The function `top_entities(...)` returns a dictionary object with `pandas.Series` objects for each top entity list
+
+```python
+In []: col = BSONTweetCollection('/home/yablee/Projects/SMAPP/tmp/arabevents_sample.bson')
+In []: top_things = col.top_entities(ngrams=(1,2,3))
+In []: top_things['2-grams']
+Out[]: 
+فيديو قوات          350
+الطوارى السعودية    330
+قوات الطوارى        305
+#السعودية #saudi    266
+#ksa #السعودية      244
+قوات الطوارئ        236
+الطوارئ السعودية    236
+#saudi #الرياض      226
+يقبضون على          185
+السعودية يقبضون     185
+dtype: int64
+```
+
 #####writing `top_x()` results to a csv file
 
 All `top_x()` methods return `pandas.DataFrame` objects. They may be easily exported to a csv file, as follows:

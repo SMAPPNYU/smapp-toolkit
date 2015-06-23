@@ -13,7 +13,7 @@ from smappPy.store_tweets import tweets_to_file
 from smappPy.text_clean import get_cleaned_tokens
 from smappPy.xml_util import clear_unicode_control_chars
 from counter_functions import _top_user_locations, _top_ngrams, _top_unigrams, _top_bigrams, _top_trigrams, _top_links, \
-    _top_urls, _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _language_counts
+    _top_urls, _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _language_counts, _top_entities
 
 class BaseTweetCollection(object):
     __metaclass__ = ABCMeta
@@ -191,6 +191,13 @@ class BaseTweetCollection(object):
                 rt_dict[tweet["retweeted_status"]["id"]] = tweet["retweeted_status"]
                 rt_counts[tweet["retweeted_status"]["id"]] += 1
         return pd.DataFrame([[tid, tcount] + self._make_row(rt_dict[tid], rt_columns) for tid, tcount in rt_counts.most_common(n)], columns=['id', 'count']+rt_columns)
+
+    def top_entities(self, n=10, urls=True, images=True, hts=True, mentions=True, geolocation_names=True, user_locations=True, ngram_range=(1,2),
+        ngram_stopwords=[], ngram_hashtags=True, ngram_mentions=True, ngram_rts=False, ngram_mts=False, ngram_https=False):
+        return _top_entities(self, n=n, urls=urls, images=images, hts=hts, mentions=mentions, geolocation_names=geolocation_names,
+            ngram_range=ngram_range, ngram_stopwords=ngram_stopwords, ngram_hashtags=ngram_hashtags, ngram_mentions=ngram_mentions,
+            ngram_rts=ngram_rts, ngram_mts=ngram_mts, ngram_https=ngram_https)
+
 
     def term_counts(self, terms, count_by='days', plot=False, plot_total=True, match='tokens', case_sensitive=False):
         """

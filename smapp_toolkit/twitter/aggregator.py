@@ -1,6 +1,6 @@
 import pandas as pd
-from collections import Counter
 from datetime import datetime, timedelta
+from collections import Counter, defaultdict
 
 from smappPy.retweet import is_retweet
 from smappPy.geo_tweet import is_geocoded

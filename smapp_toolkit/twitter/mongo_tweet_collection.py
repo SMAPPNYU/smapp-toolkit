@@ -47,7 +47,7 @@ class MongoTweetCollection(BaseTweetCollection):
 
     def _copy(self):
         ret = copy.copy(self)
-        ret._queries = [copy.deepcopy(q) for q in self._queries]
+        ret._queries = [copy.deepcopy(q) if 'timestamp' in q.keys() else copy.copy(q) for q in self._queries]
         return ret
 
     def _copy_with_added_query(self, query):
@@ -212,7 +212,7 @@ class MongoTweetCollection(BaseTweetCollection):
         """
         Only apply query to the latest collection in the split-set.
         """
-        ret = copy.copy(self)
+        ret = self._copy()
         ret._mongo_collections = [self._mongo_collections[-1]]
         return ret
 
@@ -226,8 +226,7 @@ class MongoTweetCollection(BaseTweetCollection):
         collection.limit(5).texts()
         """
         # Get copy of original object
-        ret = copy.copy(self)
-        ret._queries = [copy.deepcopy(q) for q in self._queries]
+        ret = self._copy()
 
         # Set self limit variable (for info only)
         ret._limit = count
@@ -272,8 +271,7 @@ class MongoTweetCollection(BaseTweetCollection):
         ########
         collection.order('timestamp', collection.DESCENDING).texts()
         """
-        ret = copy.copy(self)
-        ret._queries = [copy.deepcopy(q) for q in self._queries]
+        ret = self._copy()
         ret._sort = (field, direction)
         return ret
 
@@ -304,11 +302,10 @@ class MongoTweetCollection(BaseTweetCollection):
         return a
 
     def _query(self):
-        return reduce(self._merge, [copy.deepcopy(q) for q in self._queries], {})
+        return reduce(self._merge, [copy.deepcopy(q) if 'timestamp' in q.keys() else copy.copy(q) for q in self._queries], {})
 
     def no_cursor_timeout(self):
-        ret = copy.copy(self)
-        ret._queries = [copy.deepcopy(q) for q in self._queries]
+        ret = self._copy()
         ret._no_cursor_timeout = True
         return ret
 

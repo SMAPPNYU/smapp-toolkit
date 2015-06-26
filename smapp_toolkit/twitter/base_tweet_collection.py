@@ -1,5 +1,6 @@
 # encoding: utf-8
 import re
+import gzip
 import pandas as pd
 import figure_makers
 import figure_helpers
@@ -308,15 +309,24 @@ class BaseTweetCollection(object):
         Columns are specified by their path in the tweet dictionary, so that
             'user.screen_name' will grab tweet['user']['screen_name']
 
+        If `filename` ends with `.gz`, it will be a gzipped file. Else it will be a plaintext (utf8) file.
+        Gzip typically achieves 3x-5x compression on this type of data, depending on the columns chosen and the structure of the data.
+
         Example:
         ########
         collection.since(one_hour_ago).dump_csv('my_tweets.csv', columns=['timestamp', 'text'])
         """
-        with open(filename, 'w') as outfile:
+        if filename.endswith('.gz'):
+            outfile = gzip.open(filename, 'w')
+        else:
+            outfile = open(filename, 'w')
+        try:
             writer = UnicodeWriter(outfile)
             writer.writerow(columns)
             for tweet in self:
                 writer.writerow(self._make_row(tweet, columns))
+        finally:
+            outfile.close()
 
     def dump_json(self, filename, append=False, pure_json=False, pretty=False):
         """

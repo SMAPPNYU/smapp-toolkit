@@ -350,9 +350,16 @@ collection.dump_csv('my_tweets.csv', columns=['id_str', 'user.screen_name', 'use
 
 The full list of available fields from a tweet may be found on [the twitter REST-API documentation](https://dev.twitter.com/overview/api/tweets). In order to get nested fields (such as the user's location or the user's screen_name), use `user.location`, `user.screen_name`.
 
-**tweet coordinates**
+##### tweet coordinates
 For geolocated tweets, in order to get the geolocation out in the csv, add `coordinates.coordinates` to the columns list. This will put the coordinates in [GeoJSON](http://geojson.org/geojson-spec.html#positions) (long, lat) in the column.
 *Alternatively*¸ add `coordinates.coordinates.0` and `coordinates.coordinates.1` to the columns list. This will add two columns with the longitude and latitude in them respectively.
+
+##### gzip compression
+If the filename specified ends with `.gz`, the output file will be gzipped. This typically takes about a 1/3 as much space as a non-compressed file.
+
+```python
+collection.dump_csv('my_tweets.csv.gz')
+```
 
 ### Dumping tweets to raw JSON file
 This will dump whole tweets in their original JSON format into a specified file, one tweet per line.

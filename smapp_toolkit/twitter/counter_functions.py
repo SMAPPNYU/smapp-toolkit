@@ -117,3 +117,9 @@ def _top_entities(collection, n=10, urls=True, images=True, hts=True, mentions=T
                 grams = get_ngrams(tokens, ngram)
                 counters['{}-grams'.format(ngram)].update(' '.join(e) for e in grams)
     return { key: _counter_to_series(counters[key], n) for key in counters }
+
+def _unique_users(collection):
+    uids = set()
+    for tweet in collection:
+        uids.add(tweet['user']['id'])
+    return pd.Series([len(uids)], index=['unique_users'])

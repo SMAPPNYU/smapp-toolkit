@@ -8,7 +8,8 @@ from smappPy.entities import contains_url, contains_image, contains_hashtag, con
 
 import mongo_tweet_collection
 from counter_functions import _top_user_locations, _top_unigrams, _top_bigrams, _top_trigrams, _top_links, _top_urls, \
-    _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _counter_to_series, _language_counts
+    _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _counter_to_series, _language_counts, \
+    _unique_users
 
 
 class Aggregator(object):
@@ -157,3 +158,6 @@ class Aggregator(object):
             return self.grouped_result(lambda it: pd.Series(it.count(), index=['count']))
         else:
             return self.grouped_result(lambda it: pd.Series(sum(1 for e in it), index=['count']))
+
+    def unique_users(self):
+        return self.grouped_result(_unique_users)

@@ -260,15 +260,18 @@ Out[]:
 ```python
 In []: from smapp_toolkit.twitter import BSONTweetCollection
 In []: col = BSONTweetCollection('arabevents_sample.bson')
-In []: col.group_by('minutes').unique_users()
+In []: unique_users = col.group_by('minutes').unique_users()
+In []: tweets = col.group_by('minutes').count()
+In []: unique_users['total tweets'] = tweets['count']
+In []: unique_users
 Out[]: 
-                     unique_users
-2015-04-16 17:01:00           377
-2015-04-16 17:02:00           432
-2015-04-16 17:03:00           442
-2015-04-16 17:04:00           393
-2015-04-16 17:05:00           504
-2015-04-16 17:06:00           264
+                     unique_users  total tweets
+2015-04-16 17:01:00           377           432
+2015-04-16 17:02:00           432           582
+2015-04-16 17:03:00           442           610
+2015-04-16 17:04:00           393           531
+2015-04-16 17:05:00           504           756
+2015-04-16 17:06:00           264           365
 ```
 
 ### Visualizations

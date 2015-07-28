@@ -379,16 +379,25 @@ If the filename specified ends with `.gz`, the output file will be gzipped. This
 collection.dump_csv('my_tweets.csv.gz')
 ```
 
-### Dumping tweets to raw JSON file
-This will dump whole tweets in their original JSON format into a specified file, one tweet per line.
+### Dumping tweets to JSON file
+This will dump whole tweets in JSON format into a specified file, one tweet per line.
 ```python
 collection.dump_json("my_json.json")
 ```
 
 Available options are:
 * append=True, to append tweets in the collection to an existing file
-* pure_json=True, to remove MongoDB-specific fields from the tweet (mostly, you can ignore this)
 * pretty=True, to write JSON into pretty, line-broken and properly indented format (this takes up much more space, so is not recommended for large collections)
+
+### Dumping tweets to raw BSON file
+This will dump whole tweets in MongoDB's BSON format into a specified file. Note that BSON is a "binary" format (it will look a little funny if opened in a text editor). This is the native format for MongoDB's mongodump program. The file is NOT line-separated.
+
+```python
+collection.dump_bson("my_bson.bson")
+```
+
+Available options are:
+* append=True, to append BSON tweets to the given filename (if file already has tweets)
 
 ### Exporting a retweet graph
 The toolkit supports exporting a retweet graph using the `networkx` library. In the exported graph users are nodes, retweets are directed edges.

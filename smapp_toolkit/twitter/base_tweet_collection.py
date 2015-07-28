@@ -340,7 +340,7 @@ class BaseTweetCollection(object):
         """
         tweets_to_json(self, filename, append, pure_json, pretty)
 
-    def dump_bson(self, filename, append):
+    def dump_bson(self, filename, append=False):
         """
         Dumps matching tweets (in 'self') to raw Mongo BSON format (no line breaks).
         To append to given filename, pass append=True.

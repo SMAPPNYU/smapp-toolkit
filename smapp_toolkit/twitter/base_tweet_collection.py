@@ -11,9 +11,9 @@ from smappPy.iter_util import get_ngrams
 from collections import Counter, defaultdict
 from smappPy.unicode_csv import UnicodeWriter
 from smappPy.retweet import is_official_retweet
-from smappPy.store_tweets import tweets_to_file
 from smappPy.text_clean import get_cleaned_tokens
 from smappPy.xml_util import clear_unicode_control_chars
+from smappPy.store_tweets import tweets_to_bson, tweets_to_json
 from counter_functions import _top_user_locations, _top_ngrams, _top_unigrams, _top_bigrams, _top_trigrams, _top_links, \
     _top_urls, _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _language_counts, _top_entities, \
     _unique_users
@@ -332,13 +332,20 @@ class BaseTweetCollection(object):
         finally:
             outfile.close()
 
-    def dump_json(self, filename, append=False, pure_json=False, pretty=False):
+    def dump_json(self, filename, append=False, pretty=False):
         """
         Dumps the matching tweets in raw Mongo JSON (default) or Pure JSON (pure_json=True)
         format. To append to given filename, pass append=True. To pretty-print (line breaks
         and spacing), pass pretty=True.
         """
-        tweets_to_file(self, filename, append, pure_json, pretty)
+        tweets_to_json(self, filename, append, pure_json, pretty)
+
+    def dump_bson(self, filename, append):
+        """
+        Dumps matching tweets (in 'self') to raw Mongo BSON format (no line breaks).
+        To append to given filename, pass append=True.
+        """
+        tweets_to_bson(self, filename, append)
 
     def _make_metadata_dict(self, obj, fields):
         return { field: clear_unicode_control_chars(self._recursive_read(obj, field))\

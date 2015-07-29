@@ -3,6 +3,7 @@ import re
 import copy
 import pytz
 from random import random
+from datetime import datetime
 from bson import decode_file_iter
 from base_tweet_collection import BaseTweetCollection
 
@@ -186,7 +187,18 @@ class BSONTweetCollection(BaseTweetCollection):
         return ret
 
     def time_range(self, ):
-        raise NotImplementedError("Timerange not implemented for BSON collections (inefficient)")
+        """
+        Iterates over collection to find timestamp of first and last tweets. Because there
+        is no guarantee of order, must check each timestamp.
+        """
+        min_date = datetime.max
+        max_date = datetime.min
+        for tweet in self:
+            if tweet["timestamp"] < min_date:
+                min_date = tweet["timestamp"]
+            if tweet["timestamp"] > max_date:
+                max_date = tweet["timestamp"]
+        return (min_date, max_date)
 
     def sort(self, field, direction=1):
         raise NotImplementedError("Sort not implemented for BSON collections (inefficient)")

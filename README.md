@@ -54,22 +54,20 @@ collection.containing('#bieber').count()
 texts = collection.containing('#bieber').texts()
 ```
 
-### Apply a filter that adds labels to data
+### Apply a filter that adds labels to BSONTweetCollection (bson_tweet_collection.py) or MongoTweetCollection (monog_tweet_collection.py) and outputs the result to a bson file
                      - 
-collection.apply_labels(list_of_labels, list_of_twitter_fields, list_of_lists_of_field_values)
+collection.apply_labels(list_of_labels, list_of_twitter_fields, list_of_lists_of_field_values, outputbsonpath)
 ```python
-    collection.apply_labels(['imam', 'cleric', 'politician'], ['screen_name', 'user_id'], [ ['@Obama', '1234567'], ['@Hillary', '7654321'] ])
+    collection.apply_labels(['imam', 'cleric', 'politician'], ['screen_name', 'user_id'], [ ['@Obama', '1234567'], ['@Hillary', '7654321'] ], 'outputfolder/bsonoutput.bson')
 ```
 
 The `apply_labels` method takes:
-1. A list_of_labels like ['imam', 'cleric', 'politician']
+1. A list_for_labels like [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
 2. A list_of_fields like ['user.screen_name', 'user.id']
-3. A list of lists for field values like [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ]
+3. A list_for_values like [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ]
 The method then applies the labels 'imam', 'cleric', 'politician' to the users who have 
-the screen_name and user_id fields that match the values provided in the array -> [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ] ].
-It will output this to json / csv / bson with the dump_csv or dump_json or dump_bson methods.
-Each tweet will now have a field called "labels" like so:
-
+the screen_name and user_id fields that match the values provided in the array -> [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ].
+Each tweet in the new bson file will now have a field called "labels" like so:
 labels : {
   1: {name: “religious_rank”, type: “cleric”},
   2: {name: ”religious_rank”, type: ”imam"},

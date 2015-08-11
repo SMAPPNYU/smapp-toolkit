@@ -99,7 +99,7 @@ class BaseTweetCollection(object):
         return Aggregator(self, time_unit=time_unit)
 
 
-    def apply_labels_to_field_containing(self, list_of_labels, list_of_fields, list_for_values):
+    def apply_labels(self, list_of_labels, list_of_fields, list_for_values, bsonoutputpath):
         '''
         This method takes:
         1. A list_for_labels like [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
@@ -108,9 +108,8 @@ class BaseTweetCollection(object):
         The method then applies the labels 'imam', 'cleric', 'politician' to the users who have 
         the screen_name and user_id fields that match the values provided in the array -> [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ].
         It will output this to json / csv / bson with the dump_csv or dump_json or dump_bson methods.
-        Each tweet will now have a field called "labels"
         '''
-        filehandle = open('output.bson', 'w')
+        filehandle = open(bsonoutputpath, 'w')
         for tweet in self:
             tweet_should_be_written = 0
             ##for each field in the list of fields we're looking for
@@ -131,7 +130,6 @@ class BaseTweetCollection(object):
                     tweet['labels'][str(i)] = {}
                     tweet['labels'][str(i)]['name'] = list_of_labels[0][i]
                     tweet['labels'][str(i)]['type']= list_of_labels[1][i]
-                print tweet
                 filehandle.write(BSON.encode(tweet)) 
         ##close the file handle##
         filehandle.close()

@@ -63,17 +63,22 @@ collection.apply_labels(list_of_labels, list_of_twitter_fields, list_of_lists_of
 ```
 
 The `apply_labels` method takes:
-1. A list_for_labels like [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
-2. A list_of_fields like ['user.screen_name', 'user.id']
-3. A list_for_values like [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ]
+
+  1. A list_for_labels like [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
+  2. A list_of_fields like ['user.screen_name', 'user.id']
+  3. A list_for_values like [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ]
+
 The method then applies the labels 'imam', 'cleric', 'politician' to the users who have 
 the screen_name and user_id fields that match the values provided in the array -> [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ].
+
 Each tweet in the new bson file will now have a field called "labels" like so:
+```JSON
 labels : {
   1: {name: “religious_rank”, type: “cleric”},
   2: {name: ”religious_rank”, type: ”imam"},
   3: {name: “eye_color”, type :”brown"}
 }
+```
 
 #### Tweets containing one of several keywords (#bieber OR #sexy)
 ```python

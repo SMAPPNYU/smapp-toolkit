@@ -59,7 +59,12 @@ texts = collection.containing('#bieber').texts()
 collection.apply_labels(self, list_of_labels, list_of_fields, list_for_values, bsonoutputpath)
 ```
 ```python
-collection.apply_labels(['imam', 'cleric', 'politician'], ['screen_name', 'user_id'], [ ['@Obama', '1234567'], ['@Hillary', '7654321'] ], 'outputfolder/bsonoutput.bson')
+collection.apply_labels(
+  [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
+  ,['screen_name', 'user_id']
+  ,[['@Obama', '1234567'], ['@Hillary', '7654321']]
+  ,'outputfolder/bsonoutput.bson'
+)
 ```
 
 The `apply_labels` method takes:

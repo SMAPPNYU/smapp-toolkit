@@ -94,6 +94,8 @@ list_for_values = [['obama', 'hillary', 'lessig']]
 ```
 as inputs.
 
+`bsonoutputpath` is the path realtive to where you run the script that will be the output file with the new labels.
+
 After you run this method each tweet object in your output BSON will now have a field called "labels" like so:
 ```
 {

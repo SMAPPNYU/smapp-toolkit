@@ -77,6 +77,8 @@ collection.apply_labels(
   ,'outputfolder/bsonoutput.bson'
 )
 ```
+NOTE: ['1234567', '7654321'] are not the actual ids of any twitter users they are just dummy numbers.
+
 `list_of_labels` is a list with two lists inside it where the first list contains names for labels and the second list
 contains the labels themselves. For example: `religious_rank` and `imam` would be a label called religious_rank for the label value imam.
 
@@ -89,7 +91,7 @@ values) is a list of the values you would like that field to match. So if you wa
 "hillary" or "lessig" then you would use:
 
 ```python
-list_of_fields = [user.screen_name]
+list_of_fields = ['user.screen_name']
 list_for_values = [['obama', 'hillary', 'lessig']]
 ```
 as inputs.

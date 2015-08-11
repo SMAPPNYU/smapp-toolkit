@@ -5,6 +5,7 @@ import pandas as pd
 import figure_makers
 import figure_helpers
 import networkx as nx
+from bson import BSON
 from aggregator import Aggregator
 from abc import ABCMeta, abstractmethod
 from smappPy.iter_util import get_ngrams
@@ -111,7 +112,7 @@ class BaseTweetCollection(object):
         '''
         filehandle = open(bsonoutputpath, 'w')
         for tweet in self:
-            tweet_should_be_written = 0
+            tweet_should_be_labeled = 0
             ##for each field in the list of fields we're looking for
             for i, each_field in enumerate(list_of_fields):
                 ##split the field names so that user.id becomes user id##
@@ -122,15 +123,15 @@ class BaseTweetCollection(object):
                     tweet_ref = tweet_ref[field_level]
                 ##if the field value matches the value in the passed array write the tweet to a file##
                 if tweet_ref in list_for_values[i]: 
-                    tweet_should_be_written = 1
-            if tweet_should_be_written:
+                    tweet_should_be_labeled = 1
+            if tweet_should_be_labeled:
                 tweet['labels']= {}
                 ##add the labels to the tweet objects##
                 for i, label_name in enumerate(list_of_labels[0]):
                     tweet['labels'][str(i)] = {}
                     tweet['labels'][str(i)]['name'] = list_of_labels[0][i]
                     tweet['labels'][str(i)]['type']= list_of_labels[1][i]
-                filehandle.write(BSON.encode(tweet)) 
+            filehandle.write(BSON.encode(tweet)) 
         ##close the file handle##
         filehandle.close()
 

@@ -102,13 +102,8 @@ class BaseTweetCollection(object):
 
     def apply_labels(self, list_of_labels, list_of_fields, list_for_values, bsonoutputpath):
         '''
-        This method takes:
-        1. A list_for_labels like [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
-        2. A list_of_fields like ['user.screen_name', 'user.id']
-        3. A list_for_values like [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ]
-        The method then applies the labels 'imam', 'cleric', 'politician' to the users who have 
-        the screen_name and user_id fields that match the values provided in the array -> [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ].
-        It will output this to json / csv / bson with the dump_csv or dump_json or dump_bson methods.
+        This method applies labels chosen by the user to collection objects.
+        Read the docs in the README.md to see how it works
         '''
         filehandle = open(bsonoutputpath, 'w')
         for tweet in self:

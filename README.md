@@ -74,12 +74,16 @@ collection.apply_labels(
 
 The `apply_labels` method takes:
 
-  1. A list_for_labels like [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
+  1. A list_of_labels like [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
   2. A list_of_fields like ['user.screen_name', 'user.id']
-  3. A list_for_values like [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ]
+  3. A list_for_values like [['@Obama', '@Hillary'], ['1234567', '7654321']]
 
 The method then applies the labels 'imam', 'cleric', 'politician' to the users who have 
 the screen_name and user_id fields that match the values provided in the array -> [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ].
+
+Each field in the list_of_fields array is a string that takes dot notation. user.screen_name would be the screen_name 
+entry in the user entry in the collection object. You can nest these for as many levels as you have in the collection
+object. 
 
 Each tweet in the new bson file will now have a field called "labels" like so:
 ```

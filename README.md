@@ -59,7 +59,7 @@ texts = collection.containing('#bieber').texts()
 collection.apply_labels(list_of_labels, list_of_twitter_fields, list_of_lists_of_field_values, outputbsonpath)
 ```
 ```python
-    collection.apply_labels(['imam', 'cleric', 'politician'], ['screen_name', 'user_id'], [ ['@Obama', '1234567'], ['@Hillary', '7654321'] ], 'outputfolder/bsonoutput.bson')
+collection.apply_labels(['imam', 'cleric', 'politician'], ['screen_name', 'user_id'], [ ['@Obama', '1234567'], ['@Hillary', '7654321'] ], 'outputfolder/bsonoutput.bson')
 ```
 
 The `apply_labels` method takes:

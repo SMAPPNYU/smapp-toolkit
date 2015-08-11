@@ -56,7 +56,12 @@ texts = collection.containing('#bieber').texts()
 
 ### Apply a filter that adds labels to BSONTweetCollection or MongoTweetCollection and outputs the result to a bson file
 ```
-collection.apply_labels(self, list_of_labels, list_of_fields, list_for_values, bsonoutputpath)
+collection.apply_labels(
+  list_of_labels
+  ,list_of_fields
+  ,list_for_values
+  ,bsonoutputpath
+)
 ```
 ```python
 collection.apply_labels(

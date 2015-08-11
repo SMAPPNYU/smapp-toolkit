@@ -6,6 +6,18 @@ from pymongo import MongoClient, ASCENDING, DESCENDING
 from base_tweet_collection import BaseTweetCollection
 
 class MongoTweetCollection(BaseTweetCollection):
+    def __iter__(self):
+        if self._sort:
+            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout, limit=limit, sort=[self._sort]) for collection, limit in self._mongo_collections]
+        else:
+            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout, limit=limit) for collection, limit in self._mongo_collections]
+        try:
+            for cursor in cursors:
+                for tweet in cursor:
+                    yield tweet
+        finally:
+            for cursor in cursors:
+                cursor.close()
     """
     Collection object for performing queries and getting data out of a MongoDB collection 
     of tweets.
@@ -308,16 +320,3 @@ class MongoTweetCollection(BaseTweetCollection):
         ret = self._copy()
         ret._no_cursor_timeout = True
         return ret
-
-    def __iter__(self):
-        if self._sort:
-            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout, limit=limit, sort=[self._sort]) for collection, limit in self._mongo_collections]
-        else:
-            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout, limit=limit) for collection, limit in self._mongo_collections]
-        try:
-            for cursor in cursors:
-                for tweet in cursor:
-                    yield tweet
-        finally:
-            for cursor in cursors:
-                cursor.close()

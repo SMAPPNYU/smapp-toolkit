@@ -98,6 +98,44 @@ class BaseTweetCollection(object):
         """
         return Aggregator(self, time_unit=time_unit)
 
+
+    def apply_labels_to_field_containing(self, list_of_labels, list_of_fields, list_for_values):
+        '''
+        This method takes:
+        1. A list_for_labels like [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
+        2. A list_of_fields like ['user.screen_name', 'user.id']
+        3. A list_for_values like [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ]
+        The method then applies the labels 'imam', 'cleric', 'politician' to the users who have 
+        the screen_name and user_id fields that match the values provided in the array -> [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ].
+        It will output this to json / csv / bson with the dump_csv or dump_json or dump_bson methods.
+        Each tweet will now have a field called "labels"
+        '''
+        filehandle = open('output.bson', 'w')
+        for tweet in self:
+            tweet_should_be_written = 0
+            ##for each field in the list of fields we're looking for
+            for i, each_field in enumerate(list_of_fields):
+                ##split the field names so that user.id becomes user id##
+                split_field = each_field.split('.')
+                tweet_ref = tweet
+                ## take "user" and "id" and navigate into the structure of the tweet##
+                for field_level in split_field: 
+                    tweet_ref = tweet_ref[field_level]
+                ##if the field value matches the value in the passed array write the tweet to a file##
+                if tweet_ref in list_for_values[i]: 
+                    tweet_should_be_written = 1
+            if tweet_should_be_written:
+                tweet['labels']= {}
+                ##add the labels to the tweet objects##
+                for i, label_name in enumerate(list_of_labels[0]):
+                    tweet['labels'][str(i)] = {}
+                    tweet['labels'][str(i)]['name'] = list_of_labels[0][i]
+                    tweet['labels'][str(i)]['type']= list_of_labels[1][i]
+                print tweet
+                filehandle.write(BSON.encode(tweet)) 
+        ##close the file handle##
+        filehandle.close()
+
     def top_unigrams(self, n=10, hashtags=True, mentions=True, rts=False, mts=False, https=False, stopwords=[]):
         """
         Return the top 'n' unigrams (tokenized words) in the collection.

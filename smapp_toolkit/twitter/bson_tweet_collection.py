@@ -8,6 +8,16 @@ from bson import decode_file_iter
 from base_tweet_collection import BaseTweetCollection
 
 class BSONTweetCollection(BaseTweetCollection):
+    def __iter__(self):
+        with open(self._filename, 'rb') as f:
+            i = 1
+            for tweet in decode_file_iter(f):
+                if self._limit and i > self._limit:
+                    raise StopIteration
+                if all(func(tweet) for func in self._filter_functions):
+                    i += 1
+                    yield tweet
+
     """
     Collection object for performing queries and getting data out of a BSON file 
     of tweets.
@@ -213,17 +223,3 @@ class BSONTweetCollection(BaseTweetCollection):
         collection.containing('peace').count()
         """
         return sum(1 for t in self)
-
-    def __iter__(self):
-        with open(self._filename, 'rb') as f:
-            i = 1
-            for tweet in decode_file_iter(f):
-                if self._limit and i > self._limit:
-                    raise StopIteration
-                if all(func(tweet) for func in self._filter_functions):
-                    i += 1
-                    yield tweet
-
-
-
-

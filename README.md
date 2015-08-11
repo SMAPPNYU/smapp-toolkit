@@ -63,29 +63,37 @@ collection.apply_labels(
   ,bsonoutputpath
 )
 ```
+
+The method applies a set of named labels and attaches them to objects from a collection if the certain fields
+in the collection meet certain criteria.
+
+
+
 ```python
 collection.apply_labels(
   [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
-  ,['screen_name', 'user_id']
-  ,[['@Obama', '1234567'], ['@Hillary', '7654321']]
+  ,['user.screen_name', 'user.id']
+  ,[['Obama', 'Hillary'], ['1234567', '7654321']]
   ,'outputfolder/bsonoutput.bson'
 )
 ```
+`list_of_labels` is a list with two lists inside it where the first list contains names for labels and the second list
+contains the labels themselves. For example: `religious_rank` and `imam` would be a label called religious_rank for the label value imam.
 
-The `apply_labels` method takes:
-
-  1. A list_of_labels like [['religious_rank', 'religious_rank', 'political_rank'], ['imam', 'cleric', 'politician']]
-  2. A list_of_fields like ['user.screen_name', 'user.id']
-  3. A list_for_values like [['@Obama', '@Hillary'], ['1234567', '7654321']]
-
-The method then applies the labels 'imam', 'cleric', 'politician' to the users who have 
-the screen_name and user_id fields that match the values provided in the array -> [ ['@Obama', '@Hillary'], ['1234567', '7654321'] ].
-
-Each field in the list_of_fields array is a string that takes dot notation. user.screen_name would be the screen_name 
+Each field in the `list_of_fields` array is a string that takes dot notation. user.screen_name would be the screen_name 
 entry in the user entry in the collection object. You can nest these for as many levels as you have in the collection
 object. 
 
-Each tweet in the new bson file will now have a field called "labels" like so:
+`list_for_values` is a list that contains as many lists as there are fields to match. Each of these lists (inside list_for_
+values) is a list of the values you would like that field to match. So if you want the user.screen_name to match "obama" 
+"hillary" or "lessig" then you would use:
+
+list_of_fields = [user.screen_name]
+list_for_values = [['obama', 'hillary', 'lessig']]
+
+as inputs.
+
+After you run this method each tweet object in your output BSON will now have a field called "labels" like so:
 ```
 {
 .

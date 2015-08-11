@@ -73,10 +73,10 @@ the screen_name and user_id fields that match the values provided in the array -
 
 Each tweet in the new bson file will now have a field called "labels" like so:
 ```JSON
-labels : {
-  1: {name: “religious_rank”, type: “cleric”},
-  2: {name: ”religious_rank”, type: ”imam"},
-  3: {name: “eye_color”, type :”brown"}
+"labels" : {
+  "1": {name: “religious_rank”, type: “cleric”},
+  "2": {name: ”religious_rank”, type: ”imam"},
+  "3": {name: “eye_color”, type :”brown"}
 }
 ```
 

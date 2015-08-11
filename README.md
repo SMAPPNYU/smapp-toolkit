@@ -88,9 +88,10 @@ object.
 values) is a list of the values you would like that field to match. So if you want the user.screen_name to match "obama" 
 "hillary" or "lessig" then you would use:
 
+```python
 list_of_fields = [user.screen_name]
 list_for_values = [['obama', 'hillary', 'lessig']]
-
+```
 as inputs.
 
 After you run this method each tweet object in your output BSON will now have a field called "labels" like so:

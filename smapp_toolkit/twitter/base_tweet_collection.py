@@ -368,7 +368,7 @@ class BaseTweetCollection(object):
         return row
 
 
-    def dump_bson_topath (bsonoutputpath):
+    def dump_bson_to_path (bsonoutputpath):
         '''
         The difference between this function
         and the dump_bson function below is that

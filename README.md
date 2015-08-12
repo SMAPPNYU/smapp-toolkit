@@ -427,6 +427,17 @@ The desired columns may be specified in the `columns=` named argument:
 collection.dump_csv('my_tweets.csv', columns=['id_str', 'user.screen_name', 'user.location', 'user.description', 'text'])
 ```
 
+### Dumping tweets to a BSON file
+```python
+dump_bson_topath ('output.bson')
+```
+This will dump a bson file of tweets. Once you have this bson you can convert it to JSON format with the
+bsondump tool (if you have it) like so:
+
+ ```sh
+ bsondump output.bson > output.json
+ ```
+
 The full list of available fields from a tweet may be found on [the twitter REST-API documentation](https://dev.twitter.com/overview/api/tweets). In order to get nested fields (such as the user's location or the user's screen_name), use `user.location`, `user.screen_name`.
 
 ##### tweet coordinates

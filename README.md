@@ -54,7 +54,7 @@ collection.containing('#bieber').count()
 texts = collection.containing('#bieber').texts()
 ```
 
-### Apply a filter that adds labels to BSONTweetCollection or MongoTweetCollection and outputs the result to a bson file
+#### Apply a filter that adds labels to BSONTweetCollection or MongoTweetCollection and outputs the result to a bson file
 ```python
 collection.apply_labels(
   list_of_labels

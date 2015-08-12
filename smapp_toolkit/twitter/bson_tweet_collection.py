@@ -76,7 +76,10 @@ class BSONTweetCollection(BaseTweetCollection):
         search = self._regex_escape_and_concatenate(*terms)
         regex = re.compile(search, re.IGNORECASE | re.UNICODE)
         def field_contains_filter(tweet):
-            return regex.search(tweet[field])
+            sub = tweet
+            for f in field.split("."):
+                sub = sub[f]
+            return regex.search(sub)
         return self._copy_with_added_filter(field_contains_filter)
 
     def geo_enabled(self):

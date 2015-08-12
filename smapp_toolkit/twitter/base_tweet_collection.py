@@ -30,6 +30,24 @@ class BaseTweetCollection(object):
     def field_containing(self, field, *terms):
         pass
 
+    def __getattr__(self, name):
+        """
+        Object call redirector. Handle X_containing and Y_figure calls.
+        """
+        if name.endswith('_containing'):
+            field_name = '.'.join(name.split('_')[:-1])
+            def containing_method(*terms):
+                return self.field_containing(field_name, *terms)
+            return containing_method
+        elif name.endswith('_figure'):
+            figure_name = '_'.join(name.split('_')[:-1])
+            method = figure_makers.__getattribute__(figure_name)
+            def figure_method(*args, **kwargs):
+                return method(self, *args, **kwargs)
+            return figure_method
+        else:
+            return object.__getattribute__(self, name)
+
     def _regex_escape_and_concatenate(self, *terms):
         search = re.escape(terms[0])
         if len(terms) > 1:
@@ -110,13 +128,14 @@ class BaseTweetCollection(object):
             tweet_should_be_labeled = 0
             ##for each field in the list of fields we're looking for
             for i, each_field in enumerate(list_of_fields):
-                ##split the field names so that user.id becomes user id##
+                ##split the field names so that user.id becomes user id
                 split_field = each_field.split('.')
                 tweet_ref = tweet
-                ## take "user" and "id" and navigate into the structure of the tweet##
+                ## take "user" and "id" and navigate into the structure of the tweet
                 for field_level in split_field: 
                     tweet_ref = tweet_ref[field_level]
-                ##if the value we want to match is equal to the field or a substring of the field (text and user description) match it##
+                ## if the value we want to match is equal to the field or a substring of the field
+                ## (text and user description) match it
                 try:
                     for list_value in list_for_values[i]:
                         if tweet_ref and list_value in tweet_ref: 
@@ -146,7 +165,7 @@ class BaseTweetCollection(object):
         Warning: may take a while, as it has to iterate over all tweets in collection.
         Use with a limit for best (temporal) results.
         
-        'hastags' and 'mentions' instruct the tokenizer to not remove hashtag 
+        'hashtags' and 'mentions' instruct the tokenizer to not remove hashtag 
         and mention symbols when breaking words into tokens (all other non-alphanumeric + 
         underscore characters are discarded). When set to True, this will differentiate
         between the terms "#MichaelJackson" and "MichaelJackson" (two different tokens).
@@ -429,23 +448,4 @@ class BaseTweetCollection(object):
                 dg.add_edge(user['id_str'], retweeted_user['id_str'],
                     attr_dict=self._make_metadata_dict(tweet, tweet_metadata))
         return dg
-
-
-    def __getattr__(self, name):
-        """
-        Object call redirector. Handle X_containing and Y_figure calls.
-        """
-        if name.endswith('_containing'):
-            field_name = '.'.join(name.split('_')[:-1])
-            def containing_method(*terms):
-                return self.field_containing(field_name, *terms)
-            return containing_method
-        elif name.endswith('_figure'):
-            figure_name = '_'.join(name.split('_')[:-1])
-            method = figure_makers.__getattribute__(figure_name)
-            def figure_method(*args, **kwargs):
-                return method(self, *args, **kwargs)
-            return figure_method
-        else:
-            return object.__getattribute__(self, name)
 

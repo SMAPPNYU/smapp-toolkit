@@ -348,6 +348,21 @@ class BaseTweetCollection(object):
             row.append(u','.join(unicode(v) for v in value) if isinstance(value, list) else unicode(value))
         return row
 
+
+    def dump_bson_topath (bsonoutputpath):
+        '''
+        The difference between this function
+        and the dump_bson function below is that
+        this function actually dumps BSON (a binary format)
+        whereas the method below dumps json formatted BSON 
+        in a spaghetti string with no commas.
+        '''
+        filehandle = open(bsonoutputpath, 'w')
+        for tweet in self
+            filehandle.write(BSON.encode(tweet))
+        filehandle.close()
+
+
     def dump_csv(self, filename, columns=DEFAULT_CSV_COLUMNS):
         """
         Dumps the matching tweets to a CSV file specified by `filename`.

@@ -116,9 +116,19 @@ class BaseTweetCollection(object):
                 ## take "user" and "id" and navigate into the structure of the tweet##
                 for field_level in split_field: 
                     tweet_ref = tweet_ref[field_level]
-                ##if the field value matches the value in the passed array write the tweet to a file##
-                if tweet_ref in list_for_values[i]: 
-                    tweet_should_be_labeled = 1
+                ##if the value we want to match is equal to the field or a substring of the field (text and user description) match it##
+                try:
+                    for list_value in list_for_values[i]:
+                        if tweet_ref and list_value in tweet_ref: 
+                            tweet_should_be_labeled = 1
+                except Exception as e:
+                    print "tweet_ref that threw error {}".format(tweet_ref)
+                    print "Error for a certain field {}, trying non iterable...".format(e)
+                    try:
+                        if tweet_ref in list_for_values[i]:
+                            tweet_should_be_labeled = 1
+                    except Exception as e:
+                        print "Non iterable method also failed, this one can't be labeled: {}".format(e)
             if tweet_should_be_labeled:
                 tweet['labels']= {}
                 ##add the labels to the tweet objects##

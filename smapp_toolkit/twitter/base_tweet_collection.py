@@ -377,7 +377,7 @@ class BaseTweetCollection(object):
         in a spaghetti string with no commas.
         '''
         filehandle = open(bsonoutputpath, 'w')
-        for tweet in self
+        for tweet in self:
             filehandle.write(BSON.encode(tweet))
         filehandle.close()
 

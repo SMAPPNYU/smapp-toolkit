@@ -140,6 +140,8 @@ collection.since(datetime(2014,1,30)).count()
 collection.since(datetime(2014,2,16)).until(datetime(2014,2,19)).containing('obama').texts()
 ```
 
+Note that both 'since(...)' and 'until(...)' are exclusive (ie, they are GT/> and LT/<, respectively, not GTE/>= or LTE/<=)
+
 #### Select tweets authored in a certain language
 ```python
 collection.language('en').texts()

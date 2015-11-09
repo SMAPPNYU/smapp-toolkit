@@ -15,9 +15,9 @@ from smappPy.retweet import is_official_retweet
 from smappPy.text_clean import get_cleaned_tokens
 from smappPy.xml_util import clear_unicode_control_chars
 from smappPy.store_tweets import tweets_to_bson, tweets_to_json
-from counter_functions import _top_user_locations, _top_ngrams, _top_unigrams, _top_bigrams, _top_trigrams, _top_links, \
-    _top_urls, _top_images, _top_hashtags, _top_mentions, _top_geolocation_names, _language_counts, _top_entities, \
-    _unique_users
+from counter_functions import _top_user_locations, _top_ngrams, _top_unigrams, _top_bigrams, \
+    _top_trigrams, _top_links, _top_urls, _top_images, _top_hashtags, _top_mentions, \
+    _top_geolocation_names, _language_counts, _top_entities, _unique_users
 
 class BaseTweetCollection(object):
     __metaclass__ = ABCMeta
@@ -58,10 +58,7 @@ class BaseTweetCollection(object):
     def containing(self, *terms):
         """
         Only find tweets containing certain terms.
-        Terms are OR'd, so that
-
-        collection.containing('penguins', 'antarctica')
-
+        Terms are OR'd, so that collection.containing('penguins', 'antarctica')
         will return tweets containing either 'penguins' or 'antarctica'.
         """
         return self.field_containing('text', *terms)
@@ -69,10 +66,7 @@ class BaseTweetCollection(object):
     def user_location_containing(self, *names):
         """
         Only find tweets where the user's `location` field contains certain terms.
-        Terms are ORed, so that
-
-        collection.user_location_containing('chile', 'antarctica')
-
+        Terms are ORed, so that collection.user_location_containing('chile', 'antarctica')
         will return tweets with user location containing either 'chile' or 'antarctica'.
         """
         return self.field_containing('user.location', *names)

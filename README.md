@@ -29,6 +29,7 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
 * [smappPy](https://github.com/SMAPPNYU/smappPy), a utility library from SMaPP
 * [networkx](https://github.com/networkx/networkx), a library for building and analyzing graphs
 * [pandas](http://pandas.pydata.org/), a Python data analysis library
+* [simplejson](https://simplejson.readthedocs.org/en/latest/)
 
 ## Usage
 
@@ -139,6 +140,11 @@ from datetime import datetime
 collection.since(datetime(2014,1,30)).count()
 collection.since(datetime(2014,2,16)).until(datetime(2014,2,19)).containing('obama').texts()
 ```
+
+Note that both 'since(...)' and 'until(...)' are exclusive (ie, they are GT/> and LT/<, respectively, not GTE/>= or LTE/<=)
+This means that since(datetime(2014, 12, 24)) will return tweets after EXACTLY 12/24/2014 00:00:00 (M/D/Y H:M:S).
+Datetimes may be specified to the second: datetime(2014, 12, 24, 6, 30, 25) is 6:30 and 25 seconds AM Universal Timezone.
+If time (hours, minutes, etc) is not specified, time defaults 00:00:00.
 
 #### Select tweets authored in a certain language
 ```python

@@ -123,7 +123,7 @@ class BaseTweetCollection(object):
         This method applies labels chosen by the user to collection objects.
         Read the docs in the README.md to see how it works
         '''
-        filehandle = open(bsonoutputpath, 'wb')
+        filehandle = open(bsonoutputpath, 'wb+')
         for tweet in self:
             tweet_should_be_labeled = 0
             ##for each field in the list of fields we're looking for
@@ -376,7 +376,7 @@ class BaseTweetCollection(object):
         whereas the method below dumps json formatted BSON 
         in a spaghetti string with no commas.
         '''
-        filehandle = open(bsonoutputpath, 'wb')
+        filehandle = open(bsonoutputpath, 'ab+')
         for tweet in self:
             filehandle.write(BSON.encode(tweet))
         filehandle.close()

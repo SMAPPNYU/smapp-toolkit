@@ -31,6 +31,12 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
 * [pandas](http://pandas.pydata.org/), a Python data analysis library
 * [simplejson](https://simplejson.readthedocs.org/en/latest/)
 
+##Versioning 
+
+To bump the version and push to github run, `bash yvanbump.sh`.
+
+Tp bump the version, push to github, and upload to pypi run `bash upload+to_pypi.sh`.
+
 ## Usage
 
 ### Using MongoDB as the backend

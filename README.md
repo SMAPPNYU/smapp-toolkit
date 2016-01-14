@@ -31,7 +31,7 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
 * [pandas](http://pandas.pydata.org/), a Python data analysis library
 * [simplejson](https://simplejson.readthedocs.org/en/latest/)
 
-##Versioning 
+##Pushing to pypi 
 
 To bump the version and push to github run, `bash yvanbump.sh`.
 

@@ -1,4 +1,4 @@
-# SMAPP Twitter Toolkit
+#smapp-toolkit
 This is an user-friendly python package for interfacing with large collections of tweets. Developped at the SMaPP lab at New York University.
 
 **Supports Python 2.7**
@@ -43,31 +43,143 @@ To upload to pypi you need:
  - a .pypirc file in your ~ directory
  - to follow this [guide](http://peterdowns.com/posts/first-time-with-pypi.html). 
 
-## Usage
+## Setup Collection Object
 
-### Using MongoDB as the backend
+## MongoTweetCollection 
+
+This allows you to plug into a running live mongodb database and run toolkit methods on the resulting collection object.
+Abstract:
 ```python
 from smapp_toolkit.twitter import MongoTweetCollection
-collection = MongoTweetCollection(address='mongodb-address',
-                                  port='mongodb-port',
-                                  username='mongodb-user',
-                                  password='mongodb-password',
-                                  dbname='database-name')
+
+collection = MongoTweetCollection(address='MONGODB-HOSTNAME',
+                                  port='MONGODB-PORT',
+                                  username='MONGO-DATABASE-USER',
+                                  password='MONGO-DATABASE-PASSWORD',
+                                  dbname='MONGO-DATABASE')
 ```
 
-### Using a BSON file as the backend
+Practical:
+```python
+from smapp_toolkit.twitter import MongoTweetCollection
+
+collection = MongoTweetCollection(address='superhost.bio.nyu.edu',
+                                  port='27017',
+                                  username='readWriteUser',
+                                  password='readwritePassword',
+                                  dbname='GermanyElectionDatabase')
+```
+
+`MONGODB-HOSTNAME` is the domain name or ip address of the server that is hosting the database.
+
+`MONGODB-PORT` is the port on which the running monogodb instance is accessible on the server.
+
+`MONGO-DATABASE-USER` is the user on the database that can at least read the database.
+
+`MONGO-DATABASE-PASSWORD`the password on that particular database for that user.
+
+`MONGO-DATABASE` the name of the database running on the mongo instance.
+
+*Returns* an iterable collection object that can be used like so:
+
+for tweet in MongoTweetCollection:
+  print tweet
+
+## BSONTweetCollection
+
+This allows you to plug in a bson file and run toolkit methods on the resulting collection object.
+
+Abstract:
 ```python
 from smapp_toolkit.twitter import BSONTweetCollection
-collection = BSONTweetCollection("path/to/file.bson")
+
+collection = BSONTweetCollection('/PATH/TO/FILE.bson')
 ```
 
-#### Count occurences of keywords
+Practical:
+```python
+from smapp_toolkit.twitter import BSONTweetCollection
+
+collection = BSONTweetCollection('/home/toolkituser/datafolder/file.bson')
+```
+
+`/PATH/TO/FILE.bson` the path on your computers filesystem / disk to the bson file.
+
+*Returns* an iterable collection object that can be used like so:
+
+for tweet in MongoTweetCollection:
+  print tweet
+
+## Shared Collection Functions
+
+## containing
+
+Gets the tweets that contain one or more terms.
+
+Abstract:
+```python
+collection.containing('TERM-ONE', 'TERM-TWO', 'ETC')
+```
+
+Practical:
+```python
+collection.containing('#bieber', '#sexy')
+```
+
+*Returns* a collection object with a filter applied to it to only return tweet objects where the tweet text contains those terms.
+
+## count
+
+Counts the number of occurrences of a given word. Can be called on a collection object with a chained method.
+
+Abstract:
+```python
+collection.containing('TERM')
+```
+
+Practical:
+```python
+collection.containing('#bieber')
+```
+
+Chained:
 ```python
 collection.containing('#bieber').count()
-texts = collection.containing('#bieber').texts()
 ```
 
-#### Apply a filter that adds labels to BSONTweetCollection or MongoTweetCollection and outputs the result to a bson file
+*Returns* the number of tweets in a collection object.
+
+## texts
+
+Gets the texts from a collection object or a collection object with a chained method applied.
+
+Abstract:
+
+Practical:
+```python
+texts = collection.containing('#bieber').texts()
+
+```
+
+#### Count occurences of multiple keywords over time
+```python
+collection.term_counts(['justin', 'miley'], count_by='days', plot=False)
+Out[]:
+{'2015-04-01': {'justin': 1312, 'miley': 837},
+ '2015-04-02': {'justin': 3287, 'miley': 932}}
+```
+
+#### Random sample of tweets
+```python
+collection.containing('#bieber').sample(0.33).texts()
+```
+
+## apply_labels
+
+ Applies a set of named labels and attaches them to objects from a collection if the certain fields in the collection meet certain criteria. It then outputs a bson file where tweets that matched teh filter have an extra labels field in them with the appropriate labels.
+
+Abstract:
+
 ```python
 collection.apply_labels(
   list_of_labels
@@ -77,10 +189,7 @@ collection.apply_labels(
 )
 ```
 
-The method applies a set of named labels and attaches them to objects from a collection if the certain fields
-in the collection meet certain criteria.
-
-
+Practical:
 
 ```python
 collection.apply_labels(
@@ -100,8 +209,8 @@ entry in the user entry in the collection object. You can nest these for as many
 object. 
 
 `list_for_values` is a list that contains as many lists as there are fields to match. Each of these lists (inside list_for_
-values) is a list of the values you would like that field to match. So if you want the user.screen_name to match "obama" 
-"hillary" or "lessig" then you would use:
+values) is a list of the values you would like that field to match. So if you want the user.screen_name to match 'obama' 
+'hillary' or 'lessig' then you would use:
 
 ```python
 list_of_fields = ['user.screen_name']
@@ -111,16 +220,16 @@ as inputs.
 
 `bsonoutputpath` is the path realtive to where you run the script that will be the output file with the new labels.
 
-After you run this method each tweet object in your output BSON will now have a field called "labels" like so:
+After you run this method each tweet object in your output BSON will now have a field called 'labels' like so:
 ```
 {
 .
 .
 .
-"labels" : {
-  "1": {name: “religious_rank”, type: “cleric”},
-  "2": {name: ”religious_rank”, type: ”imam"},
-  "3": {name: “eye_color”, type :”brown"}
+'labels' : {
+  '1': {name: “religious_rank”, type: “cleric”},
+  '2': {name: ”religious_rank”, type: ”imam'},
+  '3': {name: “eye_color”, type :”brown'}
 }
 .
 .
@@ -128,23 +237,9 @@ After you run this method each tweet object in your output BSON will now have a 
 }
 ```
 
-#### Tweets containing one of several keywords (#bieber OR #sexy)
-```python
-collection.containing('#bieber', '#sexy')
-```
+## BSON Collection Functions
 
-#### Count occurences of multiple keywords over time
-```python
-collection.term_counts(['justin', 'miley'], count_by='days', plot=False)
-Out[]:
-{'2015-04-01': {'justin': 1312, 'miley': 837},
- '2015-04-02': {'justin': 3287, 'miley': 932}}
-```
-
-#### Random sample of tweets
-```python
-collection.containing('#bieber').sample(0.33).texts()
-```
+## Mongo Collection Functions
 
 #### Select tweets from a certain time span
 ```python
@@ -275,7 +370,7 @@ Use the `collection.group_by(time_unit)` method to group tweets by time slices. 
 
 ```python
 for time, tweets in collection.group_by('hours'):
-    print("{time}: {count}".format(time=time, count=len(list(tweets))))
+    print('{time}: {count}'.format(time=time, count=len(list(tweets))))
 ```
 which outputs:
 ```
@@ -395,7 +490,7 @@ bins, counts = collection.containing('#sexy').tweets_over_time_figure(
     step_size=timedelta(minutes=1),
     num_steps=60,
     show=False)
-plt.title('Tweets containing "#sexy"')
+plt.title('Tweets containing '#sexy'')
 plt.show()
 ```
 
@@ -472,7 +567,7 @@ collection.dump_csv('my_tweets.csv.gz')
 ### Dumping tweets to JSON file
 This will dump whole tweets in JSON format into a specified file, one tweet per line.
 ```python
-collection.dump_json("my_json.json")
+collection.dump_json('my_json.json')
 ```
 
 Available options are:
@@ -480,10 +575,10 @@ Available options are:
 * pretty=True, to write JSON into pretty, line-broken and properly indented format (this takes up much more space, so is not recommended for large collections)
 
 ### Dumping tweets to raw BSON file
-This will dump whole tweets in MongoDB's BSON format into a specified file. Note that BSON is a "binary" format (it will look a little funny if opened in a text editor). This is the native format for MongoDB's mongodump program. The file is NOT line-separated.
+This will dump whole tweets in MongoDB's BSON format into a specified file. Note that BSON is a 'binary' format (it will look a little funny if opened in a text editor). This is the native format for MongoDB's mongodump program. The file is NOT line-separated.
 
 ```python
-collection.dump_bson("my_bson.bson")
+collection.dump_bson('my_bson.bson')
 ```
 
 Available options are:
@@ -543,11 +638,11 @@ The `smapp-tweet-collection-metadata` document has the following form:
 
 ```json
 {
-  "document": "smapp-tweet-collection-metadata",
-  "tweet_collections": [
-    "tweets_1",
-    "tweets_2",
-    "tweets_3",
+  'document': 'smapp-tweet-collection-metadata',
+  'tweet_collections': [
+    'tweets_1',
+    'tweets_2',
+    'tweets_3',
   ]
 }
 ```
@@ -566,8 +661,8 @@ All you need to do is insert the following collection and document into your Mon
 
 ```
 db.smapp_metadata.save({
-  "document": "smapp-tweet-collection-metadata",
-  "tweet_collections": [ "tweets" ]
+  'document': 'smapp-tweet-collection-metadata',
+  'tweet_collections': [ 'tweets' ]
 })
 ```
 

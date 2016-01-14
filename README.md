@@ -31,7 +31,7 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
 * [pandas](http://pandas.pydata.org/), a Python data analysis library
 * [simplejson](https://simplejson.readthedocs.org/en/latest/)
 
-##Pushing to pypi 
+##Pushing to [PyPi](https://pypi.python.org/pypi)
 
 To bump the version and push to github run, `bash yvanbump.sh`.
 
@@ -154,22 +154,52 @@ collection.containing('#bieber').count()
 Gets the texts from a collection object or a collection object with a chained method applied.
 
 Abstract:
+```python
+texts = collection.texts()
+```
+
+Chained:
+```python
+texts = collection.containing('#bieber').texts()
+```
+
+## term_counts
+
+Allows you to count particular terms and split up the counts by a particular time period.
+
+Abstract:
+```python
+collection.term_counts(['TERM-TWO', 'TERM-ONE'], count_by='TIME-DELIMITER', plot=BOOLEAN)
+```
 
 Practical:
 ```python
-texts = collection.containing('#bieber').texts()
-
-```
-
-#### Count occurences of multiple keywords over time
-```python
 collection.term_counts(['justin', 'miley'], count_by='days', plot=False)
-Out[]:
-{'2015-04-01': {'justin': 1312, 'miley': 837},
- '2015-04-02': {'justin': 3287, 'miley': 932}}
 ```
 
-#### Random sample of tweets
+`count_by` can be in days, hours, or minutes.
+`plot` is a True or False variable.
+
+*Returns* a dictionary where each key is the date and each value is another dictionary.
+In the sub dictionary the keys are the terms you chose and potentially a `_total` field which to be honest I'm not really sure what the _total field does. I know it isn't the total number of tweets. Dictionary looks like so:
+
+```json
+{
+ '2015-04-01': {'justin': 1312, 'miley': 837},
+ '2015-04-02': {'justin': 3287, 'miley': 932}
+}
+```
+
+# sample *WARNING DOES NOT WORK*
+
+Gets a random sample of tweets.
+
+Abstract:
+```python
+collection.sample(0.33)
+```
+
+Chained:
 ```python
 collection.containing('#bieber').sample(0.33).texts()
 ```

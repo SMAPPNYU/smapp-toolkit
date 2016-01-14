@@ -35,7 +35,13 @@ The `smapp-toolkit` depends on the following packages, which will be automatical
 
 To bump the version and push to github run, `bash yvanbump.sh`.
 
-Tp bump the version, push to github, and upload to pypi run `bash upload+to_pypi.sh`.
+To bump the version, push to github, and upload to pypi run `bash upload+to_pypi.sh`.
+
+To upload to pypi you need:
+
+ - to be added with the right permissions to pypi
+ - a .pypirc file in your ~ directory
+ - to follow this [guide](http://peterdowns.com/posts/first-time-with-pypi.html). 
 
 ## Usage
 

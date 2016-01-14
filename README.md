@@ -1,4 +1,10 @@
-#smapp-toolkit
+```                                       _              _ _    _ _
+ ___ _ __ ___   __ _ _ __  _ __       | |_ ___   ___ | | | _(_) |_ 
+/ __| '_ ` _ \ / _` | '_ \| '_ \ _____| __/ _ \ / _ \| | |/ / | __|
+\__ \ | | | | | (_| | |_) | |_) |_____| || (_) | (_) | |   <| | |_ 
+|___/_| |_| |_|\__,_| .__/| .__/       \__\___/ \___/|_|_|\_\_|\__|
+                    |_|   |_|                                      
+```
 This is an user-friendly python package for interfacing with large collections of tweets. Developped at the SMaPP lab at New York University.
 
 **Supports Python 2.7**
@@ -196,13 +202,15 @@ Gets a random sample of tweets.
 
 Abstract:
 ```python
-collection.sample(0.33)
+collection.sample(FRACTION-OF-1-TO-SAMPLE)
 ```
 
 Chained:
 ```python
 collection.containing('#bieber').sample(0.33).texts()
 ```
+
+*Returns* a collection object that will now havea filter to only return then number of tweets as deteremined by the sample randomly.
 
 ## apply_labels
 

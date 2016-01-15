@@ -277,10 +277,6 @@ After you run this method each tweet object in your output BSON will now have a 
 }
 ```
 
-## BSON Collection Functions
-
-## Mongo Collection Functions
-
 ## since
 
 Abstract:
@@ -427,50 +423,228 @@ collection.field_containing('user.description', 'kittens', 'imgur', 'internet').
 
 You can see the fields and [tweet structure here](https://dev.twitter.com/overview/api/tweets).
 
-#### Only get geotagged tweets
+## geo_enabled
+
+Adds a filter to a collection object that only returns geo tweets.
+
+Abstract:
 ```python
 collection.geo_enabled()
 ```
 
-#### Only get non-geotagged tweets
+Chained:
+```python
+collection.collection.geo_enabled().texts()
+```
+
+*Returns* a collection object that only contains tweets that have geo location enabled.
+
+## non_geo_enabled
+
+Abstract:
 ```python
 collection.non_geo_enabled()
 ```
 
-#### Sorting by time
+Chained:
 ```python
-collection.sort('timestamp',-1)
+collection.collection.non_geo_enabled().texts()
 ```
 
-#### Only get the latest 10 tweets
+*Returns* a collection object that only contains tweets that do not have geo location enabled.
+
+## limit
+
+Abstract:
+```python
+collection.limit(NUMBER-TO-LIMIT)
+```
+
+Practical:
+```python
+collection.limit(10)
+```
+
+Chained:
 ```python
 collection.sort('timestamp',-1).limit(10).texts()
 ```
 
-#### Counting top entities
-#####top 10 hashtags on a given day
+*Returns* a collection object that only contains the number of tweets specified by the limit. This is not a random sample. It should just get the first 10 tweets returned.
+
+```python
+collection.sort('timestamp',-1).limit(10).texts()
+```
+
+## top_hashtags
+
+Gets the top hashtags
+
+Abstract:
+```python
+counts = collection.top_hashtags(n=NUMBEROFHASHTAGS)
+```
+
+Practical:
+```python
+counts = collection.top_hashtags(n=10)
+```
+
+Chained:
 ```python
 counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_hashtags(n=10)
 ```
 
-#####top bigrams in the last hour
+*Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top hashtags
+
+## top_unigrams, top_bigrams, top_trigrams
+
+Abstract:
 ```python
-counts = collection.since(datetime.utcnow()-timedelta(hours=1)).top_bigrams(n=5)
+counts = collection.top_unigrams(n=NUMBER-UNIGRAMS)
+# or
+counts = collection.top_bigrams(n=NUMBER-BIGRAMS)
+# or
+counts = collection.top_trigrams(n=NUMBER-TRIGRAMS)
 ```
 
-#####top urls
+Practical:
+```python
+counts = collection.top_unigrams(n=5)
+# or
+counts = collection.top_bigrams(n=5)
+# or
+counts = collection.top_trigrams(n=5)
+```
+
+Chained:
+```python
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_unigrams(n=5)
+# or
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_bigrams(n=5)
+# or
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_trigrams(n=5)
+```
+
+*Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top unigrams, bigrams, or trigrams.
+
+## top_urls
+
+Gets the urls from the entities field of a tweet object. The difference between this and top_links is that top links gets both urls and media references.
+
+```python
+counts = collection.top_urls(n=NUMBERURLS)
+```
+
+Practical:
 ```python
 counts = collection.top_urls(n=10)
 ```
 
-#####other `top_x` methods
-* `top_unigrams()`
-* `top_trigrams()`
-* `top_images()`
-* `top_mentions()`
-* `top_links()`
-* `top_user_locations()`
-* `top_geolocation_names()`
+Chained:
+```python
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_urls(n=10)
+```
+
+*Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top urls.
+
+## top_images
+
+```python
+counts = collection.top_images(n=NUMBERIMAGES)
+```
+
+Practical:
+```python
+counts = collection.top_images(n=10)
+```
+
+Chained:
+```python
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_images(n=10)
+```
+
+*Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top images.
+
+## top_mentions
+
+Gets the top twitter mentions, other twitter screen names marked with @ symbols in front of them. So it gets the X many most mentioned people in a collection.
+
+```python
+counts = collection.top_mentions(n=NUMBERMENTIONS)
+```
+
+Practical:
+```python
+counts = collection.top_mentions(n=10)
+```
+
+Chained:
+```python
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_mentions(n=10)
+```
+
+*Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top mentions.
+
+## top_links
+
+Gets the urls and media references from the entities field of a tweet object. The difference between this and top_urls is that top urls gets only urls.
+
+```python
+counts = collection.top_links(n=NUMBERLINKS)
+```
+
+Practical:
+```python
+counts = collection.top_links(n=10)
+```
+
+Chained:
+```python
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_links(n=10)
+```
+
+*Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top links.
+
+## top_user_locations
+
+Gets the top locations methioned in the user's location field in the [user object](https://dev.twitter.com/overview/api/users) inside each [tweet object](https://dev.twitter.com/overview/api/tweets).
+
+```python
+counts = collection.top_user_locations(n=NUMBERLOCATIONS)
+```
+
+Practical:
+```python
+counts = collection.top_user_locations(n=10)
+```
+
+Chained:
+```python
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_user_locations(n=10)
+```
+
+*Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top user locations.
+
+## top_geolocation_names
+
+If the place field exists inside a [tweet object](https://dev.twitter.com/overview/api/tweets) object. Then this will return the top X places on geolocated tweets.
+
+```python
+counts = collection.top_geolocation_names(n=NUMBERLOCATIONS)
+```
+
+Practical:
+```python
+counts = collection.top_geolocation_names(n=10)
+```
+
+Chained:
+```python
+counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_geolocation_names(n=10)
+```
+
+*Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top geolocation names.
 
 #####Multiple top_x methods in one go
 The function `top_entities(...)` returns a dictionary object with `pandas.Series` objects for each top entity list
@@ -591,6 +765,38 @@ Out[]:
 2015-04-16 17:05:00           504           756
 2015-04-16 17:06:00           264           365
 ```
+
+## Mongo Collection Functions 
+
+## sort
+
+Sorts tweets inside a collection by a particular field.
+
+Abstract:
+```python
+collection.sort('FIELD', ORDER)
+```
+
+Practical:
+```python
+collection.sort('timestamp',-1)
+collection.sort('timestamp', 1)
+```
+
+Chained:
+```python
+collection.sort('timestamp',-1).limit(10).texts()
+```
+
+*Returns* a collection where the tweets are sorted by the given field.
+
+You can check out the `ORDER` [here](http://api.mongodb.org/python/current/api/pymongo/collection.html).  
+
+-1 means sort in DESCENDING order.
+ 1 means sort in ASCENDING order.
+
+## BSON Collection Functions
+
 
 ### Visualizations
 The `smapp_toolkit.plotting` module has functions that can make canned visualizations of the data generated by the functions above.

@@ -212,7 +212,7 @@ Chained:
 collection.containing('#bieber').sample(0.33).texts()
 ```
 
-*Returns* a collection object that will now havea filter to only return then number of tweets as deteremined by the sample randomly.
+*Returns* a collection object that will now have a filter to only return then number of tweets as deteremined by the sample randomly.
 
 ## apply_labels
 
@@ -281,47 +281,151 @@ After you run this method each tweet object in your output BSON will now have a 
 
 ## Mongo Collection Functions
 
-#### Select tweets from a certain time span
+## since
+
+Abstract:
+```python
+collection.since(DATETIME)
+```
+
+Practical:
+```python
+collection.since(datetime(2014,1,30))
+```
+
+Chained:
 ```python
 from datetime import datetime
 collection.since(datetime(2014,1,30)).count()
 collection.since(datetime(2014,2,16)).until(datetime(2014,2,19)).containing('obama').texts()
 ```
 
-Note that both 'since(...)' and 'until(...)' are exclusive (ie, they are GT/> and LT/<, respectively, not GTE/>= or LTE/<=)
-This means that since(datetime(2014, 12, 24)) will return tweets after EXACTLY 12/24/2014 00:00:00 (M/D/Y H:M:S).
-Datetimes may be specified to the second: datetime(2014, 12, 24, 6, 30, 25) is 6:30 and 25 seconds AM Universal Timezone.
-If time (hours, minutes, etc) is not specified, time defaults 00:00:00.
+*Returns* a collection object with the added filter that it will only return objects after a certain date.
 
-#### Select tweets authored in a certain language
+Check out a reference on [datetime here](https://pymotw.com/2/datetime/).
+
+## until
+
+Abstract:
+```python
+collection.until(DATETIME)
+```
+
+Practical:
+```python
+collection.until(datetime(2014,1,30))
+```
+
+Chained:
+```python
+from datetime import datetime
+collection.until(datetime(2014,1,30)).count()
+collection.since(datetime(2014,2,16)).until(datetime(2014,2,19)).containing('obama').texts()
+```
+
+Note: that both 'since(...)' and 'until(...)' are exclusive (ie, they are GT/> and LT/<, respectively, not GTE/>= or LTE/<=) This means that since(datetime(2014, 12, 24)) will return tweets after EXACTLY 12/24/2014 00:00:00 (M/D/Y H:M:S). Datetimes may be specified to the second: datetime(2014, 12, 24, 6, 30, 25) is 6:30 and 25 seconds AM Universal Timezone. If time (hours, minutes, etc) is not specified, time defaults 00:00:00.
+
+## language
+
+Gets all tweets tagged by twitter (and not the user themselves) with a certain language. Get's all tweets twitter thinks are in language X (french, english, etc) and returns a new collection object with those tweets.
+
+Abstract:
+```python
+collection.language(LANGUAGE-CODE)
+```
+
+Practical:
+```python
+collection.language('en')
+```
+
+Chained:
 ```python
 collection.language('en').texts()
+collection.language('ru', 'uk') //get tweets in russian or ukranian
 ```
 
-#### Tweets in Russian OR Ukrainian
+Returns a collection with an added filter such that all the tweets returned from the collection will be tweets tagged with that language code.
+
+`LANGUAGE-CODE` You can check out the various language codes on [twitter's API page here](https://dev.twitter.com/rest/reference/get/help/languages).
+
+## user_lang_contains
+
+This gets all tweets tagged where the user has marked their own language preference. So It would look for all users who marked language X (french, english, etc) as their language on their user profile and then get tweets that are fro those users that are present in the collection object.
+
+Abstract:
 ```python
-collection.language('ru', 'uk')
+collection.user_lang_contains('LANGUAGE-CODE', 'LANGUAGE-CODE')
 ```
 
-#### Tweets from users with their stated language preference to French OR German
+Practical:
 ```python
+collection.user_lang_contains('de')
 collection.user_lang_contains('de', 'fr')
 ```
 
-#### Exclude retweets
+Chained:
+```python
+collection.user_lang_contains('de', 'fr').texts()
+collection.user_lang_contains('de', 'fr') //get tweets in German or French
+```
+
+*Returns* a collection with an added filter such that all the tweets returned from the collection will be tweets tagged with that language code.
+
+## excluding_retweets
+Abstract:
+```python
+collection.excluding_retweets()
+```
+
+Chained:
 ```python
 collection.excluding_retweets().count()
 ```
 
-#### Only tweets where the user location indicates they are from new york
+*Returns* a collection object filtered to exclude retweets.
+
+## user_location_containing
+
+This gets tweets where the user locations contains certain location names.
+
+Abstract:
+```python
+collection.user_location_containing('PLACE-NAME', 'PLACE-WORD')
+```
+
+Practical:
 ```python
 collection.user_location_containing('new york', 'nyc')
 ```
 
-#### Only tweets where the user cares about python data analysis
+Chained:
 ```python
-collection.field_containing('user.description', 'python', 'data', 'analysis')
+collection.user_location_containing('new york', 'nyc').texts()
 ```
+
+*Returns* a collection object filtered to only include tweets where the user's location field matches or contains
+
+## field_containing
+
+This method can be used to query a particular field on a tweet object by using dot notation to dig into each sub object or field.
+
+Abstract:
+```python
+collection.field_containing('user.description', 'TERM', 'TERM', 'TERM')
+```
+
+Practical:
+```python
+collection.field_containing('user.description', 'kittens', 'imgur', 'internet')
+```
+
+Chained:
+```python
+collection.field_containing('user.description', 'kittens', 'imgur', 'internet').texts()
+```
+
+You can see the fields and [tweet structure here](https://dev.twitter.com/overview/api/tweets).
 
 #### Only get geotagged tweets
 ```python

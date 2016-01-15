@@ -207,6 +207,11 @@ Abstract:
 collection.sample(FRACTION-OF-1-TO-SAMPLE)
 ```
 
+Practical:
+```python
+collection.sample(0.33)
+```
+
 Chained:
 ```python
 collection.containing('#bieber').sample(0.33).texts()
@@ -646,14 +651,24 @@ counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_geol
 
 *Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top geolocation names.
 
-#####Multiple top_x methods in one go
-The function `top_entities(...)` returns a dictionary object with `pandas.Series` objects for each top entity list
+## top_entities
 
+Top entities lets you do multiple top_x methods in one go and have then all be returned in one data structure.
+
+Abstract:
 ```python
-In []: col = BSONTweetCollection('/home/yablee/Projects/SMAPP/tmp/arabevents_sample.bson')
-In []: top_things = col.top_entities(ngrams=(1,2,3))
-In []: top_things['2-grams']
-Out[]: 
+top_entities_returned = collection.top_entities(n=NUMBERENTITIES, urls=TRUE/FALSE, images=TRUE/FALSE, hts=TRUE/FALSE, mentions=TRUE/FALSE, geolocation_names=TRUE/FALSE, user_locations=TRUE/FALSE, ngrams=(1,2), ngram_stopwords=[], ngram_hashtags=TRUE/FALSE, ngram_mentions=TRUE/FALSE, ngram_rts=TRUE/FALSE, ngram_mts=TRUE/FALSE, ngram_https=TRUE/FALSE)
+```
+
+Practical 1:
+```python
+# get the top unigrams, bigrams, and tri grams and return in a dict()
+top_entities_returned = collection.top_entities(ngrams=(1,2,3))
+```
+
+Output:
+```
+print top_entities_returned['2-grams']
 فيديو قوات          350
 الطوارى السعودية    330
 قوات الطوارى        305
@@ -667,12 +682,35 @@ Out[]:
 dtype: int64
 ```
 
-#####writing `top_x()` results to a csv file
+Practical 2:
+```python
+# get the top 5 hashtags and return in a dict()
+top_entities_returned = collection.top_entities(n=2, hts=True)
+```
 
-All `top_x()` methods return `pandas.DataFrame` objects. They may be easily exported to a csv file, as follows:
+Output:
+```
+print top_entities_returned['hts']
+#obamaisoursavior #oregonmilitia
+```
+
+*Returns* a python dictionary object with [pandas.Series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) objects for each top entity list in the dictionary.
+
+## exporting top_X 
+
+All `top_x()` methods return [pandas.Series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) objects. These are subclasses of [pandas.DataFrame](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html) which can be exported to csv like so:
+
+
+Abstract:
+```python
+hashtags = collection.top_hashtags(n=NUMBER-HASHTAGS)
+hashtags.to_csv('/path/to/my/output.csv', encoding='utf8')
+```
+
+Practical:
 ```python
 hashtags = collection.top_hashtags(n=5)
-hashtags.to_csv('/path/to/my/output.csv', encoding='utf8')
+hashtags.to_csv('~/hashtags-output.csv', encoding='utf8')
 ```
 
 #####top retweets

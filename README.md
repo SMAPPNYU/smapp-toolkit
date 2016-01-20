@@ -10,9 +10,9 @@
 This is an user-friendly python package for interfacing with large collections of tweets. Developped at the SMaPP lab at New York University.
 
 
-[MongoTweetCollection](https://github.com/SMAPPNYU/smapp-toolkit#mongotweetcollection)
-[BSONTweetCollection](https://github.com/SMAPPNYU/smapp-toolkit#bsontweetcollection)
-[Shared Collection Functions](https://github.com/SMAPPNYU/smapp-toolkit#shared-collection-functions)
+-[MongoTweetCollection](https://github.com/SMAPPNYU/smapp-toolkit#mongotweetcollection)
+-[BSONTweetCollection](https://github.com/SMAPPNYU/smapp-toolkit#bsontweetcollection)
+-[Shared Collection Functions](https://github.com/SMAPPNYU/smapp-toolkit#shared-collection-functions)
   -[containing](https://github.com/SMAPPNYU/smapp-toolkit#containing)
   -[count](https://github.com/SMAPPNYU/smapp-toolkit#count)
   -[texts](https://github.com/SMAPPNYU/smapp-toolkit#texts)

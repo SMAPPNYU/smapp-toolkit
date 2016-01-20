@@ -39,6 +39,9 @@ This is an user-friendly python package for interfacing with large collections o
   - [top_geolocation_names](https://github.com/SMAPPNYU/smapp-toolkit#top_geolocation_names)
   - [top_entities](https://github.com/SMAPPNYU/smapp-toolkit#top_entities)
   - [exporting top_x](https://github.com/SMAPPNYU/smapp-toolkit#exporting-top_x)
+- [MongoTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#mongo-collection-functions)
+  - [sort](https://github.com/SMAPPNYU/smapp-toolkit#sort)
+- [BSONTweetCollection Only Functions]
 
 **Supports Python 2.7**
 
@@ -840,7 +843,7 @@ Out[]:
 2015-04-16 17:06:00           264           365
 ```
 
-## Mongo Collection Functions 
+## MongoTweetCollection Only Functions 
 
 ## sort
 
@@ -869,7 +872,7 @@ You can check out the `ORDER` [here](http://api.mongodb.org/python/current/api/p
 -1 means sort in DESCENDING order.
  1 means sort in ASCENDING order.
 
-## BSON Collection Functions
+## BSONTweetCollection Only Functions
 
 
 ### Visualizations

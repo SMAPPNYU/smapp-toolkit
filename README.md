@@ -39,9 +39,9 @@ This is an user-friendly python package for interfacing with large collections o
   - [top_geolocation_names](https://github.com/SMAPPNYU/smapp-toolkit#top_geolocation_names)
   - [top_entities](https://github.com/SMAPPNYU/smapp-toolkit#top_entities)
   - [exporting top_x](https://github.com/SMAPPNYU/smapp-toolkit#exporting-top_x)
-- [MongoTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#mongo-collection-functions)
+- [MongoTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#mongotweetcollection-only-functions)
   - [sort](https://github.com/SMAPPNYU/smapp-toolkit#sort)
-- [BSONTweetCollection Only Functions]
+- [BSONTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#bsontweetcollection-only-functions)
 
 **Supports Python 2.7**
 

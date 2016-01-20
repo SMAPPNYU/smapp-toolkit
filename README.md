@@ -9,6 +9,37 @@
 
 This is an user-friendly python package for interfacing with large collections of tweets. Developped at the SMaPP lab at New York University.
 
+
+[MongoTweetCollection](https://github.com/SMAPPNYU/smapp-toolkit#mongotweetcollection)
+[BSONTweetCollection](https://github.com/SMAPPNYU/smapp-toolkit#bsontweetcollection)
+[Shared Collection Functions](https://github.com/SMAPPNYU/smapp-toolkit#shared-collection-functions)
+  [containing](https://github.com/SMAPPNYU/smapp-toolkit#containing)
+  [count](https://github.com/SMAPPNYU/smapp-toolkit#count)
+  [texts](https://github.com/SMAPPNYU/smapp-toolkit#texts)
+  [term_counts](https://github.com/SMAPPNYU/smapp-toolkit#term_counts)
+  [sample](https://github.com/SMAPPNYU/smapp-toolkit#sample)
+  [apply_labels](https://github.com/SMAPPNYU/smapp-toolkit#apply_labels)
+  [since](https://github.com/SMAPPNYU/smapp-toolkit#since)
+  [until](https://github.com/SMAPPNYU/smapp-toolkit#until)
+  [language](https://github.com/SMAPPNYU/smapp-toolkit#language)
+  [user_lang_contains](https://github.com/SMAPPNYU/smapp-toolkit#user_lang_contains)
+  [excluding_retweets](https://github.com/SMAPPNYU/smapp-toolkit#excluding_retweets)
+  [user_location_containing](https://github.com/SMAPPNYU/smapp-toolkit#user_location_containing)
+  [field_containing](https://github.com/SMAPPNYU/smapp-toolkit#field_containing)
+  [geo_enabled](https://github.com/SMAPPNYU/smapp-toolkit#geo_enabled)
+  [non_geo_enabled](https://github.com/SMAPPNYU/smapp-toolkit#non_geo_enabled)
+  [limit](https://github.com/SMAPPNYU/smapp-toolkit#limit)
+  [top_hashtags](https://github.com/SMAPPNYU/smapp-toolkit#top_hashtags)
+  [top_unigrams top_bigrams top_trigrams](https://github.com/SMAPPNYU/smapp-toolkit#top_unigrams-top_bigrams-top_trigrams)
+  [top_urls](https://github.com/SMAPPNYU/smapp-toolkit#top_urls)
+  [top_images](https://github.com/SMAPPNYU/smapp-toolkit#top_images)
+  [top_mentions](https://github.com/SMAPPNYU/smapp-toolkit#top_mentions)
+  [top_links](https://github.com/SMAPPNYU/smapp-toolkit#top_links)
+  [top_user_locations](https://github.com/SMAPPNYU/smapp-toolkit#top_user_locations)
+  [top_geolocation_names](https://github.com/SMAPPNYU/smapp-toolkit#top_geolocation_names)
+  [top_entities](https://github.com/SMAPPNYU/smapp-toolkit#top_entities)
+  [exporting top_x](https://github.com/SMAPPNYU/smapp-toolkit#exporting-top_x)
+
 **Supports Python 2.7**
 
 ## Installation
@@ -191,17 +222,19 @@ collection.term_counts(['justin', 'miley'], count_by='days', plot=False)
 *Returns* a dictionary where each key is the date and each value is another dictionary.
 In the sub dictionary the keys are the terms you chose and potentially a `_total` field which to be honest I'm not really sure what the _total field does. I know it isn't the total number of tweets. Dictionary looks like so:
 
-```json
+```
 {
  '2015-04-01': {'justin': 1312, 'miley': 837},
  '2015-04-02': {'justin': 3287, 'miley': 932}
 }
 ```
 
-# sample *WARNING DOES NOT WORK*
+# sample 
+
+*WARNING DOES NOT WORK*
 
 Gets a random sample of tweets.
-
+ 
 Abstract:
 ```python
 collection.sample(FRACTION-OF-1-TO-SAMPLE)
@@ -713,9 +746,12 @@ hashtags = collection.top_hashtags(n=5)
 hashtags.to_csv('~/hashtags-output.csv', encoding='utf8')
 ```
 
-#####top retweets
+## top_retweets
+
+Gets the top retweets tweet objects from a certaing collection.
 
 To get the top retweets for a certain collection, use the `top_retweets()` method. Specify which columns (of the original tweet) to include in the result, by passing thr `rt_columns` argument, as follows:
+
 ```python
 top_rts = collection.since(datetime.utcnow()-timedelta(hours=1)).top_retweets(n=10, rt_columns=['user.screen_name', 'user.location', 'created_at', 'text'])
 ```
@@ -1024,7 +1060,7 @@ SMAPP stores tweets in MongoDB databases, and splits the tweets across multiple 
 
 The `smapp-tweet-collection-metadata` document has the following form:
 
-```json
+```
 {
   'document': 'smapp-tweet-collection-metadata',
   'tweet_collections': [

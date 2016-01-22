@@ -995,6 +995,8 @@ collection.dump_json('~/output.json', pretty=True)
 collection.dump_json('~/output.json', pretty=True, append=True)
 ```
 
+*Returns* a file with a json object on each line that is written to disk. It is human readable.
+
 ## MongoTweetCollection Only Functions 
 
 ## sort

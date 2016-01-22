@@ -38,7 +38,9 @@ This is an user-friendly python package for interfacing with large collections o
   - [top_user_locations](https://github.com/SMAPPNYU/smapp-toolkit#top_user_locations)
   - [top_geolocation_names](https://github.com/SMAPPNYU/smapp-toolkit#top_geolocation_names)
   - [top_entities](https://github.com/SMAPPNYU/smapp-toolkit#top_entities)
-  - [top_X to_csv](https://github.com/SMAPPNYU/smapp-toolkit#exporting-top_x)
+  - [top_X to_csv](https://github.com/SMAPPNYU/smapp-toolkit#top_x-to_csv)
+  - [group_by](https://github.com/SMAPPNYU/smapp-toolkit#group_by)
+
 - [MongoTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#mongotweetcollection-only-functions)
   - [sort](https://github.com/SMAPPNYU/smapp-toolkit#sort)
 - [BSONTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#bsontweetcollection-only-functions)
@@ -909,6 +911,90 @@ Note: there is no/minimal chaining on this method. Doing so can create bugs or c
 
 *Returns* a [generator](https://wiki.python.org/moin/Generators) that can be iterated through in a for loop. The generator is split into two parts, a time stamp and a list of tweets. So if you decide to group a collection with tweets spanning an entire day by hours this generator loop should fire 24 times (24 hrs in a day), produce 24 time stamps, and produce 24 lists of tweets. Each list of tweets contains tweets from the time slice of 1 hour you asked for. The same logic from above applies to any time slice.
 
+## dump_csv
+
+Takes a collection and dumps its contents to a csv.
+
+Abstract:
+```python
+collection.dump_csv('/path/to/output.csv')
+```
+
+Practical:
+```python
+collection.dump_csv('~/my_tweets.csv')
+# or 
+# the desired columns may be specified in the `columns=` named argument.
+collection.dump_csv('my_tweets.csv', columns=['id_str', 'user.screen_name', 'user.location', 'user.description', 'text'])
+#or 
+#If the filename specified ends with `.gz`, the output file will be gzipped.
+collection.dump_csv('my_tweets.csv.gz')
+```
+
+*Returns* a csv file that will write to disk. Default columns in this csv should be  ['id_str', 'user.screen_name', 'timestamp', 'text']
+
+## dump_bson_topath
+
+This will dump whole tweets in MongoDB's BSON format into a specified file. Note that BSON is a 'binary' format (it will look a little funny if opened in a text editor). This is the native format for MongoDB's mongodump program. The file is NOT line-separated.
+
+Abstract:
+```python
+collection.dump_bson_topath('/path/to/output.bson')
+```
+
+Practical:
+```python
+collection.dump_bson_topath('~/output.bson')
+```
+This will dump a bson file of tweets. Once you have this bson you can convert it to JSON formatted bson (a file with a json object on each line) with the bsondump tool (if you have it) like so:
+
+ ```sh
+ bsondump output.bson > output.json
+ ```
+
+*Returns* a bson file. This is a binary file and is not human readable.w
+
+## dump_bson
+
+Dumps a json formatted BSON. This is not a binary file. It is a list of json objects stored line by line. (At least I'm pretty sure.) This is why we have `dump_bson` and `dump_bson_topath` because the dump_bson method (this method) was not dumping actual binary bson files.
+
+Abstract:
+```python
+collection.dump_bson('/path/to/output.bson')
+```
+
+Practical:
+```python
+collection.dump_bson('~/output.bson')
+# or
+# to append BSON tweets to the given filename (if file already has tweets)
+collection.dump_bson('~/output.bson', append=True)
+```
+
+*Returns* a file that is written to disk that has a json object on each line. This is human readable.
+
+## dump_json 
+
+*MAY NOT WORK*
+
+This will dump whole tweets in JSON format into a specified file, one tweet per line.
+
+Abstract:
+```python
+collection.dump_json('/path/to/output.json')
+```
+
+Practical:
+```python
+collection.dump_json('~/output.json')
+# or 
+# to append tweets in the collection to an existing file
+collection.dump_json('~/output.json', append=True)
+# to write JSON into pretty, line-broken and properly indented format (takes more space)
+collection.dump_json('~/output.json', pretty=True)
+collection.dump_json('~/output.json', pretty=True, append=True)
+```
+
 ## MongoTweetCollection Only Functions 
 
 ## sort
@@ -1021,63 +1107,9 @@ for tweet in collection.containing('#nyc'):
 ## Exporting
 Here are functions for exporting data from collections to different formats.
 
-### Dumping tweets to a CSV file
-```python
-collection.dump_csv('my_tweets.csv')
-```
-This will dump a CSV with the following columns:
-
-    'id_str', 'user.screen_name', 'timestamp', 'text'
-
-The desired columns may be specified in the `columns=` named argument:
-
-```python
-collection.dump_csv('my_tweets.csv', columns=['id_str', 'user.screen_name', 'user.location', 'user.description', 'text'])
-```
-
-### Dumping tweets to a BSON file
-```python
-dump_bson_topath ('output.bson')
-```
-This will dump a bson file of tweets. Once you have this bson you can convert it to JSON format with the
-bsondump tool (if you have it) like so:
-
- ```sh
- bsondump output.bson > output.json
- ```
-
-The full list of available fields from a tweet may be found on [the twitter REST-API documentation](https://dev.twitter.com/overview/api/tweets). In order to get nested fields (such as the user's location or the user's screen_name), use `user.location`, `user.screen_name`.
-
 ##### tweet coordinates
 For geolocated tweets, in order to get the geolocation out in the csv, add `coordinates.coordinates` to the columns list. This will put the coordinates in [GeoJSON](http://geojson.org/geojson-spec.html#positions) (long, lat) in the column.
 *Alternatively*¸ add `coordinates.coordinates.0` and `coordinates.coordinates.1` to the columns list. This will add two columns with the longitude and latitude in them respectively.
-
-##### gzip compression
-If the filename specified ends with `.gz`, the output file will be gzipped. This typically takes about a 1/3 as much space as a non-compressed file.
-
-```python
-collection.dump_csv('my_tweets.csv.gz')
-```
-
-### Dumping tweets to JSON file
-This will dump whole tweets in JSON format into a specified file, one tweet per line.
-```python
-collection.dump_json('my_json.json')
-```
-
-Available options are:
-* append=True, to append tweets in the collection to an existing file
-* pretty=True, to write JSON into pretty, line-broken and properly indented format (this takes up much more space, so is not recommended for large collections)
-
-### Dumping tweets to raw BSON file
-This will dump whole tweets in MongoDB's BSON format into a specified file. Note that BSON is a 'binary' format (it will look a little funny if opened in a text editor). This is the native format for MongoDB's mongodump program. The file is NOT line-separated.
-
-```python
-collection.dump_bson('my_bson.bson')
-```
-
-Available options are:
-* append=True, to append BSON tweets to the given filename (if file already has tweets)
 
 ### Exporting a retweet graph
 The toolkit supports exporting a retweet graph using the `networkx` library. In the exported graph users are nodes, retweets are directed edges.

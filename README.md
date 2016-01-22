@@ -40,7 +40,10 @@ This is an user-friendly python package for interfacing with large collections o
   - [top_entities](https://github.com/SMAPPNYU/smapp-toolkit#top_entities)
   - [top_X to_csv](https://github.com/SMAPPNYU/smapp-toolkit#top_x-to_csv)
   - [group_by](https://github.com/SMAPPNYU/smapp-toolkit#group_by)
-
+  - [dump_csv](https://github.com/SMAPPNYU/smapp-toolkit#dump_csv)
+  - [dump_bson_topath](https://github.com/SMAPPNYU/smapp-toolkit#dump_bson_topath)
+  - [dump_bson](https://github.com/SMAPPNYU/smapp-toolkit#dump_bson)
+  - [dump_json](https://github.com/SMAPPNYU/smapp-toolkit#dump_json)
 - [MongoTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#mongotweetcollection-only-functions)
   - [sort](https://github.com/SMAPPNYU/smapp-toolkit#sort)
 - [BSONTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#bsontweetcollection-only-functions)

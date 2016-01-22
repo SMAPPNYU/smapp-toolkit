@@ -38,7 +38,7 @@ This is an user-friendly python package for interfacing with large collections o
   - [top_user_locations](https://github.com/SMAPPNYU/smapp-toolkit#top_user_locations)
   - [top_geolocation_names](https://github.com/SMAPPNYU/smapp-toolkit#top_geolocation_names)
   - [top_entities](https://github.com/SMAPPNYU/smapp-toolkit#top_entities)
-  - [exporting top_x](https://github.com/SMAPPNYU/smapp-toolkit#exporting-top_x)
+  - [top_X to_csv](https://github.com/SMAPPNYU/smapp-toolkit#exporting-top_x)
 - [MongoTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#mongotweetcollection-only-functions)
   - [sort](https://github.com/SMAPPNYU/smapp-toolkit#sort)
 - [BSONTweetCollection Only Functions](https://github.com/SMAPPNYU/smapp-toolkit#bsontweetcollection-only-functions)
@@ -627,6 +627,48 @@ counts = collection.since(datetime(2015,1,1)).until(datetime(2015,1,2)).top_ment
 
 *Returns* a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) that contains the top mentions.
 
+## top_retweets
+
+Gets the top retweets tweet objects from a certain collection.
+
+Abstract:
+```python
+top_retweets = collection.top_retweets(n=NUMBER-TOP-RETWEETS, rt_columns=['FIELD-ONE', 'FIELD-TWO', 'ETC'])
+# or 
+top_retweets = collection.top_retweets(n=NUMBER-TOP-RETWEETS)
+```
+
+Practical:
+```python
+top_retweets = collection.top_retweets(n=10, rt_columns=['user.screen_name', 'user.location', 'created_at', 'text'])
+# or 
+top_retweets = collection.top_retweets(n=10)
+```
+
+Chained:
+```
+top_retweets = collection.since(datetime.utcnow()-timedelta(hours=1)).top_retweets(n=10, rt_columns=['user.screen_name', 'user.location', 'created_at', 'text'])
+```
+
+Output:
+```python
+id            count
+123456789     350
+123456444     330
+987654321     305
+987654329     266
+987654323     244
+554286237     236
+554286238     236
+231379283     226
+874827344     185
+482387489     185
+```
+
+`rt_columns` is a python list where each element of the list is a field on a tweet object or a nested/compound field on the tweet object. Specify which columns / fields (of the original tweet) to include in the result, by passing thr `rt_columns` argument. The default columns included are `['user.screen_name', 'created_at', 'text']` if no `rt_columns` argument is passed to the function.
+
+*Returns* a [pandas data frame](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html) which is like a [pandas data series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) except that it is not one dimensional. The data frame has the columns `id` and `count` and any extra columns you sepcified in your `rt_columns` input parameter if there is one.
+
 ## top_links
 
 Gets the urls and media references from the entities field of a tweet object. The difference between this and top_urls is that top urls gets only urls.
@@ -732,9 +774,24 @@ print top_entities_returned['hts']
 
 *Returns* a python dictionary object with [pandas.Series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) objects for each top entity list in the dictionary.
 
-## exporting top_X 
+## top_X to_csv 
 
-All `top_x()` methods return [pandas.Series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) objects. These are subclasses of [pandas.DataFrame](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html) which can be exported to csv like so:
+for exporting top_X methods:
+
+  - [top_hashtags](https://github.com/SMAPPNYU/smapp-toolkit#top_hashtags)
+  - [top_unigrams top_bigrams top_trigrams](https://github.com/SMAPPNYU/smapp-toolkit#top_unigrams-top_bigrams-top_trigrams)
+  - [top_urls](https://github.com/SMAPPNYU/smapp-toolkit#top_urls)
+  - [top_images](https://github.com/SMAPPNYU/smapp-toolkit#top_images)
+  - [top_mentions](https://github.com/SMAPPNYU/smapp-toolkit#top_mentions)
+  - [top_links](https://github.com/SMAPPNYU/smapp-toolkit#top_links)
+  - [top_user_locations](https://github.com/SMAPPNYU/smapp-toolkit#top_user_locations)
+  - [top_geolocation_names](https://github.com/SMAPPNYU/smapp-toolkit#top_geolocation_names)
+
+  and each sub dictionary in:
+
+  - [top_entities](https://github.com/SMAPPNYU/smapp-toolkit#top_entities)
+
+All `top_x()` methods return [pandas.Series](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.Series.html) objects. The only one that doesn't is `top_retweets` which returns a matrix/[pandas data frame](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html) (for some reason?). These are subclasses of [pandas.DataFrame](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html) which can be exported to csv like so:
 
 
 Abstract:
@@ -749,47 +806,46 @@ hashtags = collection.top_hashtags(n=5)
 hashtags.to_csv('~/hashtags-output.csv', encoding='utf8')
 ```
 
-## top_retweets
+## group_by
 
-Gets the top retweets tweet objects from a certaing collection.
+Use the `group_by` method to group tweets by time slices. Supported time slices are `days`, `hours`, `minutes`, and `seconds`. 
 
-To get the top retweets for a certain collection, use the `top_retweets()` method. Specify which columns (of the original tweet) to include in the result, by passing thr `rt_columns` argument, as follows:
-
+Abstract:
 ```python
-top_rts = collection.since(datetime.utcnow()-timedelta(hours=1)).top_retweets(n=10, rt_columns=['user.screen_name', 'user.location', 'created_at', 'text'])
+collection.group_by('TIME-UNIT')
 ```
-The default columns included are `['user.screen_name', 'created_at', 'text']`.
 
-### Grouping by time slice
-Use the `collection.group_by(time_unit)` method to group tweets by time slices. Supported time slices are `days`, `hours`, `minutes`, and `seconds`. Here's a basic example:
-
+Practical:
 ```python
+# counting by time slice
 for time, tweets in collection.group_by('hours'):
     print('{time}: {count}'.format(time=time, count=len(list(tweets))))
 ```
 which outputs:
-```
+```python
 2015-01-12 17:00:00: 13275
 2015-01-12 18:00:00: 23590
 ```
 
-#### Counting tweets per time slice
+Chaining 1: (not sure if this works, *MAY NOT WORK*)
 ```python
-In []: col.since(datetime(2015,6,18,12)).until(datetime(2015,6,18,15)).group_by('hours').count()
-Out[]:
-                      count
+#counting by time slice
+print collection.since(datetime(2015,6,18,12)).until(datetime(2015,6,18,15)).group_by('hours').count()
+```
+which outputs:
+```python
 2015-06-18 12:00:00  164181
 2015-06-18 13:00:00  167129
 2015-06-18 14:00:00  165057
 ```
 
-#### top_x methods grouped by time slice
-The framework also supports `top_x` methods with results grouped by time slice.
-
-Example:
+Chaining 2: (not sure if this works, *MAY NOT WORK*)
 ```python
-collection.since(datetime(2015,6,1)).group_by('days').top_user_locations(n=5)
-
+# countng user locations by time slice
+print collection.since(datetime(2015,6,1)).group_by('days').top_user_locations(n=5)
+```
+which outputs:
+```python
   #            London  London, UK  Manchester  Scotland  UK
   # 2015-06-1       4           2           1         1   2
   # 2015-06-2      11           4           9         3   3
@@ -798,19 +854,24 @@ collection.since(datetime(2015,6,1)).group_by('days').top_user_locations(n=5)
   # 2015-06-5      10           3           3         3   3
 ```
 
-#### counting entities in tweets by time slice
+Chaining 3: (not sure if this works, *MAY NOT WORK*)
 ```python
-In []: col.group_by('hours').entities_counts()
-Out[]:
+print collection.group_by('hours').entities_counts()
+```
+which outputs:
+```python
                      _total   url  image  mention  hashtag  geo_enabled  retweet
 2015-01-12 17:00:00   13275   881   1428     6612     2001        10628       15 
 2015-01-12 18:00:00   23590  1668   2509    12091     3575        19019       36
 ```
 
-#### Counting tweet languages over time slice
+Chaining 4: (not sure if this works, *MAY NOT WORK*)
 ```python
-In []: col.since(datetime.utcnow()-timedelta(minutes=10)).until(datetime.utcnow()).group_by('minutes').language_counts(langs=['en', 'es', 'other'])   
-Out[]:
+# counting tweet languages over time slice
+print collection.since(datetime.utcnow()-timedelta(minutes=10)).until(datetime.utcnow()).group_by('minutes').language_counts(langs=['en', 'es', 'other'])   
+```
+which outputs:
+```python
                        en   es  other
 2015-06-18 21:23:00   821   75    113
 2015-06-18 21:24:00  2312  228    339
@@ -825,15 +886,16 @@ Out[]:
 2015-06-18 21:33:00  1508  136    228
 ```
 
-#### Counting number of unique users per time slice
+Chaining 5: (not sure if this works, *MAY NOT WORK*)
 ```python
-In []: from smapp_toolkit.twitter import BSONTweetCollection
-In []: col = BSONTweetCollection('arabevents_sample.bson')
-In []: unique_users = col.group_by('minutes').unique_users()
-In []: tweets = col.group_by('minutes').count()
-In []: unique_users['total tweets'] = tweets['count']
-In []: unique_users
-Out[]: 
+# counting number of unique users per time slice
+unique_users = collection.group_by('minutes').unique_users()
+tweets = collection.group_by('minutes').count()
+unique_users['total tweets'] = tweets['count']
+unique_users
+```
+which outputs:
+```python
                      unique_users  total tweets
 2015-04-16 17:01:00           377           432
 2015-04-16 17:02:00           432           582
@@ -842,6 +904,10 @@ Out[]:
 2015-04-16 17:05:00           504           756
 2015-04-16 17:06:00           264           365
 ```
+
+Note: there is no/minimal chaining on this method. Doing so can create bugs or crashes or worse. This is because the function doesn't return a data type but returns a [generator](https://wiki.python.org/moin/Generators).
+
+*Returns* a [generator](https://wiki.python.org/moin/Generators) that can be iterated through in a for loop. The generator is split into two parts, a time stamp and a list of tweets. So if you decide to group a collection with tweets spanning an entire day by hours this generator loop should fire 24 times (24 hrs in a day), produce 24 time stamps, and produce 24 lists of tweets. Each list of tweets contains tweets from the time slice of 1 hour you asked for. The same logic from above applies to any time slice.
 
 ## MongoTweetCollection Only Functions 
 
@@ -873,6 +939,8 @@ You can check out the `ORDER` [here](http://api.mongodb.org/python/current/api/p
  1 means sort in ASCENDING order.
 
 ## BSONTweetCollection Only Functions
+
+##----- none for now in BSONTweetCollection Only Functions -----
 
 
 ### Visualizations

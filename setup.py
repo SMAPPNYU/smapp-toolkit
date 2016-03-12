@@ -9,7 +9,7 @@ if not sys.version_info.major < 3:
     sys.exit(1)
 
 setup(name='smapp-toolkit',
-      version='0.1.34',
+      version='0.1.35',
       description='NYU SMaPP lab toolkit',
       author='NYU SMaPP',
       license='GPLv2',

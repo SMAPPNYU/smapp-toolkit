@@ -402,13 +402,13 @@ class BaseTweetCollection(object):
         finally:
             outfile.close()
 
-    def dump_json(self, filename, append=False, pure_json=False, pretty=False):
+    def dump_json(self, filename, append=False, pretty=False):
         """
         Dumps the matching tweets in raw Mongo JSON (default) or Pure JSON (pure_json=True)
         format. To append to given filename, pass append=True. To pretty-print (line breaks
         and spacing), pass pretty=True.
         """
-        tweets_to_json(self, filename, append, pure_json, pretty)
+        tweets_to_json(self, filename, append, pretty)
 
     def dump_bson(self, filename, append=False):
         """

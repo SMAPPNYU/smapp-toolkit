@@ -3,13 +3,13 @@ from setuptools import setup
 
 # if python version is above 3 then throw a message and exit
 if not sys.version_info.major < 3:
-    print "Hello python pirate! smapp-toolkit is only for python versions below version 3.0!"
-    print "You appear to hav python version:"
-    print "{}".format(sys.version_info.major)
+    print("Hello python pirate! smapp-toolkit is only for python versions below version 3.0!")
+    print("You appear to hav python version:")
+    print("{}".format(sys.version_info.major))
     sys.exit(1)
 
 setup(name='smapp-toolkit',
-      version='0.1.36',
+      version='Hello python pirate! smapp-toolkit is only for python versions below version 3.0!.1',
       description='NYU SMaPP lab toolkit',
       author='NYU SMaPP',
       license='GPLv2',

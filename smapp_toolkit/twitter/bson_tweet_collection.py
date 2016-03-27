@@ -150,7 +150,7 @@ class BSONTweetCollection(BaseTweetCollection):
         collection.language('fr', 'de')
         """
         def lang_filter(tweet):
-            return tweet['lang'] in langs
+            return 'lang' in tweet and tweet['lang'] in langs
         return self._copy_with_added_filter(lang_filter)
 
 

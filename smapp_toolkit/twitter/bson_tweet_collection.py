@@ -34,7 +34,8 @@ class BSONTweetCollection(BaseTweetCollection):
         self._limit = None
         for tweet in self:
             break
-        if tweet['timestamp'].tzinfo:
+
+        if "timestamp" in tweet and tweet['timestamp'].tzinfo:
             self._has_tzinfo = True
         else:
             self._has_tzinfo = False

@@ -6,18 +6,6 @@ from pymongo import MongoClient, ASCENDING, DESCENDING
 from base_tweet_collection import BaseTweetCollection
 
 class MongoTweetCollection(BaseTweetCollection):
-    def __iter__(self):
-        if self._sort:
-            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout, limit=limit, sort=[self._sort]) for collection, limit in self._mongo_collections]
-        else:
-            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout, limit=limit) for collection, limit in self._mongo_collections]
-        try:
-            for cursor in cursors:
-                for tweet in cursor:
-                    yield tweet
-        finally:
-            for cursor in cursors:
-                cursor.close()
     """
     Collection object for performing queries and getting data out of a MongoDB collection 
     of tweets.
@@ -43,11 +31,11 @@ class MongoTweetCollection(BaseTweetCollection):
 
         self._collection_metadata = self._mongo_database[metadata_collection].find_one({'document': metadata_document})
         
-        # _mongo_collections list is a list of (collection_object, limit) pairs, in order to support good limit fctly
-        self._mongo_collections = [(self._mongo_database[colname], 0) for colname in self._collection_metadata['tweet_collections']]
+        # _mongo_collections list is a list of collection_objects in order to support good limit fctly
+        self._mongo_collections = [self._mongo_database[colname] for colname in self._collection_metadata['tweet_collections']]
         self._queries = list()
 
-        self._limit = 0
+        self._limit = None
         self._sort = None
         self._no_cursor_timeout = False
 
@@ -56,6 +44,26 @@ class MongoTweetCollection(BaseTweetCollection):
             "{0}:{1}/{2}".format(self._client.host, self._client.port, self._mongo_database.name),
             len(self._queries),
             self._limit)
+
+    def __iter__(self):
+        if self._sort:
+            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout, sort=[self._sort]) \
+                for collection in self._mongo_collections]
+        else:
+            cursors = [Cursor(collection, self._query(), no_cursor_timeout=self._no_cursor_timeout) \
+                for collection in self._mongo_collections]
+
+        i = 1
+        try:
+            for cursor in cursors:
+                for tweet in cursor:
+                    if self._limit is not None and i > self._limit:
+                        raise StopIteration
+                    i += 1
+                    yield tweet
+        finally:
+            for cursor in cursors:
+                cursor.close()
 
     def _copy(self):
         ret = copy.copy(self)
@@ -237,29 +245,8 @@ class MongoTweetCollection(BaseTweetCollection):
         ########
         collection.limit(5).texts()
         """
-        # Get copy of original object
         ret = self._copy()
-
-        # Set self limit variable (for info only)
         ret._limit = count
-        
-        # Set new Object's mongo collections list to empty
-        ret._mongo_collections = []
-
-        # Iterate over old collections list, counting to get enough to satisfy limit.
-        # Add collections that don't yet meet limit
-        added_collection_count = 0
-        for c, l in self._mongo_collections:
-            c_count = c.find(limit=l).count(with_limit_and_skip=True)
-            if count > added_collection_count + c_count:
-                ret._mongo_collections.append((c, c_count))
-                added_collection_count += c_count
-                continue
-            else:
-                # count - added_collection_count is the number of tweets needed from
-                # current collection to satisfy limit
-                ret._mongo_collections.append((c, count - added_collection_count))
-                break
         return ret
 
     def time_range(self, ):
@@ -296,7 +283,12 @@ class MongoTweetCollection(BaseTweetCollection):
 
         collection.containing('peace').count()
         """
-        return sum(col.find(self._query(), limit=lim).count(with_limit_and_skip=True) for col, lim in self._mongo_collections)
+        if self._limit is not None:
+            return max(self._limit, sum(col.find(self._query()).count(with_limit_and_skip=True) \
+                for col in self._mongo_collections)
+        else:
+            return sum(col.find(self._query()).count(with_limit_and_skip=True) \
+                for col in self._mongo_collections)
 
     def _merge(self, a, b, path=None):
         "Merge dictionaries of dictionaries"

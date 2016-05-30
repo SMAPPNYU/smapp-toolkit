@@ -285,7 +285,7 @@ class MongoTweetCollection(BaseTweetCollection):
         """
         if self._limit is not None:
             return max(self._limit, sum(col.find(self._query()).count(with_limit_and_skip=True) \
-                for col in self._mongo_collections)
+                for col in self._mongo_collections))
         else:
             return sum(col.find(self._query()).count(with_limit_and_skip=True) \
                 for col in self._mongo_collections)
